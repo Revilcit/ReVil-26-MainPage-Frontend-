@@ -10,7 +10,6 @@ const hasScrambled = { value: false }; // Use object ref pattern or simple let i
 
 export function Hero() {
     const [showText, setShowText] = React.useState(false);
-    const [showPresents, setShowPresents] = React.useState(false);
     const [isButtonHovered, setIsButtonHovered] = React.useState(false);
 
     React.useEffect(() => {
@@ -23,10 +22,6 @@ export function Hero() {
 
         const timer = setTimeout(() => {
             setShowText(true);
-            // Start "Presents" after the first line finishes (approx 3s)
-            setTimeout(() => {
-                setShowPresents(true);
-            }, 3000);
         }, delay);
 
         return () => clearTimeout(timer);
@@ -61,42 +56,38 @@ export function Hero() {
 
                     <div className="mb-6 flex flex-col items-center gap-3 justify-center">
                         <div className="mb-6 flex flex-col items-center gap-3">
-                            {/* First Line */}
                             {showText ? (
-                                <DecryptedText
-                                    text="Department of Cyber Security"
-                                    speed={100}
-                                    maxIterations={20}
-                                    sequential={true} // Enable sequential reveal
-                                    characters="!@#$%^&*()_+"
-                                    className="text-white font-bold text-xs md:text-xl font-mono tracking-[0.3em] uppercase"
-                                    encryptedClassName="text-[#00f0ff] font-bold text-xs md:text-xl font-mono tracking-[0.3em] uppercase"
-                                    animateOn="view"
-                                    revealDirection="start" // Start from left
-                                />
+                                <>
+                                    <DecryptedText
+                                        text="Department of Cyber Security"
+                                        speed={100}
+                                        maxIterations={20}
+                                        characters="!@#$%^&*()_+"
+                                        className="text-white font-bold text-xs md:text-xl font-mono tracking-[0.3em] uppercase"
+                                        encryptedClassName="text-[#00f0ff] font-bold text-xs md:text-xl font-mono tracking-[0.3em] uppercase"
+                                        animateOn="view"
+                                        revealDirection="center"
+                                    />
+                                    <DecryptedText
+                                        text="Presents"
+                                        speed={100}
+                                        maxIterations={20}
+                                        characters="!@#$%^&*()_+"
+                                        className="text-white font-bold text-xs md:text-xl font-mono tracking-[0.5em] uppercase"
+                                        encryptedClassName="text-[#00f0ff] font-bold text-xs md:text-xl font-mono tracking-[0.5em] uppercase"
+                                        animateOn="view"
+                                        revealDirection="center"
+                                    />
+                                </>
                             ) : (
-                                <span className="text-white font-bold text-xs md:text-xl font-mono tracking-[0.3em] uppercase opacity-0">
-                                    Department of Cyber Security
-                                </span>
-                            )}
-
-                            {/* Second Line */}
-                            {showPresents ? (
-                                <DecryptedText
-                                    text="Presents"
-                                    speed={100}
-                                    maxIterations={20}
-                                    sequential={true} // Enable sequential reveal
-                                    characters="!@#$%^&*()_+"
-                                    className="text-white font-bold text-xs md:text-xl font-mono tracking-[0.5em] uppercase"
-                                    encryptedClassName="text-[#00f0ff] font-bold text-xs md:text-xl font-mono tracking-[0.5em] uppercase"
-                                    animateOn="view"
-                                    revealDirection="start" // Start from left
-                                />
-                            ) : (
-                                <span className="text-white font-bold text-xs md:text-xl font-mono tracking-[0.5em] uppercase opacity-0">
-                                    Presents
-                                </span>
+                                <>
+                                    <span className="text-white font-bold text-xs md:text-xl font-mono tracking-[0.3em] uppercase opacity-0">
+                                        Department of Cyber Security
+                                    </span>
+                                    <span className="text-white font-bold text-xs md:text-xl font-mono tracking-[0.5em] uppercase opacity-0">
+                                        Presents
+                                    </span>
+                                </>
                             )}
                         </div>
                     </div>

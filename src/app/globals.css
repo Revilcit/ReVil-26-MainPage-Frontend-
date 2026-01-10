@@ -35,7 +35,7 @@
   /* Stone 400 */
 }
 
-@theme {
+@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
@@ -193,7 +193,14 @@ body {
 
 @media (pointer: fine) {
 
-  * {
+  html,
+  body,
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  [role="button"] {
     cursor: none !important;
   }
 }
