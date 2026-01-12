@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { FaInstagram } from "react-icons/fa";
 
 export function Footer() {
     return (
         <footer className="bg-black border-t border-primary/20 pt-16 pb-8">
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                    
                     {/* Brand */}
                     <div className="space-y-4">
                         <h2 className="text-2xl font-bold">
@@ -42,7 +44,10 @@ export function Footer() {
                             <li>Sarathy Nagar, Kundrathur</li>
                             <li>Chennai - 600069</li>
                             <li>
-                                <a href="mailto:contact@revil.com" className="hover:text-primary">
+                                <a
+                                    href="mailto:contact@revil.com"
+                                    className="hover:text-primary"
+                                >
                                     contact@revil.com
                                 </a>
                             </li>
@@ -53,19 +58,34 @@ export function Footer() {
                     <div>
                         <h3 className="text-white font-bold mb-4">Follow Us</h3>
                         <div className="flex space-x-4 mb-6">
-                            {/* Add social icons here later */}
-                            <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-primary border border-primary/30">
-                                X
-                            </div>
-                            <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-primary border border-primary/30">
+                            
+                            {/* Instagram */}
+                            <Link
+                                href="https://www.instagram.com/revil_cit"
+                                target="_blank"
+                                aria-label="Instagram"
+                                className="w-8 h-8 bg-gray-800 rounded-full 
+                                           flex items-center justify-center 
+                                           text-primary border border-primary/30
+                                           hover:bg-primary hover:text-black
+                                           transition-all"
+                            >
+                                <FaInstagram size={16} />
+                            </Link>
+
+                            {/* LinkedIn (unchanged) */}
+                            <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-primary border border-primary/30 hover:bg-primary hover:text-black
+                                           transition-all">
                                 In
                             </div>
                         </div>
+
                         <p className="text-xs text-gray-600">
                             © {new Date().getFullYear()} REVIL Symposium.
                             <br />All rights reserved.
                         </p>
                     </div>
+
                 </div>
             </div>
         </footer>
