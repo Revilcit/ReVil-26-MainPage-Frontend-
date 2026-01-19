@@ -145,11 +145,11 @@ export async function registerForEvent(
 }
 
 /**
- * Fetch all events
+ * Fetch all events (regular events only, excludes workshops)
  */
 export async function fetchEvents(): Promise<import("@/types/api").Event[]> {
   try {
-    const response = await fetch(`${API_URL}/api/events`, {
+    const response = await fetch(`${API_URL}/api/events?eventType=event`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -157,6 +157,31 @@ export async function fetchEvents(): Promise<import("@/types/api").Event[]> {
 
     if (!response.ok) {
       throw new Error(`Failed to fetch events: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.data || data;
+  } catch (error) {
+    if (error instanceof TypeError && error.message === "Failed to fetch") {
+      throw new Error("SERVER_OFFLINE");
+    }
+    throw error;
+  }
+}
+
+/**
+ * Fetch all workshops
+ */
+export async function fetchWorkshops(): Promise<import("@/types/api").Event[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/events?eventType=workshop`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch workshops: ${response.statusText}`);
     }
 
     const data = await response.json();
