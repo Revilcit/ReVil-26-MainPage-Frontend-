@@ -312,21 +312,16 @@ export default function DashboardPage() {
                               reg.registrationStatus === "attended"
                                 ? "bg-green-500/20 text-green-400"
                                 : reg.registrationStatus === "confirmed"
-                                ? "bg-blue-500/20 text-blue-400"
-                                : reg.registrationStatus === "cancelled"
-                                ? "bg-red-500/20 text-red-400"
-                                : "bg-yellow-500/20 text-yellow-400"
+                                  ? "bg-blue-500/20 text-blue-400"
+                                  : reg.registrationStatus === "cancelled"
+                                    ? "bg-red-500/20 text-red-400"
+                                    : "bg-yellow-500/20 text-yellow-400"
                             }`}
                           >
                             {reg.registrationStatus.toUpperCase()}
                           </span>
                         </div>
                         <div className="text-sm text-gray-400 space-y-1">
-                          <div>
-                            📅 {new Date(reg.event.date).toLocaleDateString()}
-                          </div>
-                          <div>🕐 {reg.event.startTime}</div>
-                          <div>📍 {reg.event.venue}</div>
                           {reg.isTeamRegistration && reg.teamName && (
                             <div>👥 Team: {reg.teamName}</div>
                           )}
@@ -487,28 +482,6 @@ export default function DashboardPage() {
                 <span>Event:</span>
                 <span className="text-white">
                   {selectedRegistration.event.title}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Date:</span>
-                <span className="text-white">
-                  {selectedRegistration.event.date
-                    ? new Date(
-                        selectedRegistration.event.date
-                      ).toLocaleDateString()
-                    : "TBA"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Time:</span>
-                <span className="text-white">
-                  {selectedRegistration.event.startTime || "TBA"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Venue:</span>
-                <span className="text-white">
-                  {selectedRegistration.event.venue || "TBA"}
                 </span>
               </div>
               {selectedRegistration.isTeamRegistration &&
