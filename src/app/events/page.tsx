@@ -40,6 +40,8 @@ export default function EventsPage() {
     const loadEvents = async () => {
       try {
         const apiEvents = await fetchEvents();
+
+        console.log(apiEvents);
         const transformedEvents: EventViewModel[] = apiEvents.map(
           (event: ApiEvent) => ({
             id: event._id,

@@ -150,7 +150,7 @@ export async function registerForEvent(
  */
 export async function fetchEvents(): Promise<import("@/types/api").Event[]> {
   try {
-
+    
     console.log("Fetching events from API_URL:", API_URL);
     const response = await fetch(`${API_URL}/api/events?eventType=event`, {
       headers: {

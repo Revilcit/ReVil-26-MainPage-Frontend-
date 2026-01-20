@@ -22,7 +22,7 @@ export default function RegisterPage() {
   const [college, setCollege] = useState("");
   const [department, setDepartment] = useState("");
   const [year, setYear] = useState("");
-
+ 
   // Terms acceptance
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
