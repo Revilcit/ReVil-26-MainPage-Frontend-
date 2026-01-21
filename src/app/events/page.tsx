@@ -131,28 +131,35 @@ export default function EventsPage() {
 
   const handleRegisterClick = (eventId?: string) => {
     // Check if user is logged in
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    // const token =
+    //   typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-    if (!token) {
-      toast("Please login to register for events", {
-        icon: "🔐",
-        style: {
-          borderRadius: "10px",
-          background: "#333",
-          color: "#fff",
-        },
-      });
-      router.push("/login");
-      return;
-    }
+    // if (!token) {
+    //   toast("Please login to register for events", {
+    //     icon: "🔐",
+    //     style: {
+    //       borderRadius: "10px",
+    //       background: "#333",
+    //       color: "#fff",
+    //     },
+    //   });
+    //   router.push("/login");
+    //   return;
+    // }
+    toast("Registrations are coming soon!", {
+      style: {
+        borderRadius: "10px",
+        background: "#333",
+        color: "#fff",
+      },
+    });
 
     // Use provided eventId or current event from carousel
-    const targetEventId = eventId || current?.id;
+    // const targetEventId = eventId || current?.id;
 
-    if (targetEventId) {
-      router.push(`/events/${targetEventId}/register`);
-    }
+    // if (targetEventId) {
+    //   router.push(`/events/${targetEventId}/register`);
+    // }
   };
 
   if (loading) {
