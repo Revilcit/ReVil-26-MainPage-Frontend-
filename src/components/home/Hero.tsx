@@ -128,7 +128,7 @@ export function Hero() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 w-full sm:w-auto px-4">
             <Link
-              href="/register"
+              href="/login"
               onMouseEnter={() => setIsButtonHovered(true)}
               onMouseLeave={() => setIsButtonHovered(false)}
               className={`w-full sm:w-auto px-8 py-4 font-bold text-lg transition-all duration-300 rounded-none border text-center border-white ${isButtonHovered ? "bg-transparent text-white" : "bg-white text-black"}`}

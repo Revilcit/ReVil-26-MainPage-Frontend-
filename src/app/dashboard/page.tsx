@@ -87,6 +87,8 @@ export default function DashboardPage() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    // Dispatch custom event to notify other components (like Navbar)
+    window.dispatchEvent(new Event("user-logout"));
     router.push("/login");
   };
 

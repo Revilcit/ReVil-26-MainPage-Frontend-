@@ -153,27 +153,17 @@ export async function registerForEvent(
  */
 export async function fetchEvents(): Promise<import("@/types/api").Event[]> {
   try {
-    console.log("Fetching events from API_URL:", API_URL);
-    const response = await fetch(`${API_URL}/api/events?eventType=event`, {
-      headers: {
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true",
-      },
-    });
-    console.log("Response received:", response);
+    // Read from local JSON file instead of backend
+    const response = await fetch("/events-data.json");
+
     if (!response.ok) {
       throw new Error(`Failed to fetch events: ${response.statusText}`);
     }
 
     const data = await response.json();
-    console.log("Parsed data:", data);
-    console.log("data.data:", data.data);
-    console.log("Returning:", data.data || data);
-    return data.data || data;
+    return data.events || [];
   } catch (error) {
-    if (error instanceof TypeError && error.message === "Failed to fetch") {
-      throw new Error("SERVER_OFFLINE");
-    }
+    console.error("Failed to fetch events from local file:", error);
     throw error;
   }
 }
@@ -183,23 +173,17 @@ export async function fetchEvents(): Promise<import("@/types/api").Event[]> {
  */
 export async function fetchWorkshops(): Promise<import("@/types/api").Event[]> {
   try {
-    const response = await fetch(`${API_URL}/api/events?eventType=workshop`, {
-      headers: {
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true",
-      },
-    });
+    // Read from local JSON file instead of backend
+    const response = await fetch("/workshops-data.json");
 
     if (!response.ok) {
       throw new Error(`Failed to fetch workshops: ${response.statusText}`);
     }
 
     const data = await response.json();
-    return data.data || data;
+    return data.workshops || [];
   } catch (error) {
-    if (error instanceof TypeError && error.message === "Failed to fetch") {
-      throw new Error("SERVER_OFFLINE");
-    }
+    console.error("Failed to fetch workshops from local file:", error);
     throw error;
   }
 }

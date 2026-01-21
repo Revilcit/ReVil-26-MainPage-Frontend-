@@ -74,13 +74,22 @@ export function Navbar() {
 
     fetchUser();
 
-    // Listen for storage changes (login/logout from other tabs or same tab)
+    // Listen for storage changes (login/logout from other tabs)
     const handleStorageChange = () => {
       fetchUser();
     };
 
+    // Listen for custom logout event from dashboard (same tab)
+    const handleLogout = () => {
+      setUser(null);
+    };
+
     window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    window.addEventListener("user-logout", handleLogout);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("user-logout", handleLogout);
+    };
   }, []);
 
   const handleLogout = () => {

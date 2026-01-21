@@ -1,0 +1,201 @@
+{
+  "events": [
+    {
+      "title": "Beneath the Mask",
+      "slug": "beneath-the-mask",
+      "category": "technical",
+      "eventType": "individual",
+      "image": "/events/beneath.png",
+      "type": "Puzzle / Mystery",
+      "description": "A level-based mystery challenge where clues are hidden within ordinary-looking content.",
+      "fullDescription": "Beneath the Mask challenges participants to progress through level-based challenges on a central website, where answers are never found at first glance. Clues are hidden within a separate portfolio-style site and linked social spaces, disguised as ordinary content and subtle details. Success depends on careful observation, patience, and the ability to uncover what lies beneath to unlock each next level.",
+      "teamSize": {
+        "min": 1,
+        "max": 1
+      },
+      "duration": "3 hours",
+      "rules": [
+        "Individual participation only",
+        "No collaboration allowed",
+        "Internet and tools allowed",
+        "Screenshot evidence may be required",
+        "Time-based progression"
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "Escape Room",
+      "slug": "escape-room",
+      "category": "technical",
+      "eventType": "team",
+      "image": "/events/escape-room.jpg",
+      "type": "Technical",
+      "description": "CAN YOU GET OUT ?",
+      "fullDescription": "Escape Room is a technical, team-based challenge where participants work in groups to solve a series of puzzles within a limited time. Across six progressive rounds, teams are tested on logical thinking, technical knowledge, problem-solving ability, and teamwork. Only those who think fast, collaborate well, and adapt quickly can make their escape.",
+      "teamSize": {
+        "min": 3,
+        "max": 5
+      },
+      "duration": "2 hours",
+      "rounds": 6,
+      "rules": [
+        "Teams must consist of 3-5 members",
+        "All team members must be present",
+        "No external help or internet allowed",
+        "Time limit strictly enforced",
+        "Decisions by organizers are final"
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "CTF – Trial of the Creed",
+      "slug": "ctf-trial-of-the-creed",
+      "category": "technical",
+      "eventType": "individual",
+      "image": "/events/creed.jpeg",
+      "type": "Cyber Security",
+      "description": "A lore-driven Capture the Flag challenge inspired by Assassin's Creed.",
+      "fullDescription": "Step into the role of a young Templar knight in a lore-driven Capture the Flag challenge set in a land of ancient runes and hidden technology. Explore forgotten paths, uncover secrets, and follow clues buried within the shadows of rival orders. Your mission is to observe, decode, and return with the truth—before the past claims you.",
+      "teamSize": {
+        "min": 1,
+        "max": 2
+      },
+      "duration": "3 hours",
+      "rules": [
+        "Individual or pair participation",
+        "Standard CTF rules apply",
+        "Flag submission required",
+        "Write-ups encouraged",
+        "No attacking infrastructure"
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "OH-SIN-T",
+      "slug": "oh-sin-t",
+      "category": "technical",
+      "eventType": "individual",
+      "image": "/events/oh-sint.jpg",
+      "type": "Forensics",
+      "description": "Participants act as SOC analysts, examining logs to identify suspicious activity.",
+      "fullDescription": "This event puts your internet awareness and problem-solving skills to the test through a series of unique and unpredictable challenges. Participants must navigate unfamiliar paths, question every detail, and search carefully for hidden clues. Success lies in finding the needle in the haystack by thinking critically and exploring beyond the obvious.",
+      "teamSize": {
+        "min": 1,
+        "max": 1
+      },
+      "duration": "2 hours",
+      "rules": [
+        "Individual participation only",
+        "OSINT tools and techniques allowed",
+        "Document your findings",
+        "Ethical investigation only",
+        "No illegal activities"
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "Project Sherlocks – Log Trace",
+      "slug": "project-sherlocks",
+      "category": "technical",
+      "eventType": "team",
+      "image": "/events/sherlocks.jpg",
+      "type": "Investigation",
+      "description": "Trace digital evidence through logs to reconstruct hidden incidents.",
+      "fullDescription": "PROJECT SHERLOCKS includes LOG TRACE, CTF - Trial of the Creed, and OH-SIN-T challenges. Teams act as investigators, analyzing evidence, solving puzzles, and uncovering hidden truths through technical skills and critical thinking. Participants act as SOC analysts, analyzing log files to identify suspicious activity and possible cyber-attacks. They evaluate evidence and patterns to determine the nature and impact of incidents.",
+      "teamSize": {
+        "min": 2,
+        "max": 3
+      },
+      "duration": "4 hours",
+      "subEvents": ["LOG TRACE", "CTF - Trial of the Creed", "OH-SIN-T"],
+      "rules": [
+        "Teams of 2-3 members",
+        "All sub-events are mandatory",
+        "Technical knowledge required",
+        "Internet and tools allowed",
+        "Ethical hacking practices only"
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "Crime Chronicles",
+      "slug": "crime-chronicles",
+      "category": "non-technical",
+      "eventType": "team",
+      "image": "/events/crime.jpg",
+      "type": "Analytical",
+      "description": "Analyze photographs and clues to reconstruct crimes.",
+      "fullDescription": "Teams are given a set of shuffled photographs and a crime description that must be correctly matched and arranged to reconstruct the story. By analyzing visual clues and sequence, participants identify the victim, the killer, and the method of the crime. Success depends on logical reasoning, teamwork, and sharp observation within the given time limit.",
+      "teamSize": {
+        "min": 2,
+        "max": 4
+      },
+      "duration": "1.5 hours",
+      "rules": [
+        "Teams of 2-4 members",
+        "Time limit strictly enforced",
+        "No external help",
+        "All clues provided in materials",
+        "Clear reasoning required"
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "Paper Presentation",
+      "slug": "paper-presentation",
+      "category": "technical",
+      "eventType": "team",
+      "image": "/events/paper.jpg",
+      "type": "Academic",
+      "description": "Teams present technical papers evaluated on clarity and originality.",
+      "fullDescription": "Paper Presentation is a technical, team-based event where participants work in teams of two to present their ideas on given topics. Teams are evaluated on subject knowledge, clarity, originality, presentation skills, and response to questions. Presentations are judged individually, and the team delivering the most effective and impactful presentation is awarded Best Presenter.",
+      "teamSize": {
+        "min": 2,
+        "max": 2
+      },
+      "duration": "3 hours",
+      "presentationTime": "10-15 minutes",
+      "rules": [
+        "Exactly 2 members per team",
+        "10-15 minutes presentation",
+        "5 minutes Q&A",
+        "Topics announced in advance",
+        "Plagiarism results in disqualification",
+        "Laptop and projector provided"
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "Pixel Palette",
+      "slug": "pixel-palette",
+      "category": "creative",
+      "eventType": "individual",
+      "image": "/events/pixel-palette.png",
+      "type": "Creative",
+      "description": "A creative poster design event focused on visual storytelling.",
+      "fullDescription": "Pixel Palette is a creative event that challenges participants to communicate ideas visually with clarity and impact. Participants design an engaging poster based on the given theme, focusing on creativity, originality, and effective visual storytelling. Entries are evaluated on design aesthetics, relevance to the theme, clarity of message, and overall presentation.",
+      "teamSize": {
+        "min": 1,
+        "max": 1
+      },
+      "duration": "2 hours",
+      "rules": [
+        "Individual participation only",
+        "Digital poster design",
+        "Theme revealed at start",
+        "Original work only",
+        "Design software allowed",
+        "Submit in specified format"
+      ],
+      "status": "upcoming",
+      "isActive": true
+    }
+  ]
+}

@@ -88,7 +88,7 @@ export default function WorkshopsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
               {workshops.map((workshop, index) => (
                 <m.div
-                  key={workshop._id}
+                  key={workshop.slug || workshop._id || workshop.title || index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
