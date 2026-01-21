@@ -12,7 +12,7 @@ export default function AboutPage() {
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-10 animate-pulse"></div>
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10"></div>
 
-      <div className="relative mb-24 flex flex-col items-center gap-0 max-w-[90%] mx-auto mt-10 z-50">
+      <div className="relative mb-24 flex flex-col items-center gap-0 max-w-[90%] mx-auto mt-10">
         <div className="w-full relative flex justify-center">
           <div className="relative w-full max-w-[400px]">
             <img

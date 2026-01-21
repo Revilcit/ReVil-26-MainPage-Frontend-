@@ -110,23 +110,193 @@ export function Navbar() {
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className="fixed top-4 left-0 w-full z-50 md:top-8 px-4 md:px-8 pointer-events-none"
     >
-      <div className="pointer-events-auto w-full flex items-center justify-between gap-4">
-        <div className="flex-1 md:flex-initial">
-          <PillNav
-            logo="/revil_icon.png"
-            logoAlt="REVIL"
-            items={navItems}
-            className="!relative !top-0 !left-0 !translate-x-0 !w-full md:!w-max rounded-full shadow-lg"
-            ease="power2.easeOut"
-            baseColor="transparent"
-            pillColor="#333"
-            pillTextColor="#ffffff"
-            hoveredPillTextColor="#00f0ff"
-          />
+      <div className="pointer-events-auto w-full flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4">
+        {/* Navigation and Profile Container */}
+        <div className="flex items-center justify-between gap-3 w-full md:w-auto">
+          <div className="flex-1 md:flex-initial">
+            <PillNav
+              logo="/revil_icon.png"
+              logoAlt="REVIL"
+              items={navItems}
+              className="!relative !top-0 !left-0 !translate-x-0 !w-full md:!w-max rounded-full shadow-lg [&_button]:!bg-primary/80 [&_button]:!border-2 [&_button]:!border-primary [&_button]:hover:!bg-primary [&_button]:!shadow-[0_0_20px_rgba(0,240,255,0.3)]"
+              ease="power2.easeOut"
+              baseColor="transparent"
+              pillColor="#333"
+              pillTextColor="#ffffff"
+              hoveredPillTextColor="#00f0ff"
+            />
+          </div>
+
+          {/* Profile Section - Desktop and Mobile */}
+          <div className="relative md:hidden">
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="flex items-center justify-center bg-black/50 backdrop-blur-md border border-primary/20 rounded-full w-10 h-10 hover:border-primary/50 hover:bg-primary/10 transition-colors"
+                >
+                  <div className="w-7 h-7 rounded-full overflow-hidden bg-primary/20 flex items-center justify-center">
+                    <img
+                      src={getProfilePicture(user)}
+                      alt={user.name || "User"}
+                      className="w-full h-full object-cover"
+                      onError={handleImageError(user.name)}
+                    />
+                  </div>
+                </button>
+
+                {/* Dropdown Menu - Mobile */}
+                {showDropdown && (
+                  <div className="absolute right-0 mt-2 w-64 bg-black/90 backdrop-blur-md border border-primary/20 rounded-lg shadow-xl overflow-hidden">
+                    <div className="p-4 border-b border-primary/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full overflow-hidden bg-primary/20 flex items-center justify-center">
+                          <img
+                            src={getProfilePicture(user)}
+                            alt={user.name || "User"}
+                            className="w-full h-full object-cover"
+                            onError={handleImageError(user.name)}
+                          />
+                        </div>
+                        <div className="flex-1 overflow-hidden">
+                          <p className="text-white font-bold text-sm truncate">
+                            {user.name || "User"}
+                          </p>
+                          <p className="text-gray-400 text-xs truncate">
+                            {user.email || ""}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-2">
+                      <button
+                        onClick={() => {
+                          setShowDropdown(false);
+                          router.push("/dashboard");
+                        }}
+                        className="w-full text-left px-4 py-2 text-white hover:bg-primary/10 rounded transition-colors flex items-center gap-2"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
+                        </svg>
+                        Dashboard
+                      </button>
+                      {user.role === "admin" && (
+                        <button
+                          onClick={() => {
+                            setShowDropdown(false);
+                            router.push("/admin");
+                          }}
+                          className="w-full text-left px-4 py-2 text-primary hover:bg-primary/10 rounded transition-colors flex items-center gap-2"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                          Admin Panel
+                        </button>
+                      )}
+                      {/* QR Scanner - for staff roles */}
+                      {(user.role === "admin" ||
+                        user.role === "registration-team" ||
+                        user.role === "event-team") && (
+                        <button
+                          onClick={() => {
+                            setShowDropdown(false);
+                            router.push("/checkin");
+                          }}
+                          className="w-full text-left px-4 py-2 text-cyan-400 hover:bg-cyan-500/10 rounded transition-colors flex items-center gap-2"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                            />
+                          </svg>
+                          QR Scanner
+                        </button>
+                      )}
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-red-400 hover:bg-red-500/10 rounded transition-colors flex items-center gap-2"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                          />
+                        </svg>
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => router.push("/login")}
+                className="bg-primary text-black font-bold w-10 h-10 rounded-full hover:bg-white transition-colors shadow-lg hover:shadow-xl flex items-center justify-center"
+                title="Sign In"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Profile Section */}
-        <div className="relative">
+        {/* Desktop Profile Section */}
+        <div className="relative hidden md:block ml-auto">
           {user ? (
             <div className="relative">
               <button
@@ -141,7 +311,7 @@ export function Navbar() {
                     onError={handleImageError(user.name)}
                   />
                 </div>
-                <span className="text-white text-sm font-medium hidden md:block">
+                <span className="text-white text-sm font-medium">
                   {user.name?.split(" ")[0] || "User"}
                 </span>
                 <svg
@@ -161,7 +331,7 @@ export function Navbar() {
                 </svg>
               </button>
 
-              {/* Dropdown Menu */}
+              {/* Dropdown Menu - Desktop */}
               {showDropdown && (
                 <div className="absolute right-0 mt-2 w-64 bg-black/90 backdrop-blur-md border border-primary/20 rounded-lg shadow-xl overflow-hidden">
                   <div className="p-4 border-b border-primary/10">
