@@ -114,7 +114,14 @@ export default function BuildingCheckInPage() {
         // Add to recent scans
         setRecentScans((prev) => [checkInData, ...prev].slice(0, 10));
       } catch (error) {
-        console.error("Check-in error:", error);
+        console.error("Building Check-in Scan Failed:", {
+          error: error,
+          errorMessage:
+            error instanceof Error ? error.message : "Unknown error",
+          qrCode: decodedText,
+          timestamp: new Date().toISOString(),
+          scanType: "building",
+        });
         const errorResult: CheckInData = {
           success: false,
           message: error instanceof Error ? error.message : "Check-in failed",

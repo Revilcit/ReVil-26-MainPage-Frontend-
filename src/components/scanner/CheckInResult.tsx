@@ -52,6 +52,15 @@ export default function CheckInResult({
   const isAlreadyCheckedIn = result.success && result.alreadyCheckedIn;
   const isError = !result.success;
 
+  // Log error details to console for debugging
+  if (isError) {
+    console.error("Check-in Error:", {
+      message: result.message,
+      fullResult: result,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -60,8 +69,8 @@ export default function CheckInResult({
         isSuccess
           ? "border-green-500"
           : isAlreadyCheckedIn
-          ? "border-yellow-500"
-          : "border-red-500"
+            ? "border-yellow-500"
+            : "border-red-500"
       }`}
     >
       {/* Status Icon */}
@@ -141,15 +150,15 @@ export default function CheckInResult({
           isSuccess
             ? "text-green-400"
             : isAlreadyCheckedIn
-            ? "text-yellow-400"
-            : "text-red-400"
+              ? "text-yellow-400"
+              : "text-red-400"
         }`}
       >
         {isSuccess
           ? "Check-in Successful!"
           : isAlreadyCheckedIn
-          ? "Already Checked In"
-          : "Check-in Failed"}
+            ? "Already Checked In"
+            : "Check-in Failed"}
       </h2>
 
       <p className="text-gray-300 text-center mb-6">{result.message}</p>
