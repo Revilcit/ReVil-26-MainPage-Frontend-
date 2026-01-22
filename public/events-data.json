@@ -138,13 +138,13 @@
       "description": "If you're stuck, try googling it.",
       "fullDescription": "Google Is Your Best Source is an OSINT-based challenge where you'll rely on your googling skills to find the answers to the various questions posed to you.",
       "teamSize": {
-        "min": 1,
+        "min": 2,
         "max": 2
       },
-      "duration": "3 hours (4 x 45 minutes)",
+      "duration": "45 minutes",
       "rules": [
-        "This event will be conducted in 4 batches of 45 minutes each, where teams will be randomly assigned to a batch. Each batch will have 4 categories - GEOsint, Social Media, Pop Culture and Sports.",
-        "Only one laptop is allowed per team.",
+        "This event will be conducted for 45 minutes, where teams will be randomly assigned to a batch. Each batch will have 4 categories - GEOsint, Social Media, Pop Culture and Sports.",
+        "2 laptops per team is required.",
         "Having an Ethernet Port/Adapter is encouraged.",
         "A timer will begin once the batch is underway and will automatically end after 45 minutes.",
         "Participants are allowed to use AI tools such as ChatGPT, Gemini, Claude, etc.",

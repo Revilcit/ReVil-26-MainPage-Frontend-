@@ -113,12 +113,12 @@ export default function LoginPage() {
             {loading ? "Authenticating..." : "Sign in with Google"}
           </button>
 
-          <div className="bg-primary/5 border border-primary/20 p-4 rounded">
+          {/* <div className="bg-primary/5 border border-primary/20 p-4 rounded">
             <p className="text-gray-400 text-sm text-center">
               <span className="text-primary font-bold">Secure OAuth 2.0</span>{" "}
               authentication via Google
             </p>
-          </div>
+          </div> */}
 
           <p className="text-center text-xs text-gray-500 mt-6">
             First time here? Don&apos;t worry, signing in will automatically
