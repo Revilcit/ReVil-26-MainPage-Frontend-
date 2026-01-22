@@ -13,6 +13,7 @@ export default function ContactPage() {
     message: "",
   });
   const [isMounted, setIsMounted] = useState(false);
+  const [isMessageSent, setIsMessageSent] = useState(false);
   // Simplified animation state just for content fade
   const [animationState, setAnimationState] = useState<"initial" | "finished">(
     "initial",
@@ -29,7 +30,25 @@ export default function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Message sent! (Simulation)");
+    console.log(
+      "%cMESSAGE TRANSMISSION STATUS",
+      "color: #00ff00; font-size: 16px; font-weight: bold; text-shadow: 0 0 5px #00ff00;"
+    );
+    console.log(
+      "%cALERT: Backend not implemented yet!",
+      "color: #ffff00; font-size: 14px; font-weight: bold;"
+    );
+    console.log(
+      "%cYour message has been successfully sent to... the void.\n\n" +
+      "Don't worry though, we'll totally get back to you.\n" +
+      "(Once we build the backend. Eventually. Maybe.)",
+      "color: #00ffff; font-size: 12px; line-height: 1.5;"
+    );
+    console.log(
+      "%c- Revil Payaluga (who promises to implement this... someday)",
+      "color: #ff00ff; font-size: 12px; font-style: italic;"
+    );
+    setIsMessageSent(true);
   };
 
   // Funny console warning
@@ -94,62 +113,91 @@ export default function ContactPage() {
                 particleCount={15}
                 clickEffect={true}
               >
-                <h1 className="text-2xl md:text-4xl font-bold text-primary mb-6 md:mb-8 glitch-text">
-                  CONTACT US
-                </h1>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-mono text-primary mb-2">
-                      <span className="cursor-target">
-                      NAME
-                      </span>
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full bg-black/50 border border-gray-800 focus:border-primary text-white p-3 outline-none transition-colors"
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-mono text-primary mb-2">
-                      <span className="cursor-target">
-                      EMAIL
-                      </span>
-                    </label>
-                    <input
-                      type="email"
-                      className="w-full bg-black/50 border border-gray-800 focus:border-primary text-white p-3 outline-none transition-colors"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-mono text-primary mb-2">
-                      <span className="cursor-target">
-                      MESSAGE
-                      </span>
-                    </label>
-                    <textarea
-                      rows={4}
-                      className="w-full bg-black/50 border border-gray-800 focus:border-primary text-white p-3 outline-none transition-colors"
-                      value={formData.message}
-                      onChange={(e) =>
-                        setFormData({ ...formData, message: e.target.value })
-                      }
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full py-4 bg-primary text-black font-bold hover:bg-white transition-colors"
+                {!isMessageSent ? (
+                  <>
+                    <h1 className="text-2xl md:text-4xl font-bold text-primary mb-6 md:mb-8 glitch-text">
+                      CONTACT US
+                    </h1>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-mono text-primary mb-2">
+                          <span className="cursor-target">
+                          NAME
+                          </span>
+                        </label>
+                        <input
+                          type="text"
+                          className="w-full bg-black/50 border border-gray-800 focus:border-primary text-white p-3 outline-none transition-colors"
+                          value={formData.name}
+                          onChange={(e) =>
+                            setFormData({ ...formData, name: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-mono text-primary mb-2">
+                          <span className="cursor-target">
+                          EMAIL
+                          </span>
+                        </label>
+                        <input
+                          type="email"
+                          className="w-full bg-black/50 border border-gray-800 focus:border-primary text-white p-3 outline-none transition-colors"
+                          value={formData.email}
+                          onChange={(e) =>
+                            setFormData({ ...formData, email: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-mono text-primary mb-2">
+                          <span className="cursor-target">
+                          MESSAGE
+                          </span>
+                        </label>
+                        <textarea
+                          rows={4}
+                          className="w-full bg-black/50 border border-gray-800 focus:border-primary text-white p-3 outline-none transition-colors"
+                          value={formData.message}
+                          onChange={(e) =>
+                            setFormData({ ...formData, message: e.target.value })
+                          }
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        className="w-full py-4 bg-primary text-black font-bold hover:bg-white transition-colors"
+                      >
+                        TRANSMIT MESSAGE
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="flex flex-col items-center justify-center h-full text-center space-y-6"
                   >
-                    TRANSMIT MESSAGE
-                  </button>
-                </form>
+                    <h2 className="text-2xl md:text-4xl font-bold text-primary glitch-text">
+                      MESSAGE SENT
+                    </h2>
+                    <p className="text-gray-400 font-mono">
+                      Your transmission was successful.
+                      <br />
+                      We'll be in touch soon.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setIsMessageSent(false);
+                        setFormData({ name: "", email: "", message: "" });
+                      }}
+                      className="mt-4 px-6 py-3 border border-primary text-primary hover:bg-primary hover:text-black transition-colors font-mono"
+                    >
+                      SEND ANOTHER
+                    </button>
+                  </motion.div>
+                )}
               </ParticleCard>
             </TiltedCard>
           </div>
