@@ -63,7 +63,7 @@ export default function AdminEventsPage() {
   const handleDeleteEvent = async (eventId: string, eventTitle: string) => {
     if (
       !confirm(
-        `Are you sure you want to delete "${eventTitle}"? This will also delete all registrations for this event.`
+        `Are you sure you want to delete "${eventTitle}"? This will also delete all registrations for this event.`,
       )
     ) {
       return;
@@ -116,8 +116,8 @@ export default function AdminEventsPage() {
         events.map((event) =>
           event._id === eventId
             ? { ...event, status: newStatus as Event["status"] }
-            : event
-        )
+            : event,
+        ),
       );
     } catch (err: any) {
       alert(`Error: ${err.message}`);
@@ -245,10 +245,10 @@ export default function AdminEventsPage() {
                         event.status === "upcoming"
                           ? "bg-blue-500/20 text-blue-400"
                           : event.status === "ongoing"
-                          ? "bg-green-500/20 text-green-400"
-                          : event.status === "completed"
-                          ? "bg-gray-500/20 text-gray-400"
-                          : "bg-red-500/20 text-red-400"
+                            ? "bg-green-500/20 text-green-400"
+                            : event.status === "completed"
+                              ? "bg-gray-500/20 text-gray-400"
+                              : "bg-red-500/20 text-red-400"
                       }`}
                     >
                       {event.status}
@@ -266,11 +266,6 @@ export default function AdminEventsPage() {
               </div>
 
               <div className="space-y-2 mb-4 text-sm text-gray-400">
-                <div>📅 {new Date(event.date).toLocaleDateString()}</div>
-                <div>
-                  ⏰ {event.startTime} - {event.endTime}
-                </div>
-                <div>📍 {event.venue}</div>
                 {event.isTeamEvent && event.teamSize && (
                   <div>
                     👥 Team Size: {event.teamSize.min}-{event.teamSize.max}
@@ -291,14 +286,14 @@ export default function AdminEventsPage() {
                     style={{
                       width: `${Math.min(
                         (event.currentRegistrations / event.capacity) * 100,
-                        100
+                        100,
                       )}%`,
                     }}
                   />
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
                   {Math.round(
-                    (event.currentRegistrations / event.capacity) * 100
+                    (event.currentRegistrations / event.capacity) * 100,
                   )}
                   % filled
                 </div>

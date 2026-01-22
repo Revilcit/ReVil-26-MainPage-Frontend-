@@ -310,9 +310,6 @@ export default function AdminDashboard() {
                         <div className="text-white font-semibold">
                           {event.title}
                         </div>
-                        <div className="text-sm text-gray-400">
-                          {new Date(event.date).toLocaleDateString()}
-                        </div>
                       </div>
                     </div>
                     <div className="text-right">

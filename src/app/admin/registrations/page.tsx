@@ -30,15 +30,29 @@ interface Registration {
   college?: string;
   registrationStatus: string;
   attended: boolean;
+  buildingCheckIn?: {
+    status: boolean;
+    timestamp?: string;
+  };
+  sessionCheckIn?: {
+    status: boolean;
+    timestamp?: string;
+  };
   createdAt: string;
 }
 
 export default function AdminRegistrationsPage() {
   const router = useRouter();
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [filteredRegistrations, setFilteredRegistrations] = useState<
+    Registration[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sendingEmail, setSendingEmail] = useState<string | null>(null);
+  const [sendingOD, setSendingOD] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -53,12 +67,12 @@ export default function AdminRegistrationsPage() {
   const fetchRegistrations = async (token: string) => {
     try {
       const response = await fetch(
-        `${API_URL}/api/admin/registrations/recent?limit=100`,
+        `${API_URL}/api/admin/registrations/recent?limit=500`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -74,11 +88,123 @@ export default function AdminRegistrationsPage() {
       }
 
       const result = await response.json();
+      console.log(result.data);
       setRegistrations(result.data);
+      setFilteredRegistrations(result.data);
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (!query.trim()) {
+      setFilteredRegistrations(registrations);
+      return;
+    }
+
+    const lowercaseQuery = query.toLowerCase();
+    const filtered = registrations.filter(
+      (reg) =>
+        reg.user?.name?.toLowerCase().includes(lowercaseQuery) ||
+        reg.user?.email?.toLowerCase().includes(lowercaseQuery) ||
+        reg.event?.title?.toLowerCase().includes(lowercaseQuery) ||
+        reg.teamName?.toLowerCase().includes(lowercaseQuery),
+    );
+    setFilteredRegistrations(filtered);
+  };
+
+  const handleCheckInToggle = async (
+    registrationId: string,
+    type: "building" | "session",
+    currentStatus: boolean,
+  ) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/admin/registrations/${registrationId}/checkin`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            type,
+            status: !currentStatus,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update check-in status");
+      }
+
+      // Refresh registrations
+      fetchRegistrations(token);
+    } catch (err: any) {
+      console.log(err);
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+  const handleSendQRCode = async (registrationId: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    setSendingEmail(registrationId);
+    try {
+      const response = await fetch(
+        `${API_URL}/api/admin/registrations/${registrationId}/resend-qr`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to send QR code");
+      }
+
+      alert("QR code sent successfully!");
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setSendingEmail(null);
+    }
+  };
+
+  const handleSendODLetter = async (registrationId: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    setSendingOD(registrationId);
+    try {
+      const response = await fetch(
+        `${API_URL}/api/admin/registrations/${registrationId}/send-od`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to send OD letter");
+      }
+
+      alert("OD letter sent successfully!");
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setSendingOD(null);
     }
   };
 
@@ -113,129 +239,222 @@ export default function AdminRegistrationsPage() {
           <h2 className="text-3xl md:text-4xl text-primary font-orbitron mb-4">
             MANAGEMENT
           </h2>
-          <div className="text-gray-400 text-sm">
-            Showing {registrations.length} recent registrations
+        </motion.div>
+
+        {/* Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-6"
+        >
+          <input
+            type="text"
+            placeholder="Search by name, email, event, or team name..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="w-full px-6 py-4 bg-black border border-primary/30 text-white rounded-lg focus:border-primary focus:outline-none font-mono"
+          />
+          <div className="text-gray-400 text-sm mt-2">
+            Showing {filteredRegistrations.length} of {registrations.length}{" "}
+            registrations
           </div>
         </motion.div>
 
-        {/* Registrations List */}
-        <div className="space-y-4">
-          {registrations.map((registration, index) => (
-            <motion.div
-              key={registration._id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.02 }}
-              className="bg-black border border-primary/20 p-6 rounded-lg hover:border-primary/40 transition-colors"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-bold text-white">
-                      {registration.user?.name || "Unknown User"}
-                    </h3>
-                    {registration.isTeamRegistration && (
-                      <span className="px-2 py-1 text-xs rounded bg-primary/20 text-primary">
-                        Team Registration
-                      </span>
-                    )}
-                    {registration.attended && (
-                      <span className="px-2 py-1 text-xs rounded bg-green-500/20 text-green-400">
-                        Attended
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-sm text-gray-400 space-y-1">
-                    <div>📧 {registration.user?.email || "N/A"}</div>
-                    <div>🎯 {registration.event?.title || "Event Deleted"}</div>
-                    <div>
-                      📅{" "}
-                      {registration.event?.date
-                        ? new Date(registration.event.date).toLocaleDateString()
-                        : "N/A"}
-                    </div>
-                    <div>📍 {registration.event?.venue || "N/A"}</div>
-                    <div className="text-xs text-gray-500 mt-2">
-                      Registered:{" "}
-                      {new Date(registration.createdAt).toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {registration.isTeamRegistration && registration.teamMembers ? (
-                <div className="mt-4">
-                  <button
-                    onClick={() =>
-                      setExpandedId(
-                        expandedId === registration._id
-                          ? null
-                          : registration._id
-                      )
-                    }
-                    className="text-primary hover:text-white transition-colors text-sm mb-2"
+        {/* Registrations Table */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-black border border-primary/20 rounded-lg overflow-hidden"
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-900/50 border-b border-primary/20">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-primary">
+                    User
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-primary">
+                    Event
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-primary">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-primary">
+                    Building Check-in
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-primary">
+                    Session Check-in
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-primary">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-primary">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRegistrations.map((registration, index) => (
+                  <tr
+                    key={registration._id}
+                    className={`border-b border-gray-800/50 hover:bg-gray-900/30 transition-colors ${
+                      index % 2 === 0 ? "bg-black" : "bg-gray-900/10"
+                    }`}
                   >
-                    {expandedId === registration._id ? "▼" : "►"} Team:{" "}
-                    {registration.teamName} ({registration.teamMembers.length}{" "}
-                    members)
-                  </button>
-
-                  {expandedId === registration._id && (
-                    <div className="mt-3 space-y-2 pl-4 border-l-2 border-primary/30">
-                      {registration.teamMembers.map((member, idx) => (
-                        <div
-                          key={idx}
-                          className="p-3 bg-gray-900/50 rounded text-sm"
-                        >
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-white font-semibold">
-                              {member.name}
-                            </span>
-                            {member.isLeader && (
-                              <span className="px-2 py-0.5 text-xs rounded bg-yellow-500/20 text-yellow-400">
-                                Leader
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-gray-400 text-xs space-y-0.5">
-                            <div>📧 {member.email}</div>
-                            <div>📱 {member.phoneNumber}</div>
-                            <div>🏫 {member.college}</div>
-                          </div>
+                    {/* User Info */}
+                    <td className="px-4 py-4">
+                      <div className="space-y-1">
+                        <div className="text-white font-semibold text-sm">
+                          {registration.user?.name || "Unknown"}
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="mt-4 text-sm text-gray-400 space-y-1">
-                  {registration.phoneNumber && (
-                    <div>📱 {registration.phoneNumber}</div>
-                  )}
-                  {registration.college && <div>🏫 {registration.college}</div>}
-                </div>
-              )}
+                        <div className="text-gray-400 text-xs">
+                          {registration.user?.email || "N/A"}
+                        </div>
+                        {registration.isTeamRegistration &&
+                          registration.teamName && (
+                            <div className="text-primary text-xs font-mono">
+                              Team: {registration.teamName}
+                            </div>
+                          )}
+                      </div>
+                    </td>
 
-              <div className="mt-4 pt-4 border-t border-gray-700">
-                <span
-                  className={`px-3 py-1 text-xs rounded ${
-                    registration.registrationStatus === "registered"
-                      ? "bg-blue-500/20 text-blue-400"
-                      : registration.registrationStatus === "attended"
-                      ? "bg-green-500/20 text-green-400"
-                      : "bg-red-500/20 text-red-400"
-                  }`}
-                >
-                  Status: {registration.registrationStatus}
-                </span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                    {/* Event Info */}
+                    <td className="px-4 py-4">
+                      <div className="text-white text-sm">
+                        {registration.event?.title || "Event Deleted"}
+                      </div>
+                    </td>
 
-        {registrations.length === 0 && (
+                    {/* Type */}
+                    <td className="px-4 py-4">
+                      <span
+                        className={`px-2 py-1 text-xs rounded ${
+                          registration.isTeamRegistration
+                            ? "bg-primary/20 text-primary"
+                            : "bg-blue-500/20 text-blue-400"
+                        }`}
+                      >
+                        {registration.isTeamRegistration
+                          ? "Team"
+                          : "Individual"}
+                      </span>
+                    </td>
+
+                    {/* Building Check-in */}
+                    <td className="px-4 py-4">
+                      <div className="flex flex-col items-center gap-2">
+                        <button
+                          onClick={() =>
+                            handleCheckInToggle(
+                              registration._id,
+                              "building",
+                              registration.buildingCheckIn?.status || false,
+                            )
+                          }
+                          className={`px-3 py-1 text-xs rounded font-semibold transition-colors ${
+                            registration.buildingCheckIn?.status
+                              ? "bg-green-500/20 text-green-400 border border-green-500/50"
+                              : "bg-red-500/20 text-red-400 border border-red-500/50"
+                          }`}
+                        >
+                          {registration.buildingCheckIn?.status
+                            ? "✓ Yes"
+                            : "✗ No"}
+                        </button>
+                        {registration.buildingCheckIn?.timestamp && (
+                          <div className="text-xs text-gray-500">
+                            {new Date(
+                              registration.buildingCheckIn.timestamp,
+                            ).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Session Check-in */}
+                    <td className="px-4 py-4">
+                      <div className="flex flex-col items-center gap-2">
+                        <button
+                          onClick={() =>
+                            handleCheckInToggle(
+                              registration._id,
+                              "session",
+                              registration.sessionCheckIn?.status || false,
+                            )
+                          }
+                          className={`px-3 py-1 text-xs rounded font-semibold transition-colors ${
+                            registration.sessionCheckIn?.status
+                              ? "bg-green-500/20 text-green-400 border border-green-500/50"
+                              : "bg-red-500/20 text-red-400 border border-red-500/50"
+                          }`}
+                        >
+                          {registration.sessionCheckIn?.status
+                            ? "✓ Yes"
+                            : "✗ No"}
+                        </button>
+                        {registration.sessionCheckIn?.timestamp && (
+                          <div className="text-xs text-gray-500">
+                            {new Date(
+                              registration.sessionCheckIn.timestamp,
+                            ).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-4 py-4 text-center">
+                      <span
+                        className={`px-3 py-1 text-xs rounded ${
+                          registration.registrationStatus === "registered"
+                            ? "bg-blue-500/20 text-blue-400"
+                            : registration.registrationStatus === "attended"
+                              ? "bg-green-500/20 text-green-400"
+                              : "bg-red-500/20 text-red-400"
+                        }`}
+                      >
+                        {registration.registrationStatus}
+                      </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-4 py-4">
+                      <div className="flex justify-center gap-2 flex-wrap">
+                        <button
+                          onClick={() => handleSendQRCode(registration._id)}
+                          disabled={sendingEmail === registration._id}
+                          className="px-3 py-1 text-xs bg-primary/20 text-primary border border-primary/50 rounded hover:bg-primary/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold whitespace-nowrap"
+                        >
+                          {sendingEmail === registration._id
+                            ? "Sending..."
+                            : "📧 Send QR"}
+                        </button>
+                        <button
+                          onClick={() => handleSendODLetter(registration._id)}
+                          disabled={sendingOD === registration._id}
+                          className="px-3 py-1 text-xs bg-blue-500/20 text-blue-400 border border-blue-500/50 rounded hover:bg-blue-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold whitespace-nowrap"
+                        >
+                          {sendingOD === registration._id
+                            ? "Sending..."
+                            : "📄 Send OD"}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+
+        {filteredRegistrations.length === 0 && (
           <div className="text-center py-12 text-gray-400">
-            No registrations found
+            {searchQuery
+              ? "No registrations match your search"
+              : "No registrations found"}
           </div>
         )}
       </div>

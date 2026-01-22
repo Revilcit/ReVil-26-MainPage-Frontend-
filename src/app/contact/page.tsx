@@ -137,10 +137,17 @@ export default function ContactPage() {
               </p>
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                Direct Line — President
-              </h3>
-              <p className="text-primary text-lg">+91 87789 10145</p>
+              <h3 className="text-xl font-bold text-white mb-2">Direct Line</h3>
+              <div className="space-y-2">
+                <p className="text-gray-400">
+                  President:{" "}
+                  <span className="text-primary">+91 87789 10145</span>
+                </p>
+                <p className="text-gray-400">
+                  Vice President:{" "}
+                  <span className="text-primary">+91 87783 44532</span>
+                </p>
+              </div>
             </div>
           </div>
         </div>

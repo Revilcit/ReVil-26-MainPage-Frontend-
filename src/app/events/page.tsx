@@ -133,7 +133,7 @@ export default function EventsPage() {
   };
 
   const handleRegisterClick = (eventId?: string) => {
-    // Check if user is logged in
+    // // Check if user is logged in
     // const token =
     //   typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
@@ -157,6 +157,12 @@ export default function EventsPage() {
     // if (targetEventId) {
     //   router.push(`/events/${targetEventId}/register`);
     // }
+
+    // comment the above to close registrations
+
+    // vishal
+
+    // comment the below if you want registrations to be open
     toast("Registrations are coming soon!", {
       style: {
         borderRadius: "10px",

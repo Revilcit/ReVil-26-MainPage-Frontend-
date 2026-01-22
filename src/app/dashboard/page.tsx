@@ -16,7 +16,6 @@ export default function DashboardPage() {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const [selectedRegistration, setSelectedRegistration] =
     useState<EventRegistration | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -30,16 +29,9 @@ export default function DashboardPage() {
         const data = await fetchUserWithRegistrations(token);
         setUserData(data);
 
-        // Generate QR code with user ID
-        if (data.user.id) {
-          const qrData = JSON.stringify({
-            userId: data.user.id,
-            name: data.user.name,
-            email: data.user.email,
-            timestamp: new Date().toISOString(),
-          });
-
-          const url = await QRCode.toDataURL(qrData, {
+        // Generate QR code from user's qrCode field
+        if (data.user.qrCode) {
+          const url = await QRCode.toDataURL(data.user.qrCode, {
             width: 300,
             margin: 2,
             color: {
@@ -48,6 +40,8 @@ export default function DashboardPage() {
             },
           });
           setQrCodeUrl(url);
+        } else {
+          console.warn("User doesn't have a QR code. They need to log out and log back in.");
         }
       } catch (err) {
         const error = err as Error;
@@ -205,9 +199,12 @@ export default function DashboardPage() {
 
             {/* QR Code Section */}
             <div className="mt-8 border-t border-white/10 pt-6">
-              <h3 className="text-lg font-bold text-white mb-4">
-                YOUR QR CODE
+              <h3 className="text-lg font-bold text-white mb-2">
+                YOUR CHECK-IN QR CODE
               </h3>
+              <p className="text-xs text-gray-400 mb-4">
+                Use this single QR code for all event check-ins - building entrance and sessions
+              </p>
               <div className="bg-black p-4 rounded-lg border border-primary/30 mb-4">
                 {qrCodeUrl ? (
                   <img
@@ -215,9 +212,17 @@ export default function DashboardPage() {
                     alt="User QR Code"
                     className="w-full h-auto"
                   />
+                ) : userData.user.qrCode ? (
+                  <div className="w-full h-64 flex flex-col items-center justify-center text-gray-500">
+                    <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mb-2" />
+                    <span>Generating QR Code...</span>
+                  </div>
                 ) : (
-                  <div className="w-full h-64 flex items-center justify-center text-gray-500">
-                    Generating QR Code...
+                  <div className="w-full h-64 flex flex-col items-center justify-center text-yellow-500">
+                    <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span className="text-sm text-center">Please log out and log back in to generate your QR code</span>
                   </div>
                 )}
               </div>
@@ -242,7 +247,7 @@ export default function DashboardPage() {
                 Download QR Code
               </button>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                Use this single QR code for all event check-ins
+                Save to your phone for easy access at events
               </p>
             </div>
           </div>

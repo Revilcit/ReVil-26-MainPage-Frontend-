@@ -14,6 +14,7 @@ export interface UserProfile {
   checkedIn: boolean;
   checkInTime: Date | null;
   role: "user" | "superadmin" | "event_manager" | "registration_team";
+  qrCode?: string; // User's unique QR code for check-ins
   lastLogin: Date;
   createdAt: Date;
 }
@@ -26,6 +27,7 @@ export interface UserBasic {
   checkedIn: boolean;
   checkInTime: Date | null;
   role: "user" | "superadmin" | "event_manager" | "registration_team";
+  qrCode?: string; // User's unique QR code for check-ins
 }
 
 export interface Event {

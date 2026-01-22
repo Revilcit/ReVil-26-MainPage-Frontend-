@@ -293,18 +293,21 @@ export async function performCheckIn(
   eventId?: string,
 ): Promise<CheckInResponse> {
   try {
-    const body: { qrCode: string; checkInType: CheckInType; eventId?: string } =
-      {
-        qrCode,
-        checkInType,
-      };
+    // Use specific endpoints for building vs session check-in
+    const endpoint = checkInType === "building" 
+      ? `${API_URL}/api/checkin/building`
+      : `${API_URL}/api/checkin/session`;
 
-    // Add eventId if provided (required for session check-in)
-    if (eventId) {
+    const body: { qrCode: string; eventId?: string } = {
+      qrCode, // Send raw QR code value
+    };
+
+    // Add eventId for session check-in (required)
+    if (checkInType === "session" && eventId) {
       body.eventId = eventId;
     }
 
-    const response = await fetch(`${API_URL}/api/checkin`, {
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

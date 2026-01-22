@@ -153,17 +153,26 @@ export default function RoleManagementPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-black pt-24">
+        <div className="text-primary font-mono text-xl animate-pulse">
+          LOADING ROLES...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-black text-white pt-24 px-4 pb-12">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Role Management</h1>
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold text-white font-orbitron mb-2">
+              ROLE
+            </h1>
+            <h2 className="text-3xl md:text-4xl text-primary font-orbitron">
+              MANAGEMENT
+            </h2>
+          </div>
           <button
             onClick={() => openModal()}
             className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold transition-colors"
@@ -219,9 +228,9 @@ export default function RoleManagementPage() {
                         {user.managedEvents.map((event) => (
                           <div
                             key={event._id}
-                            className="text-sm text-gray-400"
+                            className="text-sm text-purple-400 font-medium"
                           >
-                            {event.title}
+                            • {event.title}
                           </div>
                         ))}
                       </div>
@@ -342,10 +351,6 @@ export default function RoleManagementPage() {
                         />
                         <div className="flex-1">
                           <p className="font-medium">{event.title}</p>
-                          <p className="text-sm text-gray-400">
-                            {new Date(event.date).toLocaleDateString()} •{" "}
-                            {event.venue}
-                          </p>
                         </div>
                       </label>
                     ))}
