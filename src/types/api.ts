@@ -36,7 +36,6 @@ export interface Event {
   description: string;
   image?: string;
   type?: string;
-  date?: string;
   startTime?: string;
   endTime?: string;
   venue?: string;

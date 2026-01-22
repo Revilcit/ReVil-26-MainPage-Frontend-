@@ -321,24 +321,6 @@ export default function SessionCheckInPage() {
                       {event.venue}
                     </p>
                   )}
-                  {event.date && (
-                    <p className="text-gray-500 text-sm flex items-center gap-1 mt-1">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                      {new Date(event.date).toLocaleDateString()}
-                    </p>
-                  )}
                   <div className="mt-4 flex items-center justify-between">
                     <span className="text-gray-400 text-sm">
                       {event.currentRegistrations || 0} / {event.capacity}{" "}
@@ -407,11 +389,7 @@ export default function SessionCheckInPage() {
           <h1 className="text-2xl md:text-3xl font-black text-white mb-1">
             {selectedEvent.title}
           </h1>
-          <p className="text-gray-400 text-sm">
-            {selectedEvent.venue} •{" "}
-            {selectedEvent.date &&
-              new Date(selectedEvent.date).toLocaleDateString()}
-          </p>
+          <p className="text-gray-400 text-sm">{selectedEvent.venue}</p>
           {user && (
             <p className="text-gray-500 text-xs mt-2">
               Scanner: <span className="text-cyan-400">{user.name}</span>
