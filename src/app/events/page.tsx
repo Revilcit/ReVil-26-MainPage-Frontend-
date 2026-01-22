@@ -133,7 +133,7 @@ export default function EventsPage() {
   };
 
   const handleRegisterClick = (eventId?: string) => {
-    // // Check if user is logged in
+    // Check if user is logged in
     // const token =
     //   typeof window !== "undefined" ? localStorage.getItem("token") : null;
 

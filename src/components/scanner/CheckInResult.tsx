@@ -204,11 +204,6 @@ export default function CheckInResult({
               📍 {result.data.event.venue}
             </p>
           )}
-          {result.data.event.date && (
-            <p className="text-gray-400 text-sm">
-              📅 {new Date(result.data.event.date).toLocaleDateString()}
-            </p>
-          )}
         </div>
       )}
 
