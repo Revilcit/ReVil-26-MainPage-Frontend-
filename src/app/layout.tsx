@@ -42,7 +42,7 @@ export default function RootLayout({
         className={`${orbitron.variable} ${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground min-h-screen flex flex-col font-sans`}
         style={{ fontFamily: "var(--font-orbitron)" }}
       >
-        <SplashScreen />
+        {/* <SplashScreen /> */}
         <TargetCursor
           spinDuration={2}
           hideDefaultCursor={false}

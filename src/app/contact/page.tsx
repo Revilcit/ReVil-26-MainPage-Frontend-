@@ -46,7 +46,7 @@ export default function ContactPage() {
       </motion.div>
 
       <motion.div
-        className="relative z-10 h-full flex items-center pointer-events-none mt-10"
+        className="relative z-10 h-full flex items-center pointer-events-none mt-10 md:mt-24"
         initial={{ opacity: 0 }}
         animate={{ opacity: animationState === "finished" ? 1 : 0 }}
         transition={{ duration: 0.5 }}
