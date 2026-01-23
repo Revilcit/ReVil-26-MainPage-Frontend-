@@ -32,48 +32,48 @@ export default function ContactPage() {
     e.preventDefault();
     console.log(
       "%cMESSAGE TRANSMISSION STATUS",
-      "color: #00ff00; font-size: 16px; font-weight: bold; text-shadow: 0 0 5px #00ff00;"
+      "color: #00ff00; font-size: 16px; font-weight: bold; text-shadow: 0 0 5px #00ff00;",
     );
     console.log(
       "%cALERT: Backend not implemented yet!",
-      "color: #ffff00; font-size: 14px; font-weight: bold;"
+      "color: #ffff00; font-size: 14px; font-weight: bold;",
     );
     console.log(
       "%cYour message has been successfully sent to... the void.\n\n" +
-      "Don't worry though, we'll totally get back to you.\n" +
-      "(Once we build the backend. Eventually. Maybe.)",
-      "color: #00ffff; font-size: 12px; line-height: 1.5;"
+        "Don't worry though, we'll totally get back to you.\n" +
+        "(Once we build the backend. Eventually. Maybe.)",
+      "color: #00ffff; font-size: 12px; line-height: 1.5;",
     );
     console.log(
       "%c- Revil Payaluga (who promises to implement this... someday)",
-      "color: #ff00ff; font-size: 12px; font-style: italic;"
+      "color: #ff00ff; font-size: 12px; font-style: italic;",
     );
     setIsMessageSent(true);
   };
 
   // Funny console warning
-    useEffect(() => {
-        console.log(
-            "%cSECURITY NOTICE (but make it funny)",
-            "color: #00ff00; font-size: 16px; font-weight: bold; text-shadow: 0 0 5px #00ff00;"
-        );
-        console.log(
-            "%cHey there, curious developer!",
-            "color: #ffff00; font-size: 14px; font-weight: bold;"
-        );
-        console.log(
-            "%cYes, we know our Gemini API key is exposed in the client.\n" +
-            "Yes, we're aware this is not production-ready.\n" +
-            "No, we don't recommend doing this in real projects.\n\n" +
-            "So please don't roast us in the comments. We're just vibing here.\n" +
-            "P.S. - If you found this, you're probably cool. Say hi!",
-            "color: #00ffff; font-size: 12px; line-height: 1.5;"
-        );
-        console.log(
-            "%c- Revil Payaluga",
-            "color: #ff00ff; font-size: 12px; font-style: italic;"
-        );
-    }, []);
+  useEffect(() => {
+    console.log(
+      "%cSECURITY NOTICE (but make it funny)",
+      "color: #00ff00; font-size: 16px; font-weight: bold; text-shadow: 0 0 5px #00ff00;",
+    );
+    console.log(
+      "%cHey there, curious developer!",
+      "color: #ffff00; font-size: 14px; font-weight: bold;",
+    );
+    console.log(
+      "%cYes, we know our Gemini API key is exposed in the client.\n" +
+        "Yes, we're aware this is not production-ready.\n" +
+        "No, we don't recommend doing this in real projects.\n\n" +
+        "So please don't roast us in the comments. We're just vibing here.\n" +
+        "P.S. - If you found this, you're probably cool. Say hi!",
+      "color: #00ffff; font-size: 12px; line-height: 1.5;",
+    );
+    console.log(
+      "%c- Revil Payaluga",
+      "color: #ff00ff; font-size: 12px; font-style: italic;",
+    );
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-16 relative min-h-screen md:h-screen overflow-y-auto md:overflow-hidden">
@@ -121,9 +121,7 @@ export default function ContactPage() {
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div>
                         <label className="block text-sm font-mono text-primary mb-2">
-                          <span className="cursor-target">
-                          NAME
-                          </span>
+                          <span className="cursor-target">NAME</span>
                         </label>
                         <input
                           type="text"
@@ -136,9 +134,7 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-mono text-primary mb-2">
-                          <span className="cursor-target">
-                          EMAIL
-                          </span>
+                          <span className="cursor-target">EMAIL</span>
                         </label>
                         <input
                           type="email"
@@ -151,16 +147,17 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-mono text-primary mb-2">
-                          <span className="cursor-target">
-                          MESSAGE
-                          </span>
+                          <span className="cursor-target">MESSAGE</span>
                         </label>
                         <textarea
                           rows={4}
                           className="w-full bg-black/50 border border-gray-800 focus:border-primary text-white p-3 outline-none transition-colors"
                           value={formData.message}
                           onChange={(e) =>
-                            setFormData({ ...formData, message: e.target.value })
+                            setFormData({
+                              ...formData,
+                              message: e.target.value,
+                            })
                           }
                         />
                       </div>
@@ -185,7 +182,7 @@ export default function ContactPage() {
                     <p className="text-gray-400 font-mono">
                       Your transmission was successful.
                       <br />
-                      We'll be in touch soon.
+                      We&apos;ll be in touch soon.
                     </p>
                     <button
                       onClick={() => {
@@ -218,11 +215,11 @@ export default function ContactPage() {
               <h3 className="text-xl font-bold text-white mb-2">Direct Line</h3>
               <div className="space-y-2">
                 <p className="text-gray-400">
-                  President:{" "}
+                  President(Vishal):{" "}
                   <span className="text-primary">+91 87789 10145</span>
                 </p>
                 <p className="text-gray-400">
-                  Vice President:{" "}
+                  Vice President(Dhanvanth):{" "}
                   <span className="text-primary">+91 87783 44532</span>
                 </p>
               </div>
