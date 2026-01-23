@@ -123,30 +123,30 @@ export default function EventsPage() {
   };
 
   const handleRegisterClick = (eventId?: string) => {
-    // Check if user is logged in
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    // // Check if user is logged in
+    // const token =
+    //   typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-    if (!token) {
-      toast("Please login to register for events", {
-        icon: "🔐",
-        style: {
-          borderRadius: "10px",
-          background: "#333",
-          color: "#fff",
-        },
-      });
-      router.push("/login");
-      return;
-    }
+    // if (!token) {
+    //   toast("Please login to register for events", {
+    //     icon: "🔐",
+    //     style: {
+    //       borderRadius: "10px",
+    //       background: "#333",
+    //       color: "#fff",
+    //     },
+    //   });
+    //   router.push("/login");
+    //   return;
+    // }
 
-    // Use provided eventId or current event from carousel
+    // // Use provided eventId or current event from carousel
 
-    const targetEventId = eventId || current?.id;
+    // const targetEventId = eventId || current?.id;
 
-    if (targetEventId) {
-      router.push(`/events/${targetEventId}/register`);
-    }
+    // if (targetEventId) {
+    //   router.push(`/events/${targetEventId}/register`);
+    // }
 
     // comment the above to close registrations
 
@@ -154,13 +154,13 @@ export default function EventsPage() {
 
     // comment the below if you want registrations to be open
 
-    // toast("Registrations are coming soon!", {
-    //   style: {
-    //     borderRadius: "10px",
-    //     background: "#333",
-    //     color: "#fff",
-    //   },
-    // });
+    toast("Registrations are coming soon!", {
+      style: {
+        borderRadius: "10px",
+        background: "#333",
+        color: "#fff",
+      },
+    });
   };
 
   if (loading) {
