@@ -261,6 +261,9 @@ export function setupAuthListener(
     if (event.data.type === "AUTH_SUCCESS") {
       const { token, user } = event.data;
       onSuccess(token, user);
+    } else if (event.data.type === "AUTH_ERROR") {
+      const message = event.data.message || "Authentication failed";
+      _onError?.(new Error(message));
     }
   };
 

@@ -221,8 +221,9 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push("/dashboard");
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || "Failed to register");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to register";
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -338,7 +339,7 @@ export default function RegisterPage() {
                 Event Coordinators
               </h3>
               <ul className="space-y-2">
-                {event.contacts.map((c: any, idx: number) => (
+                {event.contacts.map((c: { name: string; phone?: string; email?: string }, idx: number) => (
                   <li
                     key={idx}
                     className="text-sm text-gray-300 flex flex-col md:flex-row md:items-center md:gap-4"

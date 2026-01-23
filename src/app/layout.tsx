@@ -50,7 +50,7 @@ export default function RootLayout({
           targetSelector="button, a, .cursor-target"
         />
         <Navbar />
-        <main className="flex-grow">{children}</main>
+        <main className="grow">{children}</main>
         <FooterWrapper />
       </body>
     </html>

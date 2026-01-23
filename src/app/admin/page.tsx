@@ -34,6 +34,7 @@ interface TopEvent {
   currentRegistrations: number;
   capacity: number;
   date: string;
+  eventType: string;
 }
 
 interface DashboardData {
