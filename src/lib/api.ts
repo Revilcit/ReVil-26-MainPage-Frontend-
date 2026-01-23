@@ -4,6 +4,7 @@
 
 import axios from "axios";
 import { UserProfile, UserWithRegistrations, ApiResponse } from "@/types/api";
+import { withCache } from "./cache";
 
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -173,56 +174,70 @@ export async function registerForEvent(
 
 /**
  * Fetch all events (regular events only, excludes workshops)
+ * Cached for 5 minutes to reduce unnecessary API calls
  */
 export async function fetchEvents(): Promise<import("@/types/api").Event[]> {
-  try {
-    const response = await fetch(
-      `${API_URL}/api/events?eventType=event&status=upcoming`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      },
-    );
+  return withCache(
+    'events',
+    async () => {
+      try {
+        const response = await fetch(
+          `${API_URL}/api/events?eventType=event&status=upcoming`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
+            },
+          },
+        );
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch events: ${response.statusText}`);
-    }
+        if (!response.ok) {
+          throw new Error(`Failed to fetch events: ${response.statusText}`);
+        }
 
-    const data = await response.json();
-    return data.data || [];
-  } catch (error) {
-    console.error("Failed to fetch events from backend:", error);
-    throw error;
-  }
+        const data = await response.json();
+        return data.data || [];
+      } catch (error) {
+        console.error("Failed to fetch events from backend:", error);
+        throw error;
+      }
+    },
+    5 * 60 * 1000, // 5 minutes cache
+  );
 }
 
 /**
  * Fetch all workshops
+ * Cached for 5 minutes to reduce unnecessary API calls
  */
 export async function fetchWorkshops(): Promise<import("@/types/api").Event[]> {
-  try {
-    const response = await fetch(
-      `${API_URL}/api/events?eventType=workshop&status=upcoming`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      },
-    );
+  return withCache(
+    'workshops',
+    async () => {
+      try {
+        const response = await fetch(
+          `${API_URL}/api/events?eventType=workshop&status=upcoming`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
+            },
+          },
+        );
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch workshops: ${response.statusText}`);
-    }
+        if (!response.ok) {
+          throw new Error(`Failed to fetch workshops: ${response.statusText}`);
+        }
 
-    const data = await response.json();
-    return data.data || [];
-  } catch (error) {
-    console.error("Failed to fetch workshops from backend:", error);
-    throw error;
-  }
+        const data = await response.json();
+        return data.data || [];
+      } catch (error) {
+        console.error("Failed to fetch workshops from backend:", error);
+        throw error;
+      }
+    },
+    5 * 60 * 1000, // 5 minutes cache
+  );
 }
 
 /**

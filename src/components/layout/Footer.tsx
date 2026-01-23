@@ -9,7 +9,7 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <h2 className="text-2xl font-bold">
-              <span className="text-primary">REV</span>IL
+              <span className="text-primary cursor-target">REV</span>IL
             </h2>
             <p className="text-gray-400 text-sm leading-relaxed">
               National Level Technical Symposium presented by the Department of
@@ -71,6 +71,7 @@ export function Footer() {
               >
                 <FaInstagram size={16} />
               </Link>
+              {/* LinkedIn (unchanged) */}
               <Link
                 href="https://www.linkedin.com/company/revilcit/"
                 target="_blank"
@@ -83,7 +84,16 @@ export function Footer() {
               >
                 <FaLinkedinIn size={16} />
               </Link>
-              {/* LinkedIn (unchanged) */}
+              <Link
+                href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                target="_blank"
+                aria-label="Linked In"
+                className="w-8 h-8 bg-transparent rounded-full 
+                                           flex items-center justify-center 
+                                           text-primary
+                                           transition-all"
+              >
+              </Link>
             </div>
 
             <p className="text-xs text-gray-600">

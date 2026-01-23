@@ -1,129 +1,75 @@
 {
   "workshops": [
     {
-      "title": "Web3 Security Deep Dive",
-      "slug": "web3-security-deep-dive",
+      "title": "Embedded Systems 101: Firmware, PCB Design, and Application Layer Integration",
+      "slug": "embedded-systems-101-firmware-pcb-application-integration",
       "category": "technical",
       "eventType": "workshop",
-      "image": "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&h=600&fit=crop",
-      "type": "Blockchain Security",
-      "description": "Master the art of securing blockchain applications and smart contracts.",
-      "fullDescription": "Dive deep into Web3 security with hands-on training on smart contract vulnerabilities, blockchain forensics, and DeFi security. Learn to identify common exploits like reentrancy attacks, flash loan vulnerabilities, and front-running. This workshop includes live demonstrations of real-world hacks and defensive coding practices. Participants will audit actual smart contracts and learn to use tools like Slither, Mythril, and Hardhat for security testing.",
-      "teamSize": {
-        "min": 1,
-        "max": 2
-      },
-      "duration": "4 hours",
+      "image": "https://images.unsplash.com/photo-1599658880436-c61792e70672?w=800&h=600&fit=crop",
+      "type": "Embedded Systems",
+      "description": "Structured introduction to PCB design, firmware development, and application-layer integration for real-world embedded products.",
+      "fullDescription": "This workshop provides a concise, practical overview of embedded system architecture. Participants will learn how PCB hardware, firmware, and application-layer logic interact in production devices. Topics include PCB stack-ups and signal integrity, firmware concepts (boot, bare-metal vs RTOS, secure boot), data flow from sensors to application, industrial networking protocols, and automotive CAN security. The session emphasizes system-level trade-offs, real-time constraints, and integration testing techniques.",
+      "duration": "90 Minutes",
       "prerequisites": [
-        "Basic understanding of blockchain concepts",
-        "Familiarity with Solidity or JavaScript",
-        "Laptop with Node.js installed"
-      ],
-      "learningOutcomes": [
-        "Identify and exploit common smart contract vulnerabilities",
-        "Perform security audits using industry-standard tools",
-        "Implement secure coding practices for Web3",
-        "Understand DeFi protocol security architectures"
+        "Basic hardware or electronics knowledge",
+        "Familiarity with programming fundamentals",
+        "Optional: laptop for demos"
       ],
       "speakers": [
         {
-          "name": "Dr. Sarah Chen",
-          "bio": "Blockchain Security Researcher with 5+ years in DeFi security",
-          "photo": "/speakers/sarah-chen.jpg"
+          "name": "Asymmetric Club Members",
+          "bio": "Workshop hosts and club members"
         }
       ],
-      "capacity": 30,
-      "venue": "Lab 3, Computer Science Block",
-      "date": "2026-03-20",
-      "startTime": "14:00",
-      "endTime": "18:00",
+      "capacity": 60,
       "status": "upcoming",
       "isActive": true
     },
     {
-      "title": "Advanced Penetration Testing Workshop",
-      "slug": "advanced-penetration-testing",
+      "title": "From Noise to Knowledge: Turning Threats into Defense",
+      "slug": "from-noise-to-knowledge",
       "category": "technical",
       "eventType": "workshop",
-      "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=600&fit=crop",
-      "type": "Cybersecurity",
-      "description": "Learn advanced penetration testing techniques from industry experts.",
-      "fullDescription": "An intensive hands-on workshop covering advanced penetration testing methodologies used by professional red teamers. Topics include network pivoting, privilege escalation, Active Directory exploitation, evasion techniques, and post-exploitation strategies. Participants will work through realistic enterprise scenarios, learning to chain vulnerabilities and maintain persistence. The workshop includes access to a live lab environment with multiple attack surfaces to explore.",
-      "teamSize": {
-        "min": 1,
-        "max": 1
-      },
-      "duration": "5 hours",
-      "prerequisites": [
-        "Basic knowledge of Linux command line",
-        "Understanding of networking fundamentals",
-        "Familiarity with Kali Linux or similar pentesting distro",
-        "Own laptop with virtualization support"
-      ],
-      "learningOutcomes": [
-        "Execute multi-stage attacks on enterprise networks",
-        "Master Active Directory exploitation techniques",
-        "Bypass modern EDR and antivirus solutions",
-        "Document findings in professional pentest reports"
-      ],
+      "image": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=600&fit=crop",
+      "type": "Threat Intelligence",
+      "host": "ExploitX",
+      "description": "Turn scattered signals into decisions that stop real attackers by mapping adversary behavior to detection and response.",
+      "fullDescription": "Threat intelligence is often misunderstood as a pile of IPs, hashes, and vendor feeds. In reality, it is the art of turning scattered signals into decisions that stop real attackers.\n\nThis workshop takes you from the foundations of threat intelligence to the mindset and tradecraft of real-world adversaries. You will learn how nation-state and financially motivated groups operate, how their behavior maps to the MITRE ATT&CK framework, and how defenders convert intelligence into detection and response.\n\nThe session concludes with a hands-on lab where participants will analyze a real adversary campaign, extract indicators and techniques from public threat reports, map them to ATT&CK, and transform raw intelligence into actionable detection logic.",
+      "duration": "90 Minutes",
+      "prerequisites": ["Laptop", "Internet", "Notebook and pen"],
       "speakers": [
         {
-          "name": "Marcus Rodriguez",
-          "bio": "OSCP certified Red Team Lead with 8+ years in offensive security",
-          "photo": "/speakers/marcus-rodriguez.jpg"
-        },
-        {
-          "name": "Alex Kumar",
-          "bio": "Security Consultant specializing in enterprise pentesting",
-          "photo": "/speakers/alex-kumar.jpg"
+          "name": "ExploitX",
+          "bio": "Cybersecurity club members"
         }
       ],
-      "capacity": 25,
-      "venue": "Cybersecurity Lab, Building A",
-      "date": "2026-03-21",
-      "startTime": "10:00",
-      "endTime": "15:00",
+      "capacity": 60,
       "status": "upcoming",
       "isActive": true
     },
     {
-      "title": "AI-Powered Threat Hunting",
-      "slug": "ai-powered-threat-hunting",
+      "title": "Offensive Security",
+      "slug": "offensive-security",
       "category": "technical",
       "eventType": "workshop",
-      "image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop",
-      "type": "AI Security",
-      "description": "Harness artificial intelligence for next-generation threat detection and response.",
-      "fullDescription": "Explore the intersection of AI and cybersecurity in this cutting-edge workshop. Learn to build machine learning models for anomaly detection, use AI-powered SIEM tools, and leverage LLMs for security analysis. The workshop covers behavioral analytics, automated threat hunting, and AI-assisted incident response. Participants will work with real security datasets, training models to detect APTs, insider threats, and zero-day attacks. Includes hands-on sessions with popular tools like Splunk ML Toolkit, Elastic SIEM, and custom Python-based detection scripts.",
-      "teamSize": {
-        "min": 1,
-        "max": 3
-      },
-      "duration": "4 hours",
+      "image": "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800&h=600&fit=crop",
+      "type": "Offensive Security / Ethical Hacking",
+      "host": "MOHAMED AJMAL (Certified Ethical Hacker)",
+      "description": "Practical introduction to offensive security techniques, attack lifecycle, and ethical hacking practices.",
+      "fullDescription": "Offensive security is about understanding how attackers think, operate, and exploit weaknesses—so systems can be defended effectively and ethically.\n\nThis workshop provides an intermediate-level introduction to offensive security concepts through demonstrations and guided hands-on activities. Participants will learn the cyber attack lifecycle, OSINT and reconnaissance techniques, common password and authentication attacks, web application vulnerabilities such as XSS and SQL injection, and the role of social engineering and phishing in real-world attacks.\n\nThe session concludes with a live demo or mini CTF-style challenge, along with practical endpoint and browser security checklists and a clear career roadmap covering VAPT, SOC, and bug bounty pathways.",
+      "duration": "120 Minutes",
       "prerequisites": [
-        "Basic Python programming knowledge",
-        "Understanding of cybersecurity fundamentals",
-        "Familiarity with log analysis (optional but helpful)",
-        "Laptop with Python 3.8+ installed"
-      ],
-      "learningOutcomes": [
-        "Build ML models for threat detection",
-        "Implement behavioral analytics for insider threat detection",
-        "Automate security workflows using AI",
-        "Analyze security data using LLMs and NLP techniques"
+        "Laptop (preferred)",
+        "Internet connection",
+        "Notebook and pen"
       ],
       "speakers": [
         {
-          "name": "Dr. Emily Watson",
-          "bio": "AI Security Researcher and former DARPA scientist",
-          "photo": "/speakers/emily-watson.jpg"
+          "name": "MOHAMED AJMAL",
+          "bio": "Certified Ethical Hacker — Offensive Security Bootcamp instructor"
         }
       ],
-      "capacity": 35,
-      "venue": "AI Research Center, Room 201",
-      "date": "2026-03-22",
-      "startTime": "13:00",
-      "endTime": "17:00",
+      "capacity": 60,
       "status": "upcoming",
       "isActive": true
     }

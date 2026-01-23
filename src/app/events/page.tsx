@@ -184,7 +184,7 @@ export default function EventsPage() {
   if (events.length === 0) {
     return (
       <LazyMotion features={domAnimation} strict>
-        <div className="min-h-screen bg-black flex items-center justify-center relative overflow-hidden">
+        <div className="min-h-screen py-24 bg-black flex items-center justify-center relative overflow-hidden">
           {/* Subtle gradient background */}
           <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>

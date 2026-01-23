@@ -28,14 +28,14 @@
       ],
       "contacts": [
         {
-          "name": "Hephzibah Pearl",
-          "phone": "+91 7550097244",
-          "email": "hephzibahpearld.cs2023@citchennai.net"
-        },
-        {
           "name": "Akshay Kumar B",
           "phone": "+91 9080192084",
           "email": "akshaykumarb.cs2023@citchennai.net"
+        },
+        {
+          "name": "Hephzibah Pearl",
+          "phone": "+91 7550097244",
+          "email": "hephzibahpearld.cs2023@citchennai.net"
         }
       ],
       "status": "upcoming",
@@ -115,14 +115,14 @@
       ],
       "contacts": [
         {
-          "name": "Muthuswamy M",
-          "phone": "9789981372",
-          "email": "muthuswamym.cs2023@citchennai.net"
-        },
-        {
           "name": "Pradeesh L",
           "phone": "8122770492",
           "email": "pradeeshl.cs2023@citchennai.net"
+        },
+        {
+          "name": "Muthuswamy M",
+          "phone": "9789981372",
+          "email": "muthuswamym.cs2023@citchennai.net"
         }
       ],
       "status": "upcoming",
@@ -200,6 +200,18 @@
         "Accuracy, correctness and clarity of the investigation report."
       ],
       "finalNote": "The decision of the judges and organizing committee will be final and binding. Rules may be updated by the organizers if required.",
+      "contacts": [
+        {
+          "name": "Sriram G",
+          "phone": "+91 9344936517",
+          "email": "sriramg.cs2023@citchennai.net"
+        },
+        {
+          "name": "Samuel Jabez P",
+          "phone": "+91 8189802346",
+          "email": "samueljabezp.cs2023@citchennai.net"
+        }
+      ],
       "status": "upcoming",
       "isActive": true
     },
@@ -236,14 +248,14 @@
       ],
       "contacts": [
         {
-          "name": "Aiswarya P",
-          "phone": "9952917006",
-          "email": "aishwaryap.cs2023@citchennai.net"
-        },
-        {
           "name": "Harrshavardhini V",
           "phone": "9445638302",
           "email": "harrshavardhiniv.cs2023@citchennai.net"
+        },
+        {
+          "name": "Aiswarya P",
+          "phone": "9952917006",
+          "email": "aishwaryap.cs2023@citchennai.net"
         }
       ],
       "status": "upcoming",
