@@ -1,0 +1,77 @@
+{
+  "workshops": [
+    {
+      "title": "Embedded Systems 101: Firmware, PCB Design, and Application Layer Integration",
+      "slug": "embedded-systems-101-firmware-pcb-application-integration",
+      "category": "technical",
+      "eventType": "workshop",
+      "image": "https://images.unsplash.com/photo-1599658880436-c61792e70672?w=800&h=600&fit=crop",
+      "type": "Embedded Systems",
+      "description": "Structured introduction to PCB design, firmware development, and application-layer integration for real-world embedded products.",
+      "fullDescription": "This workshop provides a concise, practical overview of embedded system architecture. Participants will learn how PCB hardware, firmware, and application-layer logic interact in production devices. Topics include PCB stack-ups and signal integrity, firmware concepts (boot, bare-metal vs RTOS, secure boot), data flow from sensors to application, industrial networking protocols, and automotive CAN security. The session emphasizes system-level trade-offs, real-time constraints, and integration testing techniques.",
+      "duration": "90 Minutes",
+      "prerequisites": [
+        "Basic hardware or electronics knowledge",
+        "Familiarity with programming fundamentals",
+        "Optional: laptop for demos"
+      ],
+      "speakers": [
+        {
+          "name": "Asymmetric Club Members",
+          "bio": "Workshop hosts and club members"
+        }
+      ],
+      "capacity": 60,
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "From Noise to Knowledge: Turning Threats into Defense",
+      "slug": "from-noise-to-knowledge",
+      "category": "technical",
+      "eventType": "workshop",
+      "image": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=600&fit=crop",
+      "type": "Threat Intelligence",
+      "host": "ExploitX",
+      "description": "Turn scattered signals into decisions that stop real attackers by mapping adversary behavior to detection and response.",
+      "fullDescription": "Threat intelligence is often misunderstood as a pile of IPs, hashes, and vendor feeds. In reality, it is the art of turning scattered signals into decisions that stop real attackers.\n\nThis workshop takes you from the foundations of threat intelligence to the mindset and tradecraft of real-world adversaries. You will learn how nation-state and financially motivated groups operate, how their behavior maps to the MITRE ATT&CK framework, and how defenders convert intelligence into detection and response.\n\nThe session concludes with a hands-on lab where participants will analyze a real adversary campaign, extract indicators and techniques from public threat reports, map them to ATT&CK, and transform raw intelligence into actionable detection logic.",
+      "duration": "90 Minutes",
+      "prerequisites": ["Laptop", "Internet", "Notebook and pen"],
+      "speakers": [
+        {
+          "name": "ExploitX",
+          "bio": "Cybersecurity club members"
+        }
+      ],
+      "capacity": 60,
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "Offensive Security",
+      "slug": "offensive-security",
+      "category": "technical",
+      "eventType": "workshop",
+      "image": "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800&h=600&fit=crop",
+      "type": "Offensive Security / Ethical Hacking",
+      "host": "MOHAMED AJMAL (Certified Ethical Hacker)",
+      "description": "Practical introduction to offensive security techniques, attack lifecycle, and ethical hacking practices.",
+      "fullDescription": "Offensive security is about understanding how attackers think, operate, and exploit weaknesses—so systems can be defended effectively and ethically.\n\nThis workshop provides an intermediate-level introduction to offensive security concepts through demonstrations and guided hands-on activities. Participants will learn the cyber attack lifecycle, OSINT and reconnaissance techniques, common password and authentication attacks, web application vulnerabilities such as XSS and SQL injection, and the role of social engineering and phishing in real-world attacks.\n\nThe session concludes with a live demo or mini CTF-style challenge, along with practical endpoint and browser security checklists and a clear career roadmap covering VAPT, SOC, and bug bounty pathways.",
+      "duration": "120 Minutes",
+      "prerequisites": [
+        "Laptop (preferred)",
+        "Internet connection",
+        "Notebook and pen"
+      ],
+      "speakers": [
+        {
+          "name": "MOHAMED AJMAL",
+          "bio": "Certified Ethical Hacker — Offensive Security Bootcamp instructor"
+        }
+      ],
+      "capacity": 60,
+      "status": "upcoming",
+      "isActive": true
+    }
+  ]
+}

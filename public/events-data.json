@@ -1,0 +1,359 @@
+{
+  "events": [
+    {
+      "title": "Beneath the Mask",
+      "slug": "beneath-the-mask",
+      "category": "technical",
+      "eventType": "individual",
+      "image": "/events/beneath.png",
+      "type": "Tech and Cybersecurity",
+      "mode": "Offline",
+      "description": "Uncover hidden access through logic, clues, and observation.",
+      "fullDescription": "Beneath The Mask is a solo challenge where participants reveal concealed access by connecting clues and hidden details. Each level demands sharp logic and careful observation.",
+      "teamSize": {
+        "min": 1,
+        "max": 1
+      },
+      "duration": "90 minutes",
+      "rules": [
+        "Beneath The Mask is a solo event; each participant is permitted to create and use only one account throughout the event.",
+        "The event consists of three progressive levels, each requiring participants to analyze provided clues and details to uncover valid credentials or access keys.",
+        "Participants must rely only on logical reasoning and information provided within the platform; external help, collaboration, or solution sharing is strictly prohibited.",
+        "Brute forcing, automated attempts, scripting, DDoS activity, or backend manipulation of any kind is prohibited and will result in immediate disqualification.",
+        "All attempts, submissions, and progress are server-tracked; excessive or abnormal request patterns may trigger penalties or session termination.",
+        "Participants must use a single device and a single active session; accessing the same account from multiple devices or networks is not allowed.",
+        "Each level must be completed sequentially within the allotted time; incorrect or excessive attempts may lead to time penalties or level lockout.",
+        "Any form of malpractice, rule violation, or disregard for moderator instructions will result in disqualification without appeal.",
+        "The decision of the moderators and organizers is final and binding in all matters related to the event."
+      ],
+      "contacts": [
+        {
+          "name": "Akshay Kumar B",
+          "phone": "+91 9080192084",
+          "email": "akshaykumarb.cs2023@citchennai.net"
+        },
+        {
+          "name": "Hephzibah Pearl",
+          "phone": "+91 7550097244",
+          "email": "hephzibahpearld.cs2023@citchennai.net"
+        }
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "Escape Room",
+      "slug": "escape-room",
+      "category": "technical",
+      "eventType": "team",
+      "image": "/events/escape-room.jpg",
+      "type": "Technical",
+      "mode": "Online",
+      "description": "Solve puzzles, decode clues, and escape as soon as possible.",
+      "fullDescription": "Escape Room is an online technical challenge where teams solve a sequence of puzzles including mazes, card challenges, code discovery, Morse decoding, and sliding puzzles. Each round unlocks clues required to progress further.",
+      "teamSize": {
+        "min": 2,
+        "max": 4
+      },
+      "duration": "45 minutes",
+      "rounds": 6,
+      "rules": [
+        "The event consists of six sequential rounds to be completed within the given time limit.",
+        "Each round provides clues or secret codes required to advance to the next round.",
+        "Round 1 – Maze: Participants must reach the destination in a maze using a faulty keyboard.",
+        "Round 2 – Phishing Mail Detection: Participants must identify the phishing email from the given emails to obtain the secret code.",
+        "Round 3 – Find the Phrase: Participants must download the provided folder and locate the hidden secret code within the files.",
+        "Round 4 – Morse Code: Participants must decode three Morse code messages using the provided reference.",
+        "Round 5 – Secret Code Entry: Participants must enter all secret codes collected from the previous rounds.",
+        "Round 6 – Final Escape: Participants must derive the correct system password using the given user details to escape the room.",
+        "The event is time-based, and penalties or bonuses affect the total time.",
+        "Refreshing or navigating away from the event page will result in immediate disqualification.",
+        "External tools such as mobile phones, AI tools, additional laptops, calculators, or any unauthorized resources are strictly not allowed.",
+        "Only one laptop per team."
+      ],
+      "contacts": [
+        {
+          "name": "G Vignesh",
+          "phone": "7358252557",
+          "email": "vignesh2005sep@gmail.com"
+        },
+        {
+          "name": "T R REX BRITTO",
+          "phone": "9042644201",
+          "email": "trrexbritto.cs2023@citchennai.net"
+        }
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "CTF – Trial of the Creed",
+      "slug": "ctf-trial-of-the-creed",
+      "category": "technical",
+      "eventType": "team",
+      "image": "/events/creed.jpeg",
+      "type": "Capture the Flag (CTF)",
+      "mode": "Online",
+      "description": "A lore-driven Capture the Flag challenge inspired by medieval exploration, ancient technology, and secret orders.",
+      "fullDescription": "Trial of the Creed is a lore-driven Capture the Flag challenge inspired by medieval exploration, ancient technology, and secret orders. Participants take on the role of a young Templar knight sent to investigate mysterious runes hidden deep within forgotten lands. What begins as a mission of observation soon becomes a true test of technical skill, logic, and resilience.",
+      "teamSize": {
+        "min": 1,
+        "max": 2
+      },
+      "duration": "2 Hours",
+      "rules": [
+        "The objective of the event is to solve cybersecurity-based challenges and submit valid flags to earn points.",
+        "Participants may compete individually or in teams of up to two members. Collaboration outside one's own team is strictly prohibited.",
+        "Sharing flags, solutions, or hints in any public or private channels during the competition is not allowed.",
+        "Attacking the CTF platform, Discord server, or any infrastructure not explicitly defined as part of a challenge is strictly forbidden.",
+        "Automated scanners, brute-force attacks, or denial-of-service attempts are prohibited unless explicitly allowed in a challenge description.",
+        "Each participant is permitted to use only one account throughout the event.",
+        "All participants must adhere to fair play principles and maintain the integrity of the competition.",
+        "Harassment, discrimination, or disruptive behavior toward participants or organizers will result in immediate disqualification.",
+        "For technical issues, rule clarifications, or disputes, participants must contact the organizers exclusively through the official support or ticket system. Decisions made through this channel are final and authoritative.",
+        "The organizing team reserves the right to modify rules, invalidate submissions, or disqualify participants to ensure fairness."
+      ],
+      "contacts": [
+        {
+          "name": "Pradeesh L",
+          "phone": "8122770492",
+          "email": "pradeeshl.cs2023@citchennai.net"
+        },
+        {
+          "name": "Muthuswamy M",
+          "phone": "9789981372",
+          "email": "muthuswamym.cs2023@citchennai.net"
+        }
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "OH-SIN-T",
+      "slug": "oh-sin-t",
+      "category": "technical",
+      "eventType": "team",
+      "image": "/events/oh-sint.jpg",
+      "type": "Technical",
+      "description": "If you're stuck, try googling it.",
+      "fullDescription": "Google Is Your Best Source is an OSINT-based challenge where you'll rely on your googling skills to find the answers to the various questions posed to you.",
+      "teamSize": {
+        "min": 2,
+        "max": 2
+      },
+      "duration": "45 minutes",
+      "rules": [
+        "This event will be conducted for 45 minutes, where teams will be randomly assigned to a batch. Each batch will have 4 categories - GEOsint, Social Media, Pop Culture and Sports.",
+        "2 laptops per team is required.",
+        "Having an Ethernet Port/Adapter is encouraged.",
+        "A timer will begin once the batch is underway and will automatically end after 45 minutes.",
+        "Participants are allowed to use AI tools such as ChatGPT, Gemini, Claude, etc.",
+        "Participants using external help will be immediately disqualified.",
+        "Any attempts to disrupt the event are strictly discouraged and will result in immediate disqualification."
+      ],
+      "contacts": [
+        {
+          "name": "Rajeeth Prabhu. S",
+          "phone": "+91 9176490742",
+          "email": "rajeethprabhus.cs2023@citchennai.net"
+        },
+        {
+          "name": "Jasirullah. N",
+          "phone": "+91 97104 49944",
+          "email": "jasirullahn.cs2023@citchennai.net"
+        }
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "Project Sherlock : Log Trace",
+      "slug": "project-sherlocks",
+      "category": "technical",
+      "type": "Technical",
+      "eventType": "team",
+      "image": "/events/sherlocks.jpg",
+      "description": "Project Sherlock: Log Trace is a cybersecurity investigation challenge focused on log analysis and incident investigation using a SIEM-enabled virtual environment.",
+      "fullDescription": "Project Sherlock: Log Trace is a cybersecurity investigation challenge focused on log analysis and incident investigation using a SIEM-enabled virtual environment. The event committee will provide an Ubuntu virtual machine image (.ova) with a pre-installed SIEM tool on the day of the event.",
+      "teamSize": {
+        "min": 1,
+        "max": 2
+      },
+      "duration": "3 hours",
+      "rules": [
+        "Participants must use only the VM image (.ova) provided by the event committee for investigation.",
+        "A total of three (3) random scenarios will be provided.",
+        "The total duration of the event is 3 hours.",
+        "A timer will start for each scenario once the participant reads the scenario.",
+        "Participants must submit an informal investigation report containing: Clear Findings, Evidence from logs, Accurate conclusions",
+        "Only one report submission is allowed per scenerio.",
+        "The use of AI tools or agents such as ChatGPT, Gemini, Perplexity, Grok, or similar platforms is strictly prohibited and will be actively monitored.",
+        "Any attempt to disrupt the event will result in immediate disqualification.",
+        "VM Specification: RAM: 4GB, Storage: 35GB",
+        "Team Size: Maximum of 2 members per team",
+        "VirtualBox must be pre-installed on the participant's device",
+        "Only one laptop is allowed per team",
+        "Minimum Laptop Specification: 8GB RAM & 45 GB Free Space"
+      ],
+      "judgingCriteria": [
+        "Time taken to investigate and complete each scenerio.",
+        "Accuracy, correctness and clarity of the investigation report."
+      ],
+      "finalNote": "The decision of the judges and organizing committee will be final and binding. Rules may be updated by the organizers if required.",
+      "contacts": [
+        {
+          "name": "Sriram G",
+          "phone": "+91 9344936517",
+          "email": "sriramg.cs2023@citchennai.net"
+        },
+        {
+          "name": "Samuel Jabez P",
+          "phone": "+91 8189802346",
+          "email": "samueljabezp.cs2023@citchennai.net"
+        }
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "Crime Chronicles",
+      "slug": "crime-chronicles",
+      "category": "non-technical",
+      "eventType": "team",
+      "image": "/events/crime.jpg",
+      "type": "Tech and Cybersecurity",
+      "mode": "Offline",
+      "description": "Analyze photographs and clues to reconstruct crimes.",
+      "fullDescription": "Teams are given a set of shuffled photographs and a crime description that must be correctly matched and arranged to reconstruct the story. By analyzing visual clues and sequence, participants identify the victim, the killer, and the method of the crime. Success depends on logical reasoning, teamwork, and sharp observation within the given time limit.",
+      "teamSize": {
+        "min": 2,
+        "max": 5
+      },
+      "duration": "10-15 minutes",
+      "rules": [
+        "Teams will be given a set of shuffled crime scene photos, slips of picture description and a crime scene enactment.",
+        "They must match the description to the picture and arrange it in a right order.",
+        "The crime scene can be investigated for more clues.",
+        "Participants will be given 15 minutes to arrange and analyze and interpret the clues",
+        "They must be ready to answer these questions: Who is the killer? Who is the victim? How was the crime committed? What was the motive?",
+        "Teams must submit their final answers within the given time limit.",
+        "The use of external help, mobile phones, or any unauthorized resources is strictly prohibited.",
+        "Any team found violating the rules will be disqualified."
+      ],
+      "judgingCriteria": [
+        "Accuracy in arranging the clues.",
+        "Correct identification of the killer, victim, and crime method.",
+        "Logical reasoning and explanation of the crime.",
+        "Time taken to complete the challenge (in case of a tie)."
+      ],
+      "contacts": [
+        {
+          "name": "Harrshavardhini V",
+          "phone": "9445638302",
+          "email": "harrshavardhiniv.cs2023@citchennai.net"
+        },
+        {
+          "name": "Aiswarya P",
+          "phone": "9952917006",
+          "email": "aishwaryap.cs2023@citchennai.net"
+        }
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "Paper Presentation",
+      "slug": "paper-presentation",
+      "category": "technical",
+      "eventType": "team",
+      "image": "/events/paper.jpg",
+      "type": "Technical Paper Presentation",
+      "mode": "Offline",
+      "description": "The Paper Presentation event provides a platform for students to showcase their analytical thinking, and presentation skills on emerging trends in technology and computing.",
+      "fullDescription": "The Paper Presentation event provides a platform for students to showcase their analytical thinking, and presentation skills on emerging trends in technology and computing. Participants are expected to present original ideas, research insights on contemporary technical topics, with clarity, structure, and professional articulation. The event emphasizes innovation, relevance, and the ability to communicate complex ideas effectively within a limited timeframe.",
+      "teamSize": {
+        "min": 1,
+        "max": 2
+      },
+      "presentationTime": "5 Minutes (Strict)",
+      "rules": [
+        "Each team may consist of a maximum of two participants. Participants from different colleges or institutions are allowed to form a team. Registration is mandatory through the official registration link.",
+        "Each team will be allotted strictly 5 minutes for presentation, and exceeding the allotted time may lead to interruption by the judges. Presentations must be prepared only in PowerPoint (PPT) format and must not exceed 20 slides, including title and conclusion slides.",
+        "All presented content must be original, and any form of plagiarism will result in immediate disqualification. Proper citations must be included wherever external references are used.",
+        "Participants are encouraged to use diagrams, flowcharts, block diagrams, and other visual representations to effectively communicate ideas, while avoiding long paragraphs and refraining from reading directly from the slides during the presentation.",
+        "Participants will be evaluated based on clarity of idea, original thinking, relevance of the topic, logical structure and explanation, quality of presentation delivery, and the ability to answer judges' questions.",
+        "Only digital PPT submissions will be accepted, and participants must ensure that their presentation files are ready before their allotted presentation slot.",
+        "Participants must maintain professional behavior throughout the event, and any form of misbehavior or violation of rules will lead to disqualification.",
+        "The decision of the judges will be final and binding, and no appeals or disputes will be entertained after the declaration of results."
+      ],
+      "topics": [
+        "AI Agents as Emerging Security Liabilities in Autonomous Software Systems",
+        "The Disappearance of Physical Interfaces in Future Digital Systems",
+        "Cyber Warfare and the Vulnerability of Modern Armed Forces",
+        "Fear and Uncertainty as Barriers to Cyber Incident Reporting",
+        "Lateral Movement Risks in Multi-Tenant Cloud Infrastructure",
+        "Challenges of Digital Forensics in Encrypted and Anonymous Environments",
+        "From Problem Solving to Prompting: Rethinking Technical Hiring",
+        "The Relevance of Learning Multiple Programming Languages in an AI-Driven Era",
+        "DevOps as a Core Requirement in Contemporary Software Development",
+        "Platform Engineering and the Evolution of Internal Developer Experience"
+      ],
+      "contacts": [
+        {
+          "name": "Subha Shree A",
+          "phone": "9677151810",
+          "email": "subhashreea.cs2023@citchennai.net"
+        },
+        {
+          "name": "Harshana R K",
+          "phone": "9962614141",
+          "email": "harshanark.cs2023@citchennai.net"
+        }
+      ],
+      "status": "upcoming",
+      "isActive": true
+    },
+    {
+      "title": "Pixel Palette – Poster Design",
+      "slug": "pixel-palette",
+      "category": "creative",
+      "eventType": "individual",
+      "image": "/events/pixel-palette.png",
+      "type": "Design",
+      "mode": "Offline (On-Spot)",
+      "description": "Unleash your creativity — paint your imagination on the spot!",
+      "fullDescription": "Pixel Palette is a creative event that challenges participants to communicate ideas visually with clarity and impact. Participants design an engaging poster based on the given theme, focusing on creativity, originality, and effective visual storytelling. Entries are evaluated on design aesthetics, relevance to the theme, clarity of message, and overall presentation.",
+      "teamSize": {
+        "min": 1,
+        "max": 1
+      },
+      "duration": "120 minutes",
+      "rules": [
+        "This is an on-spot poster designing event; the theme will be announced at the venue.",
+        "Participants must design the poster within the given time limit.",
+        "Both digital and hand-drawn posters are allowed. Participants must bring their own materials for hand-drawn posters.",
+        "For digital designs, participants must bring their own laptops and design tools (Photoshop, Illustrator, Canva, etc.). Internet access will not be guaranteed.",
+        "All posters must be original and created during the event. Any form of plagiarism will lead to disqualification.",
+        "Poster dimensions and submission format will be provided on the spot.",
+        "Participants must submit their final poster before the allotted time ends; late submissions will not be accepted.",
+        "Posters must not contain offensive, political, or sensitive content.",
+        "Judging criteria include creativity, relevance to theme, clarity of concept, visual appeal, and originality.",
+        "Results will be decided solely by the judge, and the judge's decision will be final."
+      ],
+      "contacts": [
+        {
+          "name": "M.VIGNESHKUMAR",
+          "phone": "9444681463",
+          "email": "mvigneshkumar.cs2023@citchennai.net"
+        },
+        {
+          "name": "Roshan",
+          "phone": "7010488573",
+          "email": "roshankumars1.cse2024@citchennai.net"
+        }
+      ],
+      "status": "upcoming",
+      "isActive": true
+    }
+  ]
+}
