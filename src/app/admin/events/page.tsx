@@ -277,26 +277,31 @@ export default function AdminEventsPage() {
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-gray-400">Registrations</span>
                   <span className="text-primary font-bold">
-                    {event.currentRegistrations} / {event.capacity}
+                    {event.currentRegistrations}
+                    {event.eventType === "workshop" && ` / ${event.capacity}`}
                   </span>
                 </div>
-                <div className="w-full bg-gray-700 rounded-full h-2">
-                  <div
-                    className="bg-primary rounded-full h-2"
-                    style={{
-                      width: `${Math.min(
+                {event.eventType === "workshop" && (
+                  <>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div
+                        className="bg-primary rounded-full h-2"
+                        style={{
+                          width: `${Math.min(
+                            (event.currentRegistrations / event.capacity) * 100,
+                            100,
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {Math.round(
                         (event.currentRegistrations / event.capacity) * 100,
-                        100,
-                      )}%`,
-                    }}
-                  />
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {Math.round(
-                    (event.currentRegistrations / event.capacity) * 100,
-                  )}
-                  % filled
-                </div>
+                      )}
+                      % filled
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="flex gap-2 flex-wrap">

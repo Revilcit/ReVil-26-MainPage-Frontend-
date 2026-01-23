@@ -55,7 +55,7 @@ export const EventCard = memo(
               )}
             </div>
 
-            {event.capacity && (
+            {event.eventType === "workshop" && event.capacity && (
               <div className="mt-3 text-sm">
                 <span className="text-gray-600 dark:text-gray-400">
                   {event.currentRegistrations || 0} / {event.capacity}{" "}

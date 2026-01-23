@@ -18,7 +18,6 @@ interface EventViewModel {
 }
 
 const AUTO_PLAY_INTERVAL = 4000;
-const FOCUS_DURATION = 2000;
 const INACTIVITY_DELAY = 10000;
 
 export default function EventsPage() {
@@ -29,11 +28,8 @@ export default function EventsPage() {
   const [paused, setPaused] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
 
-  const [isFocused, setIsFocused] = useState(true);
-
   const autoplayRef = useRef<NodeJS.Timeout | null>(null);
   const inactivityRef = useRef<NodeJS.Timeout | null>(null);
-  const focusRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch events from API
   useEffect(() => {
@@ -76,7 +72,6 @@ export default function EventsPage() {
   const clearTimers = useCallback(() => {
     if (autoplayRef.current) clearTimeout(autoplayRef.current);
     if (inactivityRef.current) clearTimeout(inactivityRef.current);
-    if (focusRef.current) clearTimeout(focusRef.current);
   }, []);
 
   const pauseAutoplay = useCallback(() => {
@@ -90,11 +85,6 @@ export default function EventsPage() {
 
   useEffect(() => {
     if (paused || events.length === 0) return;
-
-    setIsFocused(true);
-    focusRef.current = setTimeout(() => {
-      setIsFocused(false);
-    }, FOCUS_DURATION);
 
     autoplayRef.current = setTimeout(() => {
       setHasStarted(true);
@@ -133,7 +123,7 @@ export default function EventsPage() {
   };
 
   const handleRegisterClick = (eventId?: string) => {
-    // Check if user is logged in
+    // // Check if user is logged in
     // const token =
     //   typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
@@ -537,7 +527,7 @@ export default function EventsPage() {
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
-                <div className="p-5 flex flex-col flex-grow">
+                <div className="p-5 flex flex-col grow">
                   <span className="text-[#00E5FF] font-mono text-xs tracking-widest uppercase">
                     {ev.type}
                   </span>
@@ -547,7 +537,7 @@ export default function EventsPage() {
                   </h3>
 
                   {/* Description restored */}
-                  <p className="text-gray-300 text-sm leading-relaxed mt-3 flex-grow">
+                  <p className="text-gray-300 text-sm leading-relaxed mt-3 grow">
                     {ev.description}
                   </p>
 

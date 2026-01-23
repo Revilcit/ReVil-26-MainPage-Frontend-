@@ -16,9 +16,6 @@ interface Workshop extends ApiEvent {
 export default function WorkshopsPage() {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | null>(
-    null,
-  );
 
   useEffect(() => {
     const loadWorkshops = async () => {
@@ -120,12 +117,12 @@ export default function WorkshopsPage() {
                       </div>
 
                       {/* Content Section */}
-                      <div className="p-6 flex flex-col flex-grow">
+                      <div className="p-6 flex flex-col grow">
                         <h2 className="text-white font-bold text-xl mb-3 leading-tight">
                           {workshop.title}
                         </h2>
 
-                        <p className="text-gray-300 text-sm leading-relaxed mb-4 flex-grow line-clamp-3">
+                        <p className="text-gray-300 text-sm leading-relaxed mb-4 grow line-clamp-3">
                           {workshop.description}
                         </p>
 

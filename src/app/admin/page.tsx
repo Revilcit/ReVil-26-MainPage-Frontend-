@@ -34,6 +34,7 @@ interface TopEvent {
   currentRegistrations: number;
   capacity: number;
   date: string;
+  eventType: string;
 }
 
 interface DashboardData {
@@ -316,15 +317,23 @@ export default function AdminDashboard() {
                       <div className="text-primary font-bold text-xl">
                         {event.currentRegistrations}
                       </div>
-                      <div className="text-sm text-gray-400">
-                        / {event.capacity} capacity
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {Math.round(
-                          (event.currentRegistrations / event.capacity) * 100,
-                        )}
-                        % filled
-                      </div>
+                      {event.eventType === "workshop" && (
+                        <>
+                          <div className="text-sm text-gray-400">
+                            / {event.capacity} capacity
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {Math.round(
+                              (event.currentRegistrations / event.capacity) *
+                                100,
+                            )}
+                            % filled
+                          </div>
+                        </>
+                      )}
+                      {event.eventType !== "workshop" && (
+                        <div className="text-sm text-gray-400">registered</div>
+                      )}
                     </div>
                   </div>
                 ))}

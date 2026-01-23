@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import QRCode from "qrcode";
+import QRCodeDisplay from "@/components/ui/QRCodeDisplay";
 import {
   fetchUserWithRegistrations,
   handleImageError,
@@ -13,9 +13,9 @@ export default function DashboardPage() {
   const router = useRouter();
   const [userData, setUserData] = useState<UserWithRegistrations | null>(null);
   const [loading, setLoading] = useState(true);
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const [selectedRegistration, setSelectedRegistration] =
     useState<EventRegistration | null>(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -28,23 +28,6 @@ export default function DashboardPage() {
       try {
         const data = await fetchUserWithRegistrations(token);
         setUserData(data);
-
-        // Generate QR code from user's qrCode field
-        if (data.user.qrCode) {
-          const url = await QRCode.toDataURL(data.user.qrCode, {
-            width: 300,
-            margin: 2,
-            color: {
-              dark: "#00f0ff",
-              light: "#000000",
-            },
-          });
-          setQrCodeUrl(url);
-        } else {
-          console.warn(
-            "User doesn't have a QR code. They need to log out and log back in.",
-          );
-        }
       } catch (err) {
         const error = err as Error;
         console.error("Dashboard fetch error:", error.message);
@@ -86,19 +69,6 @@ export default function DashboardPage() {
     // Dispatch custom event to notify other components (like Navbar)
     window.dispatchEvent(new Event("user-logout"));
     router.push("/login");
-  };
-
-  const downloadQRCode = () => {
-    if (!qrCodeUrl || !userData) return;
-
-    const link = document.createElement("a");
-    link.href = qrCodeUrl;
-    link.download = `revil-qr-${userData.user.name
-      .replace(/\s+/g, "-")
-      .toLowerCase()}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   if (loading) {
@@ -208,19 +178,17 @@ export default function DashboardPage() {
                 Use this single QR code for all event check-ins - building
                 entrance and sessions
               </p>
-              <div className="bg-black p-4 rounded-lg border border-primary/30 mb-4">
-                {qrCodeUrl ? (
-                  <img
-                    src={qrCodeUrl}
-                    alt="User QR Code"
-                    className="w-full h-auto"
-                  />
-                ) : userData.user.qrCode ? (
-                  <div className="w-full h-64 flex flex-col items-center justify-center text-gray-500">
-                    <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mb-2" />
-                    <span>Generating QR Code...</span>
-                  </div>
-                ) : (
+              {userData.user.qrCode ? (
+                <QRCodeDisplay
+                  data={userData.user.qrCode}
+                  size={300}
+                  filename={`revil-qr-${userData.user.name
+                    .replace(/\s+/g, "-")
+                    .toLowerCase()}.png`}
+                  showDownloadButton={true}
+                />
+              ) : (
+                <div className="bg-black p-4 rounded-lg border border-primary/30 mb-4">
                   <div className="w-full h-64 flex flex-col items-center justify-center text-yellow-500">
                     <svg
                       className="w-12 h-12 mb-2"
@@ -239,28 +207,8 @@ export default function DashboardPage() {
                       Please log out and log back in to generate your QR code
                     </span>
                   </div>
-                )}
-              </div>
-              <button
-                onClick={downloadQRCode}
-                disabled={!qrCodeUrl}
-                className="w-full px-4 py-3 bg-primary text-black font-bold uppercase text-sm hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg
-                  className="w-5 h-5 inline-block mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                  />
-                </svg>
-                Download QR Code
-              </button>
+                </div>
+              )}
               <p className="text-xs text-gray-500 mt-2 text-center">
                 Save to your phone for easy access at events
               </p>
@@ -495,9 +443,8 @@ export default function DashboardPage() {
             </div>
 
             <button
-              onClick={downloadQRCode}
-              disabled={!qrCodeUrl}
               className="mt-4 w-full px-4 py-3 bg-primary text-black font-bold uppercase text-sm hover:bg-white transition-colors disabled:opacity-50"
+              disabled={!qrCodeUrl}
             >
               Download QR Code
             </button>

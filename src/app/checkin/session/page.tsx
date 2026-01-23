@@ -323,7 +323,9 @@ export default function SessionCheckInPage() {
                   )}
                   <div className="mt-4 flex items-center justify-between">
                     <span className="text-gray-400 text-sm">
-                      {event.currentRegistrations || 0} / {event.capacity}{" "}
+                      {event.currentRegistrations || 0}
+                      {event.eventType === "workshop" &&
+                        ` / ${event.capacity}`}{" "}
                       registered
                     </span>
                     <svg

@@ -33,20 +33,25 @@ export interface UserBasic {
 export interface Event {
   _id: string;
   title: string;
+  slug?: string;
   description: string;
+  fullDescription?: string;
   image?: string;
   type?: string;
+  host?: string;
+  duration?: string;
+  prerequisites?: string[];
   startTime?: string;
   endTime?: string;
   venue?: string;
   capacity: number;
   currentRegistrations?: number;
-  eventType: "workshop" | "talk" | "panel" | "networking";
+  eventType: "workshop" | "talk" | "panel" | "networking" | "event";
   status: "upcoming" | "ongoing" | "completed" | "cancelled";
   speakers?: Array<{
     name: string;
     bio: string;
-    photo: string;
+    photo?: string;
   }>;
   // Event coordinators / contacts
   contacts?: Array<{
