@@ -64,7 +64,7 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
 function TimeUnit({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center">
-      <div className="relative overflow-hidden h-12 sm:h-20 w-12 sm:w-20 bg-black/50 border border-cyan-500/30 rounded-md flex items-center justify-center">
+      <div className="relative overflow-hidden h-12 sm:h-20 w-12 sm:w-20 bg-black/50 border border-cyan-500/30 rounded-md flex items-center justify-center cursor-target">
         <AnimatePresence mode="popLayout">
           <motion.span
             key={value}

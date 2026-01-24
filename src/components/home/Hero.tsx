@@ -111,7 +111,7 @@ export function Hero() {
               borderColor="#00f0ff"
               animationDuration={0.5}
               pauseBetweenAnimations={0.5}
-              className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-white font-orbitron"
+              className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-white font-orbitron cursor-target"
               gap="gap-8 md:gap-12"
               layoutIdPrefix="revil-main"
             />
