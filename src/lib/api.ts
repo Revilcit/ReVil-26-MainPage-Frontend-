@@ -570,3 +570,80 @@ export async function cancelWorkshopRegistration(
     throw error;
   }
 }
+
+/**
+ * Create payment order for workshop registration
+ */
+export async function createPaymentOrder(
+  workshopId: string,
+  registrationData: {
+    phone: string;
+    college: string;
+    year: string;
+    branch: string;
+    additionalInfo?: string;
+  },
+): Promise<{
+  success: boolean;
+  orderId: string;
+  paymentSessionId: string;
+  amount: number;
+}> {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("UNAUTHORIZED");
+    }
+
+    const response = await api.post(
+      `/workshops/${workshopId}/create-payment-order`,
+      registrationData,
+    );
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      throw new Error("UNAUTHORIZED");
+    }
+    if (error.response?.data?.error) {
+      throw new Error(error.response.data.error);
+    }
+    throw new Error("Failed to create payment order");
+  }
+}
+
+/**
+ * Get payment order status
+ */
+export async function getPaymentStatus(orderId: string): Promise<{
+  orderId: string;
+  status: "PENDING" | "SUCCESS" | "FAILED" | "CANCELLED";
+  amount: number;
+  workshop: {
+    _id: string;
+    title: string;
+    slug: string;
+  };
+  registrationId?: string;
+  paymentDetails?: any;
+  createdAt: string;
+}> {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("UNAUTHORIZED");
+    }
+
+    const response = await api.get(`/payment/status/${orderId}`);
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      throw new Error("UNAUTHORIZED");
+    }
+    if (error.response?.data?.error) {
+      throw new Error(error.response.data.error);
+    }
+    throw new Error("Failed to get payment status");
+  }
+}

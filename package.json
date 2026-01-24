@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@cashfreepayments/cashfree-js": "^1.0.5",
     "@dimforge/rapier3d-compat": "^0.19.3",
     "@google/generative-ai": "^0.24.1",
     "@react-three/drei": "^10.7.7",

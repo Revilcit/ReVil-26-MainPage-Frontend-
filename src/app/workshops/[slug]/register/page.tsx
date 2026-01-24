@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
-import { fetchWorkshopBySlug, registerForWorkshop } from "@/lib/api";
+import { fetchWorkshopBySlug, createPaymentOrder } from "@/lib/api";
 import { Event as ApiEvent } from "@/types/api";
 import toast, { Toaster } from "react-hot-toast";
+import { load } from "@cashfreepayments/cashfree-js";
 
 export default function WorkshopRegisterPage() {
   const router = useRouter();
@@ -21,6 +22,18 @@ export default function WorkshopRegisterPage() {
     year: "",
     branch: "",
     additionalInfo: "",
+  });
+  const [errors, setErrors] = useState({
+    phone: "",
+    college: "",
+    year: "",
+    branch: "",
+  });
+  const [touched, setTouched] = useState({
+    phone: false,
+    college: false,
+    year: false,
+    branch: false,
   });
 
   useEffect(() => {
@@ -48,8 +61,77 @@ export default function WorkshopRegisterPage() {
     loadWorkshop();
   }, [slug, router]);
 
+  // Validation functions
+  const validatePhone = (phone: string): string => {
+    if (!phone) return "Phone number is required";
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(phone)) {
+      return "Please enter a valid 10-digit Indian mobile number";
+    }
+    return "";
+  };
+
+  const validateCollege = (college: string): string => {
+    if (!college) return "College/Institution name is required";
+    if (college.length < 3) {
+      return "College name must be at least 3 characters";
+    }
+    if (college.length > 100) {
+      return "College name must not exceed 100 characters";
+    }
+    if (!/^[a-zA-Z0-9\s.,()-]+$/.test(college)) {
+      return "College name contains invalid characters";
+    }
+    return "";
+  };
+
+  const validateYear = (year: string): string => {
+    if (!year) return "Year is required";
+    return "";
+  };
+
+  const validateBranch = (branch: string): string => {
+    if (!branch) return "Branch is required";
+    if (branch.length < 2) {
+      return "Branch must be at least 2 characters";
+    }
+    if (branch.length > 50) {
+      return "Branch must not exceed 50 characters";
+    }
+    if (!/^[a-zA-Z0-9\s&()-]+$/.test(branch)) {
+      return "Branch contains invalid characters";
+    }
+    return "";
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors = {
+      phone: validatePhone(formData.phone),
+      college: validateCollege(formData.college),
+      year: validateYear(formData.year),
+      branch: validateBranch(formData.branch),
+    };
+
+    setErrors(newErrors);
+    setTouched({
+      phone: true,
+      college: true,
+      year: true,
+      branch: true,
+    });
+
+    return !Object.values(newErrors).some((error) => error !== "");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate form before submission
+    if (!validateForm()) {
+      toast.error("Please fix all validation errors before submitting");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -58,22 +140,41 @@ export default function WorkshopRegisterPage() {
         return;
       }
 
-      await registerForWorkshop(workshop._id, formData);
+      // Create payment order
+      const { orderId, paymentSessionId } = await createPaymentOrder(
+        workshop._id,
+        formData,
+      );
 
-      toast.success("Successfully registered for workshop!");
+      // Initialize Cashfree SDK using official package
+      const cashfreeMode =
+        process.env.NEXT_PUBLIC_CASHFREE_MODE === "production"
+          ? "production"
+          : "sandbox";
 
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 2000);
+      const cashfree = await load({
+        mode: cashfreeMode,
+      });
+
+      if (!cashfree) {
+        throw new Error("Failed to load Cashfree SDK");
+      }
+
+      // Open Cashfree payment modal
+      const checkoutOptions = {
+        paymentSessionId: paymentSessionId,
+        returnUrl: `${window.location.origin}/workshops/${slug}/payment-callback?order_id=${orderId}`,
+      };
+
+      await cashfree.checkout(checkoutOptions);
     } catch (error: any) {
-      console.error("Registration error:", error);
+      console.error("Payment initiation error:", error);
 
       if (error.message === "UNAUTHORIZED") {
         toast.error("Please login to register");
         router.push("/login");
       } else {
-        toast.error(error.message || "Failed to register for workshop");
+        toast.error(error.message || "Failed to initiate payment");
       }
     } finally {
       setSubmitting(false);
@@ -85,10 +186,53 @@ export default function WorkshopRegisterPage() {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
   ) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+
+    // Validate field on change if it has been touched
+    if (touched[name as keyof typeof touched]) {
+      let error = "";
+      switch (name) {
+        case "phone":
+          error = validatePhone(value);
+          break;
+        case "college":
+          error = validateCollege(value);
+          break;
+        case "year":
+          error = validateYear(value);
+          break;
+        case "branch":
+          error = validateBranch(value);
+          break;
+      }
+      setErrors({ ...errors, [name]: error });
+    }
+  };
+
+  const handleBlur = (field: keyof typeof touched) => {
+    setTouched({ ...touched, [field]: true });
+
+    // Validate on blur
+    let error = "";
+    switch (field) {
+      case "phone":
+        error = validatePhone(formData.phone);
+        break;
+      case "college":
+        error = validateCollege(formData.college);
+        break;
+      case "year":
+        error = validateYear(formData.year);
+        break;
+      case "branch":
+        error = validateBranch(formData.branch);
+        break;
+    }
+    setErrors({ ...errors, [field]: error });
   };
 
   if (loading) {
@@ -333,10 +477,19 @@ export default function WorkshopRegisterPage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
+                    onBlur={() => handleBlur("phone")}
                     required
-                    className="w-full px-4 py-3 bg-black border border-gray-600 rounded text-white focus:outline-none focus:border-primary transition-colors"
-                    placeholder="Your phone number"
+                    maxLength={10}
+                    className={`w-full px-4 py-3 bg-black border rounded text-white focus:outline-none transition-colors ${
+                      touched.phone && errors.phone
+                        ? "border-red-500 focus:border-red-500"
+                        : "border-gray-600 focus:border-primary"
+                    }`}
+                    placeholder="10-digit mobile number"
                   />
+                  {touched.phone && errors.phone && (
+                    <p className="mt-2 text-sm text-red-500">{errors.phone}</p>
+                  )}
                 </div>
 
                 <div>
@@ -352,10 +505,21 @@ export default function WorkshopRegisterPage() {
                     name="college"
                     value={formData.college}
                     onChange={handleChange}
+                    onBlur={() => handleBlur("college")}
                     required
-                    className="w-full px-4 py-3 bg-black border border-gray-600 rounded text-white focus:outline-none focus:border-primary transition-colors"
+                    maxLength={100}
+                    className={`w-full px-4 py-3 bg-black border rounded text-white focus:outline-none transition-colors ${
+                      touched.college && errors.college
+                        ? "border-red-500 focus:border-red-500"
+                        : "border-gray-600 focus:border-primary"
+                    }`}
                     placeholder="Your college name"
                   />
+                  {touched.college && errors.college && (
+                    <p className="mt-2 text-sm text-red-500">
+                      {errors.college}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -371,8 +535,13 @@ export default function WorkshopRegisterPage() {
                       name="year"
                       value={formData.year}
                       onChange={handleChange}
+                      onBlur={() => handleBlur("year")}
                       required
-                      className="w-full px-4 py-3 bg-black border border-gray-600 rounded text-white focus:outline-none focus:border-primary transition-colors"
+                      className={`w-full px-4 py-3 bg-black border rounded text-white focus:outline-none transition-colors ${
+                        touched.year && errors.year
+                          ? "border-red-500 focus:border-red-500"
+                          : "border-gray-600 focus:border-primary"
+                      }`}
                     >
                       <option value="">Select</option>
                       <option value="1">1st Year</option>
@@ -381,6 +550,9 @@ export default function WorkshopRegisterPage() {
                       <option value="4">4th Year</option>
                       <option value="other">Other</option>
                     </select>
+                    {touched.year && errors.year && (
+                      <p className="mt-2 text-sm text-red-500">{errors.year}</p>
+                    )}
                   </div>
 
                   <div>
@@ -396,10 +568,21 @@ export default function WorkshopRegisterPage() {
                       name="branch"
                       value={formData.branch}
                       onChange={handleChange}
+                      onBlur={() => handleBlur("branch")}
                       required
-                      className="w-full px-4 py-3 bg-black border border-gray-600 rounded text-white focus:outline-none focus:border-primary transition-colors"
-                      placeholder="e.g., CSE"
+                      maxLength={50}
+                      className={`w-full px-4 py-3 bg-black border rounded text-white focus:outline-none transition-colors ${
+                        touched.branch && errors.branch
+                          ? "border-red-500 focus:border-red-500"
+                          : "border-gray-600 focus:border-primary"
+                      }`}
+                      placeholder="e.g., CSE, ECE, Mechanical"
                     />
+                    {touched.branch && errors.branch && (
+                      <p className="mt-2 text-sm text-red-500">
+                        {errors.branch}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -416,9 +599,13 @@ export default function WorkshopRegisterPage() {
                     value={formData.additionalInfo}
                     onChange={handleChange}
                     rows={3}
+                    maxLength={500}
                     className="w-full px-4 py-3 bg-black border border-gray-600 rounded text-white focus:outline-none focus:border-primary transition-colors resize-none"
                     placeholder="Any questions or special requirements?"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    {formData.additionalInfo.length}/500 characters
+                  </p>
                 </div>
 
                 <button
