@@ -47,7 +47,7 @@ export default function RegisterPage() {
         const events = await fetchEvents();
         const foundEvent = events.find((e) => e._id === eventId);
         if (foundEvent) {
-          console.log(foundEvent);
+          // console.log(foundEvent);
           setEvent(foundEvent);
           setIsTeamRegistration(foundEvent.isTeamEvent || false);
         } else {

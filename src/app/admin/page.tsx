@@ -73,7 +73,7 @@ export default function AdminDashboard() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          console.log("Unauthorized - redirecting to login");
+          // console.log("Unauthorized - redirecting to login");
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           router.push("/login");
@@ -83,11 +83,11 @@ export default function AdminDashboard() {
       }
 
       const result = await response.json();
-      console.log("User profile:", result.data);
+      // console.log("User profile:", result.data);
       const role = result.data.role;
 
       if (role !== "superadmin") {
-        console.log("User is not superadmin, redirecting to dashboard");
+        // console.log("User is not superadmin, redirecting to dashboard");
         setError("You must be an admin to access this page");
         setTimeout(() => {
           router.push("/dashboard");
