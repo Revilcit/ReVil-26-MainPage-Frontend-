@@ -25,6 +25,7 @@ export default function RegisterPage() {
 
   // Terms acceptance
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   // Team registration fields
   const [isTeamRegistration, setIsTeamRegistration] = useState(false);
@@ -651,16 +652,38 @@ export default function RegisterPage() {
 
           {/* Terms and Conditions */}
           <div className="mt-8 p-4 bg-gray-900/50 border border-gray-700 rounded">
-            <label className="flex items-start gap-3 cursor-pointer">
+            <label className="flex items-start gap-3">
               <input
                 type="checkbox"
                 checked={acceptedTerms}
-                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                onChange={(e) => {
+                  setAcceptedTerms(e.target.checked);
+                  if (e.target.checked) {
+                    console.log(
+                      "%c🎉 Welcome to ReVil 2026! 🎉",
+                      "color: #00ff88; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,255,136,0.5);",
+                    );
+                    console.log(
+                      "%cYou're about to embark on an epic journey! 🚀",
+                      "color: #00ff88; font-size: 16px;",
+                    );
+                    console.log(
+                      "%cPro tip: Keep your energy levels high and your code cleaner! 💻✨",
+                      "color: #ffffff; font-size: 14px; font-style: italic;",
+                    );
+                  }
+                }}
                 className="mt-1 w-5 h-5 rounded border-gray-600 bg-black text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer"
               />
               <span className="text-gray-300 text-sm leading-relaxed">
                 I agree to the{" "}
-                <span className="text-primary hover:underline cursor-pointer">
+                <span
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowTermsModal(true);
+                  }}
+                  className="text-primary hover:underline cursor-pointer"
+                >
                   Terms and Conditions
                 </span>{" "}
                 and understand that my registration information will be used for
@@ -669,6 +692,220 @@ export default function RegisterPage() {
               </span>
             </label>
           </div>
+
+          {/* Terms and Conditions Modal */}
+          {showTermsModal && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+              onClick={() => setShowTermsModal(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-gray-900 border border-primary/30 rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col"
+              >
+                <div className="p-6 border-b border-gray-800 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-primary font-orbitron">
+                    TERMS AND CONDITIONS
+                  </h2>
+                  <button
+                    onClick={() => setShowTermsModal(false)}
+                    className="text-gray-400 hover:text-white transition-colors p-2"
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="p-6 overflow-y-auto flex-1">
+                  <div className="space-y-6 text-gray-300">
+                    <section>
+                      <h3 className="text-lg font-bold text-white mb-3">
+                        1. Registration & Participation
+                      </h3>
+                      <ul className="list-disc list-inside space-y-2 text-sm">
+                        <li>
+                          All participants must provide accurate and complete
+                          information during registration.
+                        </li>
+                        <li>
+                          Participants must be students with valid college
+                          identification.
+                        </li>
+                        <li>
+                          Team registrations must include all team members at
+                          the time of registration.
+                        </li>
+                      </ul>
+                    </section>
+
+                    <section>
+                      <h3 className="text-lg font-bold text-white mb-3">
+                        2. Event Rules & Conduct
+                      </h3>
+                      <ul className="list-disc list-inside space-y-2 text-sm">
+                        <li>
+                          All participants must adhere to the specific rules of
+                          each event.
+                        </li>
+                        <li>
+                          Any form of cheating, plagiarism, or unfair means will
+                          lead to immediate disqualification.
+                        </li>
+                        <li>
+                          Participants must maintain professional and respectful
+                          behavior throughout the event.
+                        </li>
+                        <li>
+                          The organizers reserve the right to modify event rules
+                          if necessary.
+                        </li>
+                      </ul>
+                    </section>
+
+                    <section>
+                      <h3 className="text-lg font-bold text-white mb-3">
+                        3. Data & Privacy
+                      </h3>
+                      <ul className="list-disc list-inside space-y-2 text-sm">
+                        <li>
+                          Your personal information will be used solely for
+                          event management purposes.
+                        </li>
+                        <li>
+                          We may contact you via email or phone regarding event
+                          updates and notifications.
+                        </li>
+                        <li>
+                          Event photographs and videos may be used for
+                          promotional purposes.
+                        </li>
+                        <li>
+                          We do not share your personal information with third
+                          parties without consent.
+                        </li>
+                      </ul>
+                    </section>
+
+                    <section>
+                      <h3 className="text-lg font-bold text-white mb-3">
+                        4. Liability & Safety
+                      </h3>
+                      <ul className="list-disc list-inside space-y-2 text-sm">
+                        <li>Participants attend events at their own risk.</li>
+                        <li>
+                          The organizers are not liable for any injury, loss, or
+                          damage to personal property.
+                        </li>
+                        <li>
+                          Participants must follow all safety guidelines and
+                          venue regulations.
+                        </li>
+                        <li>
+                          Emergency contact information should be accurate and
+                          up-to-date.
+                        </li>
+                      </ul>
+                    </section>
+
+                    <section>
+                      <h3 className="text-lg font-bold text-white mb-3">
+                        5. Cancellation & Refunds
+                      </h3>
+                      <ul className="list-disc list-inside space-y-2 text-sm">
+                        <li>
+                          The organizers reserve the right to cancel or
+                          reschedule events due to unforeseen circumstances.
+                        </li>
+                        <li>
+                          Registration fees, if any, are non-refundable except
+                          in cases of event cancellation.
+                        </li>
+                        <li>
+                          Participants who fail to attend without prior notice
+                          will not be eligible for refunds.
+                        </li>
+                      </ul>
+                    </section>
+
+                    <section>
+                      <h3 className="text-lg font-bold text-white mb-3">
+                        6. Intellectual Property
+                      </h3>
+                      <ul className="list-disc list-inside space-y-2 text-sm">
+                        <li>
+                          All projects and submissions become the property of
+                          the participants.
+                        </li>
+                        <li>
+                          However, organizers may showcase winning projects for
+                          promotional purposes.
+                        </li>
+                        <li>
+                          Participants must not infringe on any copyrights or
+                          intellectual property rights.
+                        </li>
+                      </ul>
+                    </section>
+
+                    <section>
+                      <h3 className="text-lg font-bold text-white mb-3">
+                        7. Contact & Support
+                      </h3>
+                      <p className="text-sm">
+                        For any queries or concerns regarding these terms,
+                        please contact the event coordinators listed on the
+                        event page.
+                      </p>
+                    </section>
+                  </div>
+                </div>
+
+                <div className="p-6 border-t border-gray-800 flex justify-end gap-4">
+                  <button
+                    onClick={() => setShowTermsModal(false)}
+                    className="px-6 py-2 border border-gray-600 text-gray-300 rounded hover:border-primary hover:text-primary transition-colors"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={() => {
+                      setAcceptedTerms(true);
+                      setShowTermsModal(false);
+                      console.log(
+                        "%c🎉 Welcome to ReVil 2026! 🎉",
+                        "color: #00ff88; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,255,136,0.5);",
+                      );
+                      console.log(
+                        "%cYou're about to embark on an epic journey! 🚀",
+                        "color: #00ff88; font-size: 16px;",
+                      );
+                      console.log(
+                        "%cPro tip: Keep your energy levels high and your code cleaner! 💻✨",
+                        "color: #ffffff; font-size: 14px; font-style: italic;",
+                      );
+                    }}
+                    className="px-6 py-2 bg-primary text-black font-bold rounded hover:bg-white transition-colors"
+                  >
+                    Accept & Close
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
 
           <div className="mt-8 flex gap-4">
             <button
