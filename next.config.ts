@@ -12,13 +12,13 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "ui-avatars.com",
       },
-    ],
+    ],  
     formats: ["image/avif", "image/webp"], // Modern image formats
   },
 
   // Compiler optimizations
   compiler: {
-    removeConsole: process.env.NODE_ENV === "production", // Remove console.logs in production
+    removeConsole: false, // Remove console.logs in production
   },
 
   // Enable SWC minification for faster builds

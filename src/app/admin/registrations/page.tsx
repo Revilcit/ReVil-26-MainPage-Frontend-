@@ -88,7 +88,7 @@ export default function AdminRegistrationsPage() {
       }
 
       const result = await response.json();
-      console.log(result.data);
+      // console.log(result.data);
       setRegistrations(result.data);
       setFilteredRegistrations(result.data);
     } catch (err: any) {
@@ -147,7 +147,7 @@ export default function AdminRegistrationsPage() {
       // Refresh registrations
       fetchRegistrations(token);
     } catch (err: any) {
-      console.log(err);
+      // console.log(err);
       alert(`Error: ${err.message}`);
     }
   };

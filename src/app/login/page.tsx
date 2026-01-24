@@ -12,12 +12,12 @@ export default function LoginPage() {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       // Log the message for debugging
-      console.log("Received postMessage:", event.origin, event.data);
+      // console.log("Received postMessage:", event.origin, event.data);
 
       // Accept messages from backend (ngrok URL)
       // In production, validate event.origin matches your backend domain
       if (event.data.type === "AUTH_SUCCESS" && event.data.token) {
-        console.log("Authentication successful, storing token");
+        // console.log("Authentication successful, storing token");
         localStorage.setItem("token", event.data.token);
 
         // Store user data if provided (includes profile picture)
@@ -28,7 +28,7 @@ export default function LoginPage() {
         // Dispatch storage event for other components to detect
         window.dispatchEvent(new Event("storage"));
 
-        console.log("Redirecting to dashboard");
+        // console.log("Redirecting to dashboard");
         router.push("/dashboard");
       }
     };
