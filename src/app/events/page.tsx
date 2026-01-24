@@ -20,6 +20,21 @@ interface EventViewModel {
 const AUTO_PLAY_INTERVAL = 4000;
 const INACTIVITY_DELAY = 10000;
 
+// Performance optimization: Detect device capabilities
+const isMobileDevice = () => {
+  if (typeof window === "undefined") return false;
+  return (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    ) || window.innerWidth < 768
+  );
+};
+
+const prefersReducedMotion = () => {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+};
+
 export default function EventsPage() {
   const router = useRouter();
   const [events, setEvents] = useState<EventViewModel[]>([]);
@@ -27,9 +42,30 @@ export default function EventsPage() {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const [visibleGridItems, setVisibleGridItems] = useState<Set<number>>(
+    new Set(),
+  );
 
   const autoplayRef = useRef<NodeJS.Timeout | null>(null);
   const inactivityRef = useRef<NodeJS.Timeout | null>(null);
+  const navigationDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  // Detect device capabilities on mount
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+    setReduceMotion(prefersReducedMotion());
+
+    // Optimize initial grid render - show first 4-8 items immediately
+    const initialVisible = new Set<number>();
+    const initialCount = isMobileDevice() ? 4 : 8;
+    for (let i = 0; i < initialCount; i++) {
+      initialVisible.add(i);
+    }
+    setVisibleGridItems(initialVisible);
+  }, []);
 
   // Fetch events from API
   useEffect(() => {
@@ -62,6 +98,34 @@ export default function EventsPage() {
     loadEvents();
   }, []);
 
+  // Setup Intersection Observer for lazy loading grid items
+  useEffect(() => {
+    if (typeof window === "undefined" || events.length === 0) return;
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const idx = parseInt(
+              entry.target.getAttribute("data-index") || "0",
+            );
+            setVisibleGridItems((prev) => new Set([...prev, idx]));
+          }
+        });
+      },
+      {
+        rootMargin: "50px",
+        threshold: 0.1,
+      },
+    );
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [events.length]);
+
   const current = events[index];
 
   const upcoming = useMemo(
@@ -84,7 +148,8 @@ export default function EventsPage() {
   }, [clearTimers]);
 
   useEffect(() => {
-    if (paused || events.length === 0) return;
+    // Disable autoplay on mobile devices for better performance
+    if (paused || events.length === 0 || isMobile) return;
 
     autoplayRef.current = setTimeout(() => {
       setHasStarted(true);
@@ -92,7 +157,7 @@ export default function EventsPage() {
     }, AUTO_PLAY_INTERVAL);
 
     return clearTimers;
-  }, [paused, index, clearTimers, events.length]);
+  }, [paused, index, clearTimers, events.length, isMobile]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -112,15 +177,29 @@ export default function EventsPage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [pauseAutoplay, events.length]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
+    if (navigationDebounceRef.current) return; // Prevent rapid clicks
+
     pauseAutoplay();
     setIndex((i) => (i + 1) % events.length);
-  };
 
-  const handlePrev = () => {
+    // Debounce navigation
+    navigationDebounceRef.current = setTimeout(() => {
+      navigationDebounceRef.current = null;
+    }, 300);
+  }, [pauseAutoplay, events.length]);
+
+  const handlePrev = useCallback(() => {
+    if (navigationDebounceRef.current) return; // Prevent rapid clicks
+
     pauseAutoplay();
     setIndex((i) => (i === 0 ? events.length - 1 : i - 1));
-  };
+
+    // Debounce navigation
+    navigationDebounceRef.current = setTimeout(() => {
+      navigationDebounceRef.current = null;
+    }, 300);
+  }, [pauseAutoplay, events.length]);
 
   const handleRegisterClick = (eventId?: string) => {
     // Check if user is logged in
@@ -280,20 +359,25 @@ export default function EventsPage() {
             <m.div
               key={current.id}
               className="absolute inset-0 z-0 pointer-events-none"
-              initial={{ opacity: 0 }}
+              initial={reduceMotion ? {} : { opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
+              exit={reduceMotion ? {} : { opacity: 0 }}
+              transition={{ duration: reduceMotion ? 0 : 0.5 }}
             >
               <Image
                 src={current.image}
                 alt={current.title}
                 fill
-                priority
-                quality={60}
+                priority={!isMobile}
+                quality={isMobile ? 40 : 60}
+                sizes="100vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40" />
-              <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+              {/* Remove expensive backdrop-blur on mobile */}
+              {!isMobile && (
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+              )}
+              {isMobile && <div className="absolute inset-0 bg-black/50" />}
             </m.div>
           </AnimatePresence>
         )}
@@ -355,9 +439,10 @@ export default function EventsPage() {
               <AnimatePresence mode="wait">
                 <m.div
                   key={current.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
+                  initial={reduceMotion ? {} : { opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={reduceMotion ? {} : { opacity: 0 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.3 }}
                   className="w-full"
                 >
                   {/* Container for Image + Buttons */}
@@ -367,6 +452,9 @@ export default function EventsPage() {
                       alt={current.title}
                       fill
                       className="object-cover"
+                      quality={40}
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      priority
                     />
 
                     {/* MOBILE NAVIGATION BUTTONS (Centered on sides of image) */}
@@ -441,9 +529,9 @@ export default function EventsPage() {
                   <AnimatePresence initial={false} mode="popLayout">
                     {upcoming.slice(0, 3).map((event, idx) => (
                       <m.div
-                        layout
+                        layout={!reduceMotion}
                         key={idx}
-                        initial={{ scale: 0.8, opacity: 0 }}
+                        initial={reduceMotion ? {} : { scale: 0.8, opacity: 0 }}
                         animate={{
                           scale: idx === 0 ? 1 : 0.9,
                           opacity: 1,
@@ -453,18 +541,26 @@ export default function EventsPage() {
                               : "brightness(0.6) blur(1px)",
                           zIndex: idx === 0 ? 10 : 0,
                         }}
-                        whileHover={{
-                          scale: idx === 0 ? 1.02 : 0.98,
-                          filter: "brightness(1.1) blur(0px)",
-                          zIndex: 20,
-                          transition: { duration: 0.2 },
-                        }}
-                        exit={{ scale: 0.8, opacity: 0 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 300,
-                          damping: 30,
-                        }}
+                        whileHover={
+                          reduceMotion
+                            ? {}
+                            : {
+                                scale: idx === 0 ? 1.02 : 0.98,
+                                filter: "brightness(1.1) blur(0px)",
+                                zIndex: 20,
+                                transition: { duration: 0.2 },
+                              }
+                        }
+                        exit={reduceMotion ? {} : { scale: 0.8, opacity: 0 }}
+                        transition={
+                          reduceMotion
+                            ? { duration: 0 }
+                            : {
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 30,
+                              }
+                        }
                         onClick={() => {
                           pauseAutoplay();
                           const originalIndex = events.findIndex(
@@ -487,6 +583,9 @@ export default function EventsPage() {
                           alt={event.title}
                           fill
                           className="object-cover"
+                          quality={50}
+                          sizes="(max-width: 768px) 50vw, 280px"
+                          loading="lazy"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
                         <div className="absolute bottom-0 left-0 p-4 w-full">
@@ -514,18 +613,31 @@ export default function EventsPage() {
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-            {events.map((ev) => (
+            {events.map((ev, idx) => (
               <div
                 key={ev.id}
+                data-index={idx}
+                ref={(el) => {
+                  if (el && observerRef.current && !visibleGridItems.has(idx)) {
+                    observerRef.current.observe(el);
+                  }
+                }}
                 className="group bg-black/40 rounded-2xl border border-white/10 overflow-hidden hover:border-blue-500/40 transition-all flex flex-col"
               >
-                <div className="relative w-full aspect-video overflow-hidden">
-                  <Image
-                    src={ev.image}
-                    alt={ev.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                <div className="relative w-full aspect-video overflow-hidden bg-gray-900">
+                  {visibleGridItems.has(idx) ? (
+                    <Image
+                      src={ev.image}
+                      alt={ev.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      quality={isMobile ? 40 : 60}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-800 animate-pulse" />
+                  )}
                 </div>
                 <div className="p-5 flex flex-col grow">
                   <span className="text-[#00E5FF] font-mono text-xs tracking-widest uppercase">
