@@ -139,12 +139,12 @@ export default function EventsPage() {
   }, []);
 
   const pauseAutoplay = useCallback(() => {
-    setPaused(true);
     clearTimers();
-    inactivityRef.current = setTimeout(
-      () => setPaused(false),
-      INACTIVITY_DELAY,
-    );
+    setPaused(true);
+    // Resume autoplay after inactivity delay
+    inactivityRef.current = setTimeout(() => {
+      setPaused(false);
+    }, INACTIVITY_DELAY);
   }, [clearTimers]);
 
   useEffect(() => {
@@ -164,12 +164,12 @@ export default function EventsPage() {
       if (events.length === 0) return;
 
       if (e.key === "ArrowRight") {
-        pauseAutoplay();
         setIndex((i) => (i + 1) % events.length);
+        pauseAutoplay(); // Resume after inactivity
       }
       if (e.key === "ArrowLeft") {
-        pauseAutoplay();
         setIndex((i) => (i === 0 ? events.length - 1 : i - 1));
+        pauseAutoplay(); // Resume after inactivity
       }
     };
 
@@ -180,8 +180,8 @@ export default function EventsPage() {
   const handleNext = useCallback(() => {
     if (navigationDebounceRef.current) return; // Prevent rapid clicks
 
-    pauseAutoplay();
     setIndex((i) => (i + 1) % events.length);
+    pauseAutoplay(); // This will restart the timer after inactivity
 
     // Debounce navigation
     navigationDebounceRef.current = setTimeout(() => {
@@ -192,8 +192,8 @@ export default function EventsPage() {
   const handlePrev = useCallback(() => {
     if (navigationDebounceRef.current) return; // Prevent rapid clicks
 
-    pauseAutoplay();
     setIndex((i) => (i === 0 ? events.length - 1 : i - 1));
+    pauseAutoplay(); // This will restart the timer after inactivity
 
     // Debounce navigation
     navigationDebounceRef.current = setTimeout(() => {
@@ -354,11 +354,12 @@ export default function EventsPage() {
         {!hasStarted && <EventBackground />}
 
         {/* --- FULL SCREEN BACKGROUND --- */}
+        {/* Only show on desktop */}
         {current && (
           <AnimatePresence mode="wait">
             <m.div
               key={current.id}
-              className="absolute inset-0 z-0 pointer-events-none"
+              className="hidden md:block absolute inset-0 z-0 pointer-events-none"
               initial={reduceMotion ? {} : { opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={reduceMotion ? {} : { opacity: 0 }}
@@ -432,62 +433,7 @@ export default function EventsPage() {
           <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400 mb-8 md:mb-12 glitch-text uppercase tracking-tighter">
             Events
           </h1>
-
-          {/* === MOBILE VIEW === */}
-          {current && (
-            <div className="md:hidden flex flex-col items-center space-y-6 pb-20">
-              <AnimatePresence mode="wait">
-                <m.div
-                  key={current.id}
-                  initial={reduceMotion ? {} : { opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={reduceMotion ? {} : { opacity: 0 }}
-                  transition={{ duration: reduceMotion ? 0 : 0.3 }}
-                  className="w-full"
-                >
-                  {/* Container for Image + Buttons */}
-                  <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/10 shadow-2xl mb-6">
-                    <Image
-                      src={current.image}
-                      alt={current.title}
-                      fill
-                      className="object-cover"
-                      quality={40}
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      priority
-                    />
-
-                    {/* MOBILE NAVIGATION BUTTONS (Centered on sides of image) */}
-                    <div className="absolute inset-0 flex items-center justify-between px-2 z-30"></div>
-                  </div>
-
-                  {/* Content below image */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-[#00E5FF] animate-pulse" />
-                      <span className="text-[#00E5FF] font-mono text-sm tracking-widest uppercase">
-                        {current.type}
-                      </span>
-                    </div>
-                    <h2 className="text-3xl font-bold text-white leading-tight">
-                      {current.title}
-                    </h2>
-                    <p className="text-gray-300 leading-relaxed">
-                      {current.description}
-                    </p>
-
-                    {/* Your new White Button */}
-                    <button
-                      onClick={() => handleRegisterClick(current.id)}
-                      className="px-6 py-2 mt-4 text-sm bg-white text-black hover:bg-black hover:text-white border border-white font-bold tracking-wider transition-all transform hover:-translate-y-1 uppercase flex items-center justify-center whitespace-nowrap"
-                    >
-                      Initialize Registration
-                    </button>
-                  </div>
-                </m.div>
-              </AnimatePresence>
-            </div>
-          )}
+          
           {/* === DESKTOP VIEW === */}
           {current && (
             <div className="hidden md:flex min-h-[460px] items-center">
@@ -562,11 +508,11 @@ export default function EventsPage() {
                               }
                         }
                         onClick={() => {
-                          pauseAutoplay();
                           const originalIndex = events.findIndex(
                             (e) => e.id === event.id,
                           );
                           setIndex(originalIndex);
+                          pauseAutoplay(); // Resume after inactivity
                         }}
                         className={`relative rounded-xl overflow-hidden border transition-all duration-300
                         cursor-grab active:cursor-grabbing
@@ -607,8 +553,8 @@ export default function EventsPage() {
         </div>
 
         {/* === STATIC GRID UNDER EVERYTHING === */}
-        <div className="relative z-20 max-w-7xl mx-auto px-4 md:px-6 mt-24 pb-32">
-          <h2 className="text-3xl md:text-4xl font-black text-white mb-10 tracking-tight">
+        <div className="relative z-20 max-w-7xl mx-auto px-4 md:px-6 mt-8 md:mt-24 pb-32">
+          <h2 className="hidden md:block text-3xl md:text-4xl font-black text-white mb-10 tracking-tight">
             Explore All Events
           </h2>
 

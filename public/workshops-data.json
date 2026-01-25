@@ -21,9 +21,10 @@
           "bio": "Workshop hosts and club members"
         }
       ],
-      "capacity": 60,
+      "capacity": 100,
       "status": "upcoming",
-      "isActive": true
+      "isActive": true,
+      "fee": "100"
     },
     {
       "title": "From Noise to Knowledge: Turning Threats into Defense",
@@ -43,9 +44,10 @@
           "bio": "Cybersecurity club members"
         }
       ],
-      "capacity": 60,
+      "capacity": 100,
       "status": "upcoming",
-      "isActive": true
+      "isActive": true,
+      "fee": "100"
     },
     {
       "title": "Offensive Security",
@@ -69,9 +71,10 @@
           "bio": "Certified Ethical Hacker — Offensive Security Bootcamp instructor"
         }
       ],
-      "capacity": 60,
+      "capacity": 100,
       "status": "upcoming",
-      "isActive": true
+      "isActive": true,
+      "fee": "100"
     }
   ]
 }
