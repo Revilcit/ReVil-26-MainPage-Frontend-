@@ -83,32 +83,63 @@ export default function TermsPage() {
               </div>
             </div>
 
-            <h3 className="text-xl font-semibold text-primary mb-3 mt-6">
-              Technical Events (Free)
+            <h3 className="text-xl font-semibold text-green-400 mb-3 mt-6">
+              All Technical Events (100% FREE)
             </h3>
-            <div className="space-y-3 ml-4">
-              <div className="border-l-2 border-gray-600 pl-4">
-                <p className="text-white font-semibold">Beneath the Mask</p>
-                <p className="text-gray-400 text-sm">
-                  Solo cybersecurity challenge
+            <p className="text-gray-300 mb-4">
+              Registration for all technical events is completely free. Only
+              workshops require a nominal fee.
+            </p>
+            <div className="space-y-2 ml-4">
+              <div className="flex items-center gap-2">
+                <span className="text-green-400">✓</span>
+                <p className="text-white">
+                  Beneath the Mask - Solo cybersecurity challenge
                 </p>
-                <p className="text-green-400 font-bold">FREE</p>
               </div>
-              <div className="border-l-2 border-gray-600 pl-4">
-                <p className="text-white font-semibold">Escape Room</p>
-                <p className="text-gray-400 text-sm">
-                  Online technical puzzle challenge
+              <div className="flex items-center gap-2">
+                <span className="text-green-400">✓</span>
+                <p className="text-white">
+                  Escape Room - Online technical puzzle challenge
                 </p>
-                <p className="text-green-400 font-bold">FREE</p>
               </div>
-              <div className="border-l-2 border-gray-600 pl-4">
-                <p className="text-white font-semibold">
-                  CTF – Trial of the Creed
+              <div className="flex items-center gap-2">
+                <span className="text-green-400">✓</span>
+                <p className="text-white">
+                  CTF – Trial of the Creed - Capture the Flag competition
                 </p>
-                <p className="text-gray-400 text-sm">
-                  Capture the Flag competition
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-green-400">✓</span>
+                <p className="text-white">
+                  OH-SIN-T - OSINT-based investigation challenge
                 </p>
-                <p className="text-green-400 font-bold">FREE</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-green-400">✓</span>
+                <p className="text-white">
+                  Project Sherlock: Log Trace - Cybersecurity investigation
+                  challenge
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-green-400">✓</span>
+                <p className="text-white">
+                  Crime Chronicles - Crime scene reconstruction (Non-technical)
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-green-400">✓</span>
+                <p className="text-white">
+                  Paper Presentation - Technical research presentation
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-green-400">✓</span>
+                <p className="text-white">
+                  Pixel Palette – Poster Design - Creative visual design
+                  challenge
+                </p>
               </div>
             </div>
           </section>
