@@ -403,6 +403,73 @@ export default function RegisterPage() {
               </ul>
             </div>
           )}
+
+          {/* Paper Presentation Topics */}
+          {(event.slug === "paper-presentation" || event.title?.toLowerCase().includes("paper presentation")) && (
+            <div className="mt-6 p-4 bg-gradient-to-br from-primary/10 to-blue-500/10 border border-primary/40 rounded-lg">
+              <h3 className="text-lg font-bold text-primary mb-3 flex items-center gap-2">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                AVAILABLE TOPICS
+              </h3>
+              <p className="text-gray-300 text-sm mb-3">
+                Choose one of the following topics for your presentation:
+              </p>
+              <ol className="space-y-2">
+                <li className="flex items-start gap-2 text-gray-300 text-sm">
+                  <span className="text-primary font-bold min-w-[1.5rem]">1.</span>
+                  <span>AI Agents as Emerging Security Liabilities in Autonomous Software Systems</span>
+                </li>
+                <li className="flex items-start gap-2 text-gray-300 text-sm">
+                  <span className="text-primary font-bold min-w-[1.5rem]">2.</span>
+                  <span>The Disappearance of Physical Interfaces in Future Digital Systems</span>
+                </li>
+                <li className="flex items-start gap-2 text-gray-300 text-sm">
+                  <span className="text-primary font-bold min-w-[1.5rem]">3.</span>
+                  <span>Cyber Warfare and the Vulnerability of Modern Armed Forces</span>
+                </li>
+                <li className="flex items-start gap-2 text-gray-300 text-sm">
+                  <span className="text-primary font-bold min-w-[1.5rem]">4.</span>
+                  <span>Ransomware in Cloud Environments Backup Recovery and Resilience Planning</span>
+                </li>
+                <li className="flex items-start gap-2 text-gray-300 text-sm">
+                  <span className="text-primary font-bold min-w-[1.5rem]">5.</span>
+                  <span>Lateral Movement Risks in Multi-Tenant Cloud Infrastructure</span>
+                </li>
+                <li className="flex items-start gap-2 text-gray-300 text-sm">
+                  <span className="text-primary font-bold min-w-[1.5rem]">6.</span>
+                  <span>Challenges of Digital Forensics in Encrypted and Anonymous Environments</span>
+                </li>
+                <li className="flex items-start gap-2 text-gray-300 text-sm">
+                  <span className="text-primary font-bold min-w-[1.5rem]">7.</span>
+                  <span>DevSecOps in Modern Software Teams: Integrating Security Into CI/CD Pipelines</span>
+                </li>
+                <li className="flex items-start gap-2 text-gray-300 text-sm">
+                  <span className="text-primary font-bold min-w-[1.5rem]">8.</span>
+                  <span>The Relevance of Learning Multiple Programming Languages in an AI Driven Era</span>
+                </li>
+                <li className="flex items-start gap-2 text-gray-300 text-sm">
+                  <span className="text-primary font-bold min-w-[1.5rem]">9.</span>
+                  <span>DevOps as a Core Requirement in Contemporary Software Development</span>
+                </li>
+                <li className="flex items-start gap-2 text-gray-300 text-sm">
+                  <span className="text-primary font-bold min-w-[1.5rem]">10.</span>
+                  <span>Secure Boot Mechanisms in Hardware Platforms</span>
+                </li>
+              </ol>
+            </div>
+          )}
         </motion.div>
 
         <motion.form
