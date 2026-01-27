@@ -333,6 +333,31 @@ export default function RegisterPage() {
             </div>
           )}
 
+          {/* Limited Seats Warning for CTF and Project Sherlocks */}
+          {event.slug &&
+            (event.slug === "ctf-trial-of-the-creed" ||
+              event.slug === "project-sherlocks") && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-yellow-500/10 border border-yellow-500/50 p-4 rounded-lg mb-4"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="text-yellow-500 text-2xl">⚠️</div>
+                  <div>
+                    <h3 className="text-yellow-500 font-semibold text-lg mb-1">
+                      Limited Seats Available
+                    </h3>
+                    <p className="text-gray-300 text-sm">
+                      Please note: This event has limited seating capacity.
+                      Register early to secure your spot!
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
           {/* Event Contacts / Coordinators */}
           {event.contacts && event.contacts.length > 0 && (
             <div className="mt-2 mb-4 p-4 bg-gray-900/40 border border-gray-800 rounded">

@@ -16,7 +16,9 @@ export default function DashboardPage() {
   const [selectedRegistration, setSelectedRegistration] =
     useState<EventRegistration | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
-  const [expandedRegistration, setExpandedRegistration] = useState<string | null>(null);
+  const [expandedRegistration, setExpandedRegistration] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -170,6 +172,41 @@ export default function DashboardPage() {
               </div>
             </div>
 
+            {/* Role-specific Dashboard Links */}
+            {(user.role === "event_manager" || user.role === "superadmin") && (
+              <div className="mt-6 border-t border-white/10 pt-6">
+                <button
+                  onClick={() => router.push("/dashboard/event-manager")}
+                  className="w-full px-4 py-3 bg-purple-600/20 border border-purple-500/50 text-purple-400 hover:bg-purple-600/30 transition-colors uppercase text-sm tracking-widest rounded"
+                >
+                  Event Manager Dashboard
+                </button>
+              </div>
+            )}
+
+            {(user.role === "registration_team" ||
+              user.role === "superadmin") && (
+              <div className="mt-4">
+                <button
+                  onClick={() => router.push("/dashboard/registration-team")}
+                  className="w-full px-4 py-3 bg-green-600/20 border border-green-500/50 text-green-400 hover:bg-green-600/30 transition-colors uppercase text-sm tracking-widest rounded"
+                >
+                  Registration Team Dashboard
+                </button>
+              </div>
+            )}
+
+            {user.role === "superadmin" && (
+              <div className="mt-4">
+                <button
+                  onClick={() => router.push("/admin")}
+                  className="w-full px-4 py-3 bg-red-600/20 border border-red-500/50 text-red-400 hover:bg-red-600/30 transition-colors uppercase text-sm tracking-widest rounded"
+                >
+                  Superadmin Dashboard
+                </button>
+              </div>
+            )}
+
             {/* QR Code Section */}
             <div className="mt-8 border-t border-white/10 pt-6">
               <h3 className="text-lg font-bold text-white mb-2">
@@ -274,11 +311,13 @@ export default function DashboardPage() {
                         key={reg._id}
                         className="bg-black/40 border border-white/10 hover:border-primary/30 transition-colors"
                       >
-                        <div 
+                        <div
                           className="p-4 cursor-pointer"
-                          onClick={() => setExpandedRegistration(
-                            expandedRegistration === reg._id ? null : reg._id
-                          )}
+                          onClick={() =>
+                            setExpandedRegistration(
+                              expandedRegistration === reg._id ? null : reg._id,
+                            )
+                          }
                         >
                           <div className="flex justify-between items-start mb-2">
                             <div className="flex items-center gap-2">
@@ -305,23 +344,27 @@ export default function DashboardPage() {
                               >
                                 {reg.registrationStatus.toUpperCase()}
                               </span>
-                              {reg.isTeamRegistration && reg.teamMembers && reg.teamMembers.length > 0 && (
-                                <svg
-                                  className={`w-5 h-5 text-gray-400 transition-transform ${
-                                    expandedRegistration === reg._id ? "rotate-180" : ""
-                                  }`}
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 9l-7 7-7-7"
-                                  />
-                                </svg>
-                              )}
+                              {reg.isTeamRegistration &&
+                                reg.teamMembers &&
+                                reg.teamMembers.length > 0 && (
+                                  <svg
+                                    className={`w-5 h-5 text-gray-400 transition-transform ${
+                                      expandedRegistration === reg._id
+                                        ? "rotate-180"
+                                        : ""
+                                    }`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 9l-7 7-7-7"
+                                    />
+                                  </svg>
+                                )}
                             </div>
                           </div>
                           <div className="text-sm text-gray-400 space-y-1">
@@ -330,84 +373,108 @@ export default function DashboardPage() {
                             )}
                             {reg.isTeamRegistration && reg.teamMembers && (
                               <div className="text-xs text-gray-500">
-                                {reg.teamMembers.length} member{reg.teamMembers.length !== 1 ? 's' : ''} • Click to view details
+                                {reg.teamMembers.length} member
+                                {reg.teamMembers.length !== 1 ? "s" : ""} •
+                                Click to view details
                               </div>
                             )}
                           </div>
                         </div>
 
                         {/* Expanded Team Members Details */}
-                        {expandedRegistration === reg._id && reg.isTeamRegistration && reg.teamMembers && (
-                          <div className="border-t border-white/10 p-4 bg-black/60">
-                            <h4 className="text-sm font-bold text-primary mb-3 flex items-center gap-2">
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                                />
-                              </svg>
-                              TEAM MEMBERS
-                            </h4>
-                            <div className="space-y-3">
-                              {reg.teamMembers.map((member, idx) => (
-                                <div
-                                  key={idx}
-                                  className="bg-black/40 border border-white/5 p-3 rounded"
+                        {expandedRegistration === reg._id &&
+                          reg.isTeamRegistration &&
+                          reg.teamMembers && (
+                            <div className="border-t border-white/10 p-4 bg-black/60">
+                              <h4 className="text-sm font-bold text-primary mb-3 flex items-center gap-2">
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
                                 >
-                                  <div className="flex items-start justify-between mb-2">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-white font-semibold">
-                                        {member.name}
-                                      </span>
-                                      {member.isLeader && (
-                                        <span className="text-xs px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
-                                          LEADER
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                                  />
+                                </svg>
+                                TEAM MEMBERS
+                              </h4>
+                              <div className="space-y-3">
+                                {reg.teamMembers.map((member, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="bg-black/40 border border-white/5 p-3 rounded"
+                                  >
+                                    <div className="flex items-start justify-between mb-2">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-white font-semibold">
+                                          {member.name}
                                         </span>
+                                        {member.isLeader && (
+                                          <span className="text-xs px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                                            LEADER
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-gray-400">
+                                      <div>
+                                        <span className="text-gray-500">
+                                          Email:
+                                        </span>{" "}
+                                        <span className="text-gray-300">
+                                          {member.email}
+                                        </span>
+                                      </div>
+                                      {member.phoneNumber && (
+                                        <div>
+                                          <span className="text-gray-500">
+                                            Phone:
+                                          </span>{" "}
+                                          <span className="text-gray-300">
+                                            {member.phoneNumber}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {member.college && (
+                                        <div>
+                                          <span className="text-gray-500">
+                                            College:
+                                          </span>{" "}
+                                          <span className="text-gray-300">
+                                            {member.college}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {member.department && (
+                                        <div>
+                                          <span className="text-gray-500">
+                                            Department:
+                                          </span>{" "}
+                                          <span className="text-gray-300">
+                                            {member.department}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {member.year && (
+                                        <div>
+                                          <span className="text-gray-500">
+                                            Year:
+                                          </span>{" "}
+                                          <span className="text-gray-300">
+                                            {member.year}
+                                          </span>
+                                        </div>
                                       )}
                                     </div>
                                   </div>
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-gray-400">
-                                    <div>
-                                      <span className="text-gray-500">Email:</span>{" "}
-                                      <span className="text-gray-300">{member.email}</span>
-                                    </div>
-                                    {member.phoneNumber && (
-                                      <div>
-                                        <span className="text-gray-500">Phone:</span>{" "}
-                                        <span className="text-gray-300">{member.phoneNumber}</span>
-                                      </div>
-                                    )}
-                                    {member.college && (
-                                      <div>
-                                        <span className="text-gray-500">College:</span>{" "}
-                                        <span className="text-gray-300">{member.college}</span>
-                                      </div>
-                                    )}
-                                    {member.department && (
-                                      <div>
-                                        <span className="text-gray-500">Department:</span>{" "}
-                                        <span className="text-gray-300">{member.department}</span>
-                                      </div>
-                                    )}
-                                    {member.year && (
-                                      <div>
-                                        <span className="text-gray-500">Year:</span>{" "}
-                                        <span className="text-gray-300">{member.year}</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                       </div>
                     ))}
                 </div>

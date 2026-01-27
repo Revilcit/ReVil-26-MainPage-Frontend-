@@ -221,6 +221,58 @@ export function Navbar() {
                           Admin Panel
                         </button>
                       )}
+
+                      {(user.role === "event_manager" ||
+                        user.role === "superadmin") && (
+                        <button
+                          onClick={() => {
+                            setShowDropdown(false);
+                            router.push("/dashboard/event-manager");
+                          }}
+                          className="w-full text-left px-4 py-2 text-purple-400 hover:bg-purple-500/10 rounded transition-colors flex items-center gap-2"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                          Event Dashboard
+                        </button>
+                      )}
+
+                      {(user.role === "registration_team" ||
+                        user.role === "superadmin") && (
+                        <button
+                          onClick={() => {
+                            setShowDropdown(false);
+                            router.push("/dashboard/registration-team");
+                          }}
+                          className="w-full text-left px-4 py-2 text-green-400 hover:bg-green-500/10 rounded transition-colors flex items-center gap-2"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
+                          </svg>
+                          Registration Dashboard
+                        </button>
+                      )}
                       {/* QR Scanner - for staff roles */}
                       {(user.role === "superadmin" ||
                         user.role === "registration_team" ||
@@ -405,6 +457,58 @@ export function Navbar() {
                           />
                         </svg>
                         Admin Panel
+                      </button>
+                    )}
+
+                    {(user.role === "event_manager" ||
+                      user.role === "superadmin") && (
+                      <button
+                        onClick={() => {
+                          setShowDropdown(false);
+                          router.push("/dashboard/event-manager");
+                        }}
+                        className="w-full text-left px-4 py-2 text-purple-400 hover:bg-purple-500/10 rounded transition-colors flex items-center gap-2"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
+                        </svg>
+                        Event Dashboard
+                      </button>
+                    )}
+
+                    {(user.role === "registration_team" ||
+                      user.role === "superadmin") && (
+                      <button
+                        onClick={() => {
+                          setShowDropdown(false);
+                          router.push("/dashboard/registration-team");
+                        }}
+                        className="w-full text-left px-4 py-2 text-green-400 hover:bg-green-500/10 rounded transition-colors flex items-center gap-2"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                        Registration Dashboard
                       </button>
                     )}
                     {/* QR Scanner - for staff roles */}
