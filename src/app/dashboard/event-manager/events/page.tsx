@@ -9,13 +9,14 @@ import { motion } from "framer-motion";
 interface Event {
   _id: string;
   title: string;
-  category: string;
+  eventType: string;
   type: string;
   startTime: string;
   endTime?: string;
   venue?: string;
   currentRegistrations?: number;
   capacity?: number;
+  status?: string;
 }
 
 export default function ManagedEventsPage() {
@@ -24,7 +25,6 @@ export default function ManagedEventsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
-  const [filterCategory, setFilterCategory] = useState<string>("all");
 
   useEffect(() => {
     fetchEvents();
@@ -32,7 +32,7 @@ export default function ManagedEventsPage() {
 
   useEffect(() => {
     handleFilter();
-  }, [searchQuery, filterType, filterCategory, events]);
+  }, [searchQuery, filterType, events]);
 
   const fetchEvents = async () => {
     try {
@@ -61,12 +61,7 @@ export default function ManagedEventsPage() {
 
     // Apply type filter
     if (filterType !== "all") {
-      filtered = filtered.filter((event) => event.type === filterType);
-    }
-
-    // Apply category filter
-    if (filterCategory !== "all") {
-      filtered = filtered.filter((event) => event.category === filterCategory);
+      filtered = filtered.filter((event) => event.eventType === filterType);
     }
 
     setFilteredEvents(filtered);
@@ -76,18 +71,20 @@ export default function ManagedEventsPage() {
     // Create CSV content
     const headers = [
       "Title",
+      "Event Type",
       "Type",
-      "Category",
       "Start Time",
       "Venue",
+      "Status",
       "Registrations",
     ];
     const rows = filteredEvents.map((event) => [
       event.title,
-      event.type,
-      event.category,
-      new Date(event.startTime).toLocaleString(),
+      event.eventType || "N/A",
+      event.type || "N/A",
+      event.startTime || "N/A",
       event.venue || "N/A",
+      event.status || "N/A",
       event.currentRegistrations || "0",
     ]);
 
@@ -160,7 +157,7 @@ export default function ManagedEventsPage() {
             </div>
             <div>
               <label className="block text-gray-400 text-sm mb-2">
-                Filter by type
+                Filter by event type
               </label>
               <select
                 value={filterType}
@@ -168,26 +165,11 @@ export default function ManagedEventsPage() {
                 className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
               >
                 <option value="all">All Types</option>
+                <option value="event">Event</option>
                 <option value="workshop">Workshop</option>
                 <option value="talk">Talk</option>
-                <option value="competition">Competition</option>
-                <option value="event">Event</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-gray-400 text-sm mb-2">
-                Filter by category
-              </label>
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
-              >
-                <option value="all">All Categories</option>
-                <option value="technical">Technical</option>
-                <option value="non-technical">Non-Technical</option>
-                <option value="cultural">Cultural</option>
-                <option value="sports">Sports</option>
+                <option value="panel">Panel</option>
+                <option value="networking">Networking</option>
               </select>
             </div>
           </div>
@@ -220,10 +202,10 @@ export default function ManagedEventsPage() {
                     Event
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-primary uppercase tracking-wider">
-                    Type
+                    Event Type
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-primary uppercase tracking-wider">
-                    Category
+                    Type/Category
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-primary uppercase tracking-wider">
                     Start Time
@@ -255,18 +237,22 @@ export default function ManagedEventsPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className="px-2 py-1 text-xs font-semibold rounded bg-primary/10 text-primary">
-                        {event.type}
+                      <span className="px-2 py-1 text-xs font-semibold rounded bg-primary/10 text-primary capitalize">
+                        {event.eventType || "event"}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className="px-2 py-1 text-xs font-semibold rounded bg-gray-700 text-gray-300">
-                        {event.category}
-                      </span>
+                      {event.type ? (
+                        <span className="px-2 py-1 text-xs font-semibold rounded bg-gray-700 text-gray-300 capitalize">
+                          {event.type}
+                        </span>
+                      ) : (
+                        <span className="text-gray-500 text-xs">N/A</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-400">
-                        {new Date(event.startTime).toLocaleString()}
+                        {event.startTime || "Not scheduled"}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
@@ -296,7 +282,7 @@ export default function ManagedEventsPage() {
 
           {filteredEvents.length === 0 && (
             <div className="text-center py-12 text-gray-400">
-              {searchQuery || filterType !== "all" || filterCategory !== "all"
+              {searchQuery || filterType !== "all"
                 ? "No events match your filters"
                 : "No events assigned to you"}
             </div>

@@ -187,6 +187,12 @@ export default function AdminDashboard() {
               View Registrations
             </Link>
             <Link
+              href="/admin/college-stats"
+              className="px-4 py-2 bg-green-600/20 text-green-400 border border-green-500/50 rounded hover:bg-green-600/30 transition-colors text-sm font-semibold"
+            >
+              🎓 College Statistics
+            </Link>
+            <Link
               href="/admin/roles"
               className="px-4 py-2 bg-purple-600/20 text-purple-400 border border-purple-500/50 rounded hover:bg-purple-600/30 transition-colors text-sm font-semibold"
             >

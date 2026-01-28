@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { useRouter } from "next/navigation";
 import PillNav from "@/components/ui/PillNav";
@@ -25,6 +25,36 @@ export function Navbar() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const desktopDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        (dropdownRef.current && !dropdownRef.current.contains(target)) &&
+        (desktopDropdownRef.current && !desktopDropdownRef.current.contains(target))
+      ) {
+        setShowDropdown(false);
+      }
+      // Also check if only one ref is active (mobile vs desktop)
+      if (dropdownRef.current && !desktopDropdownRef.current && !dropdownRef.current.contains(target)) {
+        setShowDropdown(false);
+      }
+      if (!dropdownRef.current && desktopDropdownRef.current && !desktopDropdownRef.current.contains(target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    if (showDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showDropdown]);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = scrollY.getPrevious() || 0;
@@ -128,7 +158,7 @@ export function Navbar() {
           </div>
 
           {/* Profile Section - Desktop and Mobile */}
-          <div className="relative md:hidden">
+          <div className="relative md:hidden" ref={dropdownRef}>
             {user ? (
               <div className="relative">
                 <button
@@ -348,7 +378,7 @@ export function Navbar() {
         </div>
 
         {/* Desktop Profile Section */}
-        <div className="relative hidden md:block ml-auto">
+        <div className="relative hidden md:block ml-auto" ref={desktopDropdownRef}>
           {user ? (
             <div className="relative">
               <button

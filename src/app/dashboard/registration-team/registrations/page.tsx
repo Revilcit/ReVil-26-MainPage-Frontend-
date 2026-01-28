@@ -7,22 +7,48 @@ import { DebouncedSearch } from "@/components/ui/DebouncedSearch";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
+interface TeamMember {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  college: string;
+  department?: string;
+  year?: string;
+  isLeader?: boolean;
+}
+
 interface Registration {
   _id: string;
   user: {
     _id: string;
     name: string;
     email: string;
-    phone: string;
+    phoneNumber: string;
     college: string;
   };
   event: {
     _id: string;
     title: string;
     eventType?: string;
+    isTeamEvent?: boolean;
   };
-  buildingCheckedIn: boolean;
+  phoneNumber?: string;
+  college?: string;
+  department?: string;
+  year?: string;
+  isTeamRegistration: boolean;
+  teamName?: string;
+  teamMembers?: TeamMember[];
+  buildingCheckIn: {
+    status: boolean;
+    timestamp?: string;
+  };
+  sessionCheckIn?: {
+    status: boolean;
+    timestamp?: string;
+  };
   paymentStatus: string;
+  registrationStatus?: string;
   createdAt?: string;
 }
 
@@ -34,6 +60,7 @@ export default function RegistrationTeamList() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [editingReg, setEditingReg] = useState<Registration | null>(null);
+  const [viewingTeam, setViewingTeam] = useState<Registration | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterEvent, setFilterEvent] = useState<string>("all");
   const [uniqueEvents, setUniqueEvents] = useState<
@@ -82,9 +109,9 @@ export default function RegistrationTeamList() {
 
     // Apply status filter
     if (filterStatus === "checkedIn") {
-      filtered = filtered.filter((reg) => reg.buildingCheckedIn);
+      filtered = filtered.filter((reg) => reg.buildingCheckIn?.status);
     } else if (filterStatus === "notCheckedIn") {
-      filtered = filtered.filter((reg) => !reg.buildingCheckedIn);
+      filtered = filtered.filter((reg) => !reg.buildingCheckIn?.status);
     }
 
     // Apply event filter
@@ -95,16 +122,10 @@ export default function RegistrationTeamList() {
     setFilteredRegistrations(filtered);
   };
 
-  const toggleBuildingCheckIn = async (
-    regId: string,
-    currentStatus: boolean,
-  ) => {
+  const toggleBuildingCheckIn = async (regId: string) => {
     try {
-      await api.patch(
-        `/registration-team/registrations/${regId}/building-checkin`,
-        {
-          status: !currentStatus,
-        },
+      await api.put(
+        `/registration-team/registrations/${regId}/building-checkin`
       );
       toast.success(`Check-in status updated`);
       fetchRegistrations();
@@ -120,7 +141,7 @@ export default function RegistrationTeamList() {
       await api.patch(`/registration-team/users/${editingReg.user._id}`, {
         name: editingReg.user.name,
         email: editingReg.user.email,
-        phone: editingReg.user.phone,
+        phoneNumber: editingReg.user.phoneNumber,
         college: editingReg.user.college,
       });
       toast.success("User details updated");
@@ -138,7 +159,11 @@ export default function RegistrationTeamList() {
       "Email",
       "Phone",
       "College",
+      "Department",
       "Event",
+      "Team Registration",
+      "Team Name",
+      "Team Size",
       "Building Check-in",
       "Payment Status",
       "Registration Date",
@@ -146,10 +171,14 @@ export default function RegistrationTeamList() {
     const rows = filteredRegistrations.map((reg) => [
       reg.user.name,
       reg.user.email,
-      reg.user.phone,
-      reg.user.college,
+      reg.phoneNumber || reg.user.phoneNumber || "N/A",
+      reg.college || reg.user.college,
+      reg.department || "N/A",
       reg.event.title,
-      reg.buildingCheckedIn ? "Yes" : "No",
+      reg.isTeamRegistration ? "Yes" : "No",
+      reg.teamName || "N/A",
+      reg.isTeamRegistration && reg.teamMembers ? reg.teamMembers.length.toString() : "1",
+      reg.buildingCheckIn?.status ? "Yes" : "No",
       reg.paymentStatus || "N/A",
       reg.createdAt ? new Date(reg.createdAt).toLocaleString() : "N/A",
     ]);
@@ -282,24 +311,18 @@ export default function RegistrationTeamList() {
               <thead className="bg-primary/10 border-b border-primary/20">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-primary uppercase tracking-wider">
-                    Name
+                    Participant
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-primary uppercase tracking-wider">
-                    Contact
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-primary uppercase tracking-wider">
-                    College
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-primary uppercase tracking-wider">
-                    Event
+                    Event / Team
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-primary uppercase tracking-wider">
-                    Building Status
+                    Check-in
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-primary uppercase tracking-wider">
                     Payment
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-primary uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-primary uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -310,53 +333,64 @@ export default function RegistrationTeamList() {
                     key={reg._id}
                     className={`hover:bg-gray-900/50 transition-colors ${
                       index % 2 === 0 ? "bg-black" : "bg-gray-900/10"
+                    } ${
+                      reg.isTeamRegistration ? "cursor-pointer" : ""
                     }`}
+                    onClick={() => reg.isTeamRegistration && setViewingTeam(reg)}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-white">
-                        {reg.user.name}
-                      </div>
-                    </td>
                     <td className="px-6 py-4">
-                      <div className="text-xs text-gray-400">
-                        {reg.user.email}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        📱 {reg.user.phone}
+                      <div className="flex items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-white truncate">
+                            {reg.user.name}
+                          </div>
+                          <div className="text-xs text-gray-400 truncate mt-1">
+                            {reg.user.email}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            📱 {reg.phoneNumber || reg.user.phoneNumber || "N/A"}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            🏫 {reg.college || reg.user.college}
+                          </div>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-400">
-                        {reg.user.college}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col gap-1">
-                        <span className="px-2 py-1 text-xs font-semibold rounded bg-gray-700 text-gray-300">
+                    <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="px-2 py-1 text-xs font-semibold rounded bg-gray-700 text-gray-300 inline-block">
                           {reg.event.title}
                         </span>
-                        {reg.event.eventType && (
-                          <span className="px-2 py-1 text-xs font-semibold rounded bg-purple-500/20 text-purple-400 border border-purple-500/30">
-                            {reg.event.eventType}
+                        {reg.isTeamRegistration && reg.teamName ? (
+                          <button
+                            onClick={() => setViewingTeam(reg)}
+                            className="px-2 py-1 text-xs font-semibold rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/30 transition-colors inline-flex items-center gap-1"
+                          >
+                            👥 {reg.teamName}
+                            <span className="text-[10px] bg-cyan-500/30 px-1.5 py-0.5 rounded">
+                              {reg.teamMembers?.length || 0} members
+                            </span>
+                          </button>
+                        ) : (
+                          <span className="px-2 py-1 text-xs rounded bg-gray-800 text-gray-400 inline-block">
+                            Individual
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <td className="px-6 py-4 whitespace-nowrap text-center" onClick={(e) => e.stopPropagation()}>
                       <button
-                        onClick={() =>
-                          toggleBuildingCheckIn(reg._id, reg.buildingCheckedIn)
-                        }
-                        className={`px-3 py-1 text-xs font-bold rounded transition-all ${
-                          reg.buildingCheckedIn
+                        onClick={() => toggleBuildingCheckIn(reg._id)}
+                        className={`px-3 py-1.5 text-xs font-bold rounded transition-all ${
+                          reg.buildingCheckIn?.status
                             ? "bg-green-500 text-white"
                             : "bg-gray-600 text-gray-300 hover:bg-primary hover:text-black"
                         }`}
                       >
-                        {reg.buildingCheckedIn ? "✓ Checked In" : "Check In"}
+                        {reg.buildingCheckIn?.status ? "✓ Checked" : "Check In"}
                       </button>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <td className="px-6 py-4 whitespace-nowrap text-center" onClick={(e) => e.stopPropagation()}>
                       <span
                         className={`px-2 py-1 text-xs font-semibold rounded ${
                           reg.paymentStatus === "completed"
@@ -369,12 +403,12 @@ export default function RegistrationTeamList() {
                         {reg.paymentStatus || "N/A"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-center" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => setEditingReg(reg)}
-                        className="text-primary hover:text-white transition-colors"
+                        className="text-primary hover:text-white transition-colors text-sm"
                       >
-                        Edit User
+                        Edit
                       </button>
                     </td>
                   </tr>
@@ -392,6 +426,132 @@ export default function RegistrationTeamList() {
           )}
         </motion.div>
       </div>
+
+      {/* Team Details Modal */}
+      <AnimatePresence>
+        {viewingTeam && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setViewingTeam(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-black border border-cyan-500/30 p-8 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-[0_0_50px_rgba(0,240,255,0.2)]"
+            >
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h2 className="text-3xl font-orbitron text-cyan-400">
+                      👥 {viewingTeam.teamName}
+                    </h2>
+                    <span className="px-3 py-1 text-sm rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                      {viewingTeam.teamMembers?.length || 0} Members
+                    </span>
+                  </div>
+                  <p className="text-gray-400 text-sm">
+                    Event: {viewingTeam.event.title}
+                  </p>
+                  <p className="text-gray-500 text-xs mt-1">
+                    Registered: {viewingTeam.createdAt ? new Date(viewingTeam.createdAt).toLocaleDateString() : "N/A"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setViewingTeam(null)}
+                  className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Team Members Section */}
+                {viewingTeam.teamMembers && viewingTeam.teamMembers.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-bold text-primary mb-4 uppercase tracking-wider flex items-center gap-2">
+                      <span className="text-2xl">👥</span>
+                      Team Members
+                      <span className="text-sm font-normal text-gray-400">({viewingTeam.teamMembers.length})</span>
+                    </h3>
+                    <div className="grid gap-4">
+                      {viewingTeam.teamMembers.map((member, index) => (
+                        <div
+                          key={index}
+                          className="bg-gray-900/70 border border-gray-700 rounded-lg p-5 hover:border-primary/30 transition-colors"
+                        >
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                                {index + 1}
+                              </div>
+                              <div>
+                                <h4 className="text-white font-bold text-lg">{member.name}</h4>
+                                {member.isLeader && (
+                                  <span className="inline-block mt-1 px-2 py-0.5 text-xs rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                                    ⭐ Co-Leader
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <p className="text-xs text-gray-400 mb-1">📧 Email</p>
+                              <p className="text-gray-200 text-sm break-all">{member.email}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-400 mb-1">📱 Phone</p>
+                              <p className="text-gray-200 text-sm font-medium">{member.phoneNumber}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-400 mb-1">🏫 College</p>
+                              <p className="text-gray-200 text-sm">{member.college}</p>
+                            </div>
+                            {member.department && (
+                              <div>
+                                <p className="text-xs text-gray-400 mb-1">🎓 Department</p>
+                                <p className="text-gray-200 text-sm">{member.department}</p>
+                              </div>
+                            )}
+                            {member.year && (
+                              <div>
+                                <p className="text-xs text-gray-400 mb-1">📅 Year</p>
+                                <p className="text-gray-200 text-sm">{member.year}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-8 flex gap-3">
+                <button
+                  onClick={() => setViewingTeam(null)}
+                  className="flex-1 px-6 py-3 bg-gray-800 text-white font-bold text-sm uppercase rounded hover:bg-gray-700 transition-colors"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingReg(viewingTeam);
+                    setViewingTeam(null);
+                  }}
+                  className="flex-1 px-6 py-3 bg-primary text-black font-bold text-sm uppercase rounded hover:bg-white transition-colors"
+                >
+                  Edit Leader Details
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Edit Modal */}
       <AnimatePresence>
@@ -445,11 +605,11 @@ export default function RegistrationTeamList() {
                   </label>
                   <input
                     type="text"
-                    value={editingReg.user.phone}
+                    value={editingReg.user.phoneNumber || ""}
                     onChange={(e) =>
                       setEditingReg({
                         ...editingReg,
-                        user: { ...editingReg.user, phone: e.target.value },
+                        user: { ...editingReg.user, phoneNumber: e.target.value },
                       })
                     }
                     className="w-full bg-black border border-gray-600 rounded px-4 py-2 text-white focus:border-primary focus:outline-none"
