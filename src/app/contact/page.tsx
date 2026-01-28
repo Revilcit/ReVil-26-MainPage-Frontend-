@@ -227,7 +227,7 @@ export default function ContactPage() {
             <div>
               <h3 className="text-xl font-bold text-white mb-2">Email</h3>
               <p className="text-gray-400">
-                <span className="text-primary">info@revil2026.com</span>
+                <span className="text-primary">revil@citchennai.net</span>
               </p>
             </div>
             <div>
