@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { API_URL } from "@/lib/api";
 
@@ -10,19 +10,24 @@ interface Event {
   _id: string;
   title: string;
   description: string;
+  fullDescription?: string;
   date: string;
   startTime: string;
   endTime: string;
   venue: string;
   capacity: number;
   currentRegistrations: number;
-  eventType: "workshop" | "talk" | "panel" | "networking";
+  eventType: "workshop" | "talk" | "panel" | "networking" | "competition";
   status: "upcoming" | "ongoing" | "completed" | "cancelled";
   isTeamEvent: boolean;
   teamSize?: {
     min: number;
     max: number;
   };
+  host?: string;
+  prerequisites?: string[];
+  image?: string;
+  slug?: string;
 }
 
 export default function AdminEventsPage() {
@@ -32,6 +37,9 @@ export default function AdminEventsPage() {
   const [error, setError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -98,7 +106,7 @@ export default function AdminEventsPage() {
     if (!token) return;
 
     try {
-      const response = await fetch(`${API_URL}/api/events/${eventId}`, {
+      const response = await fetch(`${API_URL}/api/admin/events/${eventId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -124,11 +132,99 @@ export default function AdminEventsPage() {
     }
   };
 
-  const exportRegistrations = () => {
+  const handleEditEvent = (event: Event) => {
+    setEditingEvent({ ...event });
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEvent = async () => {
+    if (!editingEvent) return;
+
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    window.open(`${API_URL}/api/admin/export/registrations`, "_blank");
+    setSaving(true);
+    try {
+      const response = await fetch(
+        `${API_URL}/api/admin/events/${editingEvent._id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editingEvent),
+        },
+      );
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.message || "Failed to update event");
+      }
+
+      const result = await response.json();
+
+      // Update local state
+      setEvents(
+        events.map((event) =>
+          event._id === editingEvent._id ? result.data : event,
+        ),
+      );
+
+      alert("Event updated successfully!");
+      setIsEditModalOpen(false);
+      setEditingEvent(null);
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleFieldChange = (field: keyof Event, value: any) => {
+    if (!editingEvent) return;
+    setEditingEvent({ ...editingEvent, [field]: value });
+  };
+
+  const exportRegistrations = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login to export registrations");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/admin/export/registrations`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to export registrations");
+      }
+
+      // Get the CSV content
+      const blob = await response.blob();
+
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `registrations_${new Date().toISOString().split("T")[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err: any) {
+      alert(`Error exporting registrations: ${err.message}`);
+    }
   };
 
   const filteredEvents = events.filter((event) => {
@@ -332,6 +428,330 @@ export default function AdminEventsPage() {
               </div>
             </motion.div>
           ))}
+
+          {/* Edit Modal */}
+          <AnimatePresence>
+            {isEditModalOpen && editingEvent && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                onClick={() => !saving && setIsEditModalOpen(false)}
+              >
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.95, opacity: 0 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-black border border-primary/30 rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+                >
+                  <h2 className="text-2xl font-bold text-white mb-6 font-orbitron">
+                    EDIT EVENT
+                  </h2>
+
+                  <div className="space-y-4">
+                    {/* Title */}
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Title *
+                      </label>
+                      <input
+                        type="text"
+                        value={editingEvent.title}
+                        onChange={(e) =>
+                          handleFieldChange("title", e.target.value)
+                        }
+                        className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
+                        placeholder="Event title"
+                      />
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Short Description *
+                      </label>
+                      <textarea
+                        value={editingEvent.description}
+                        onChange={(e) =>
+                          handleFieldChange("description", e.target.value)
+                        }
+                        rows={3}
+                        className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
+                        placeholder="Brief description"
+                      />
+                    </div>
+
+                    {/* Full Description */}
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Full Description
+                      </label>
+                      <textarea
+                        value={editingEvent.fullDescription || ""}
+                        onChange={(e) =>
+                          handleFieldChange("fullDescription", e.target.value)
+                        }
+                        rows={5}
+                        className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
+                        placeholder="Detailed description"
+                      />
+                    </div>
+
+                    {/* Date and Time */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-2">
+                          Date *
+                        </label>
+                        <input
+                          type="datetime-local"
+                          value={
+                            editingEvent.date
+                              ? new Date(editingEvent.date)
+                                  .toISOString()
+                                  .slice(0, 16)
+                              : ""
+                          }
+                          onChange={(e) =>
+                            handleFieldChange(
+                              "date",
+                              new Date(e.target.value).toISOString(),
+                            )
+                          }
+                          className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-2">
+                          Start Time
+                        </label>
+                        <input
+                          type="text"
+                          value={editingEvent.startTime || ""}
+                          onChange={(e) =>
+                            handleFieldChange("startTime", e.target.value)
+                          }
+                          className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
+                          placeholder="e.g., 10:00 AM"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-2">
+                          End Time
+                        </label>
+                        <input
+                          type="text"
+                          value={editingEvent.endTime || ""}
+                          onChange={(e) =>
+                            handleFieldChange("endTime", e.target.value)
+                          }
+                          className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
+                          placeholder="e.g., 12:00 PM"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Venue and Host */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-2">
+                          Venue *
+                        </label>
+                        <input
+                          type="text"
+                          value={editingEvent.venue}
+                          onChange={(e) =>
+                            handleFieldChange("venue", e.target.value)
+                          }
+                          className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
+                          placeholder="Event venue"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-2">
+                          Host
+                        </label>
+                        <input
+                          type="text"
+                          value={editingEvent.host || ""}
+                          onChange={(e) =>
+                            handleFieldChange("host", e.target.value)
+                          }
+                          className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
+                          placeholder="Event host"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Type, Status, and Capacity */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-2">
+                          Event Type *
+                        </label>
+                        <select
+                          value={editingEvent.eventType}
+                          onChange={(e) =>
+                            handleFieldChange("eventType", e.target.value)
+                          }
+                          className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
+                        >
+                          <option value="workshop">Workshop</option>
+                          <option value="talk">Talk</option>
+                          <option value="panel">Panel</option>
+                          <option value="networking">Networking</option>
+                          <option value="competition">Competition</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-2">
+                          Status *
+                        </label>
+                        <select
+                          value={editingEvent.status}
+                          onChange={(e) =>
+                            handleFieldChange("status", e.target.value)
+                          }
+                          className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
+                        >
+                          <option value="upcoming">Upcoming</option>
+                          <option value="ongoing">Ongoing</option>
+                          <option value="completed">Completed</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-sm mb-2">
+                          Capacity *
+                        </label>
+                        <input
+                          type="number"
+                          value={editingEvent.capacity}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              "capacity",
+                              parseInt(e.target.value),
+                            )
+                          }
+                          className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
+                          placeholder="Max capacity"
+                          min="1"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Team Event Settings */}
+                    <div>
+                      <label className="flex items-center gap-2 text-gray-400 text-sm mb-2">
+                        <input
+                          type="checkbox"
+                          checked={editingEvent.isTeamEvent}
+                          onChange={(e) =>
+                            handleFieldChange("isTeamEvent", e.target.checked)
+                          }
+                          className="w-4 h-4"
+                        />
+                        Team Event
+                      </label>
+                      {editingEvent.isTeamEvent && (
+                        <div className="grid grid-cols-2 gap-4 mt-2">
+                          <div>
+                            <label className="block text-gray-400 text-xs mb-1">
+                              Min Team Size
+                            </label>
+                            <input
+                              type="number"
+                              value={editingEvent.teamSize?.min || 2}
+                              onChange={(e) =>
+                                handleFieldChange("teamSize", {
+                                  ...editingEvent.teamSize,
+                                  min: parseInt(e.target.value),
+                                })
+                              }
+                              className="w-full px-3 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none text-sm"
+                              min="2"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-gray-400 text-xs mb-1">
+                              Max Team Size
+                            </label>
+                            <input
+                              type="number"
+                              value={editingEvent.teamSize?.max || 5}
+                              onChange={(e) =>
+                                handleFieldChange("teamSize", {
+                                  ...editingEvent.teamSize,
+                                  max: parseInt(e.target.value),
+                                })
+                              }
+                              className="w-full px-3 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none text-sm"
+                              min="2"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Image URL */}
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Image URL
+                      </label>
+                      <input
+                        type="text"
+                        value={editingEvent.image || ""}
+                        onChange={(e) =>
+                          handleFieldChange("image", e.target.value)
+                        }
+                        className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
+                        placeholder="https://example.com/image.jpg"
+                      />
+                    </div>
+
+                    {/* Slug */}
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Slug (URL-friendly name)
+                      </label>
+                      <input
+                        type="text"
+                        value={editingEvent.slug || ""}
+                        onChange={(e) =>
+                          handleFieldChange("slug", e.target.value)
+                        }
+                        className="w-full px-4 py-2 bg-black border border-gray-600 text-white rounded focus:border-primary focus:outline-none"
+                        placeholder="event-slug"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-4 mt-6">
+                    <button
+                      onClick={handleSaveEvent}
+                      disabled={saving}
+                      className="flex-1 px-6 py-3 bg-primary text-black font-bold rounded hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {saving ? "SAVING..." : "SAVE CHANGES"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsEditModalOpen(false);
+                        setEditingEvent(null);
+                      }}
+                      disabled={saving}
+                      className="px-6 py-3 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      CANCEL
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {filteredEvents.length === 0 && (

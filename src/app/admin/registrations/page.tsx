@@ -57,12 +57,25 @@ export default function AdminRegistrationsPage() {
   const [teamModalOpen, setTeamModalOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Registration | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
       return;
+    }
+
+    // Get user role from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        setUserRole(userData.role);
+      } catch (e) {
+        console.error("Error parsing user data");
+      }
     }
 
     fetchRegistrations(token);
@@ -254,6 +267,104 @@ export default function AdminRegistrationsPage() {
     setTeamModalOpen(true);
   };
 
+  const exportToCSV = () => {
+    if (registrations.length === 0) {
+      alert("No registrations to export");
+      return;
+    }
+
+    setExporting(true);
+    try {
+      // CSV headers (excluding createdAt)
+      const headers = [
+        "Registration ID",
+        "User Name",
+        "User Email",
+        "Event Title",
+        "Event Date",
+        "Event Venue",
+        "Event Type",
+        "Is Team Registration",
+        "Team Name",
+        "Team Members Count",
+        "Team Members Details",
+        "Phone Number",
+        "College",
+        "Registration Status",
+        "Attended",
+        "Building Check-In Status",
+        "Building Check-In Time",
+        "Session Check-In Status",
+        "Session Check-In Time"
+      ];
+
+      // Convert registrations to CSV rows
+      const rows = registrations.map(reg => {
+        // Format team members details
+        const teamMembersDetails = reg.teamMembers
+          ? reg.teamMembers.map(m => 
+              `${m.name} (${m.email}, ${m.phoneNumber}, ${m.college}${m.isLeader ? " - Leader" : ""})`
+            ).join(" | ")
+          : "";
+
+        return [
+          reg._id,
+          reg.user?.name || "Unknown",
+          reg.user?.email || "N/A",
+          reg.event?.title || "Event Deleted",
+          reg.event?.date || "N/A",
+          reg.event?.venue || "N/A",
+          reg.event?.eventType || "N/A",
+          reg.isTeamRegistration ? "Yes" : "No",
+          reg.teamName || "",
+          reg.teamMembers?.length || 0,
+          teamMembersDetails,
+          reg.phoneNumber || "",
+          reg.college || "",
+          reg.registrationStatus,
+          reg.attended ? "Yes" : "No",
+          reg.buildingCheckIn?.status ? "Checked In" : "Not Checked In",
+          reg.buildingCheckIn?.timestamp || "",
+          reg.sessionCheckIn?.status ? "Checked In" : "Not Checked In",
+          reg.sessionCheckIn?.timestamp || ""
+        ];
+      });
+
+      // Escape CSV values
+      const escapeCSV = (value: string | number | boolean | null | undefined) => {
+        const str = String(value ?? "");
+        if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      };
+
+      // Build CSV content
+      const csvContent = [
+        headers.map(escapeCSV).join(","),
+        ...rows.map(row => row.map(escapeCSV).join(","))
+      ].join("\n");
+
+      // Create and download file
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const date = new Date().toISOString().split("T")[0];
+      link.href = url;
+      link.download = `registrations_export_${date}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      alert(`Successfully exported ${registrations.length} registrations!`);
+    } catch (err: any) {
+      alert(`Export failed: ${err.message}`);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen pt-24 px-4 bg-black flex items-center justify-center">
@@ -282,9 +393,29 @@ export default function AdminRegistrationsPage() {
           <h1 className="text-4xl md:text-5xl font-bold text-white font-orbitron mb-2">
             REGISTRATION
           </h1>
-          <h2 className="text-3xl md:text-4xl text-primary font-orbitron mb-4">
-            MANAGEMENT
-          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <h2 className="text-3xl md:text-4xl text-primary font-orbitron">
+              MANAGEMENT
+            </h2>
+            {userRole === "superadmin" && (
+              <button
+                onClick={exportToCSV}
+                disabled={exporting || registrations.length === 0}
+                className="px-6 py-3 bg-primary text-black font-bold rounded hover:bg-white transition-colors uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {exporting ? (
+                  <>
+                    <span className="animate-spin">⏳</span>
+                    Exporting...
+                  </>
+                ) : (
+                  <>
+                    📥 Export All ({registrations.length})
+                  </>
+                )}
+              </button>
+            )}
+          </div>
         </motion.div>
 
         {/* Search BEvent Type
