@@ -15,6 +15,8 @@ interface EventViewModel {
   image: string;
   description: string;
   type: string;
+  currentRegistrations?: number;
+  capacity?: number;
 }
 
 const AUTO_PLAY_INTERVAL = 4000;
@@ -433,7 +435,7 @@ export default function EventsPage() {
           <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400 mb-8 md:mb-12 glitch-text uppercase tracking-tighter">
             Events
           </h1>
-          
+
           {/* === DESKTOP VIEW === */}
           {current && (
             <div className="hidden md:flex min-h-[460px] items-center">
@@ -599,12 +601,48 @@ export default function EventsPage() {
                     {ev.description}
                   </p>
 
+                  {/* Capacity Display */}
+                  {ev.capacity && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <div
+                        className={`text-xs font-mono px-3 py-1.5 rounded border ${
+                          (ev.currentRegistrations || 0) >= (ev.capacity || 0)
+                            ? "bg-red-500/10 border-red-500/50 text-red-400"
+                            : (ev.currentRegistrations || 0) /
+                                  (ev.capacity || 1) >=
+                                0.8
+                              ? "bg-yellow-500/10 border-yellow-500/50 text-yellow-400"
+                              : "bg-blue-500/10 border-blue-500/50 text-blue-400"
+                        }`}
+                      >
+                        {ev.currentRegistrations || 0} / {ev.capacity}{" "}
+                        Registered
+                      </div>
+                      {(ev.currentRegistrations || 0) >= (ev.capacity || 0) && (
+                        <span className="text-red-400 font-mono text-xs animate-pulse">
+                          FULL
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   {/* Register button */}
                   <button
                     onClick={() => handleRegisterClick(ev.id)}
-                    className="w-full mt-4 px-4 py-2 text-sm bg-white text-black hover:bg-black hover:text-white border border-white font-bold tracking-wider transition-all uppercase"
+                    disabled={
+                      (ev.currentRegistrations || 0) >=
+                      (ev.capacity || Infinity)
+                    }
+                    className={`w-full mt-4 px-4 py-2 text-sm font-bold tracking-wider transition-all uppercase ${
+                      (ev.currentRegistrations || 0) >=
+                      (ev.capacity || Infinity)
+                        ? "bg-gray-700 text-gray-400 border border-gray-600 cursor-not-allowed"
+                        : "bg-white text-black hover:bg-black hover:text-white border border-white"
+                    }`}
                   >
-                    Register Now
+                    {(ev.currentRegistrations || 0) >= (ev.capacity || Infinity)
+                      ? "Event Full"
+                      : "Register Now"}
                   </button>
                 </div>
               </div>

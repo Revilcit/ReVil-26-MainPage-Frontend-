@@ -28,13 +28,17 @@ interface Registration {
 
 export default function RegistrationTeamList() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
-  const [filteredRegistrations, setFilteredRegistrations] = useState<Registration[]>([]);
+  const [filteredRegistrations, setFilteredRegistrations] = useState<
+    Registration[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [editingReg, setEditingReg] = useState<Registration | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterEvent, setFilterEvent] = useState<string>("all");
-  const [uniqueEvents, setUniqueEvents] = useState<Array<{ _id: string; title: string }>>([]);
+  const [uniqueEvents, setUniqueEvents] = useState<
+    Array<{ _id: string; title: string }>
+  >([]);
 
   useEffect(() => {
     fetchRegistrations();
@@ -57,7 +61,10 @@ export default function RegistrationTeamList() {
       const eventsMap = new Map();
       data.forEach((reg: Registration) => {
         if (reg.event && reg.event._id) {
-          eventsMap.set(reg.event._id, { _id: reg.event._id, title: reg.event.title });
+          eventsMap.set(reg.event._id, {
+            _id: reg.event._id,
+            title: reg.event.title,
+          });
         }
       });
       setUniqueEvents(Array.from(eventsMap.values()));
@@ -346,9 +353,7 @@ export default function RegistrationTeamList() {
                             : "bg-gray-600 text-gray-300 hover:bg-primary hover:text-black"
                         }`}
                       >
-                        {reg.buildingCheckedIn
-                          ? "✓ Checked In"
-                          : "Check In"}
+                        {reg.buildingCheckedIn ? "✓ Checked In" : "Check In"}
                       </button>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">

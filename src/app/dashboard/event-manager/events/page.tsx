@@ -74,7 +74,14 @@ export default function ManagedEventsPage() {
 
   const handleExport = () => {
     // Create CSV content
-    const headers = ["Title", "Type", "Category", "Start Time", "Venue", "Registrations"];
+    const headers = [
+      "Title",
+      "Type",
+      "Category",
+      "Start Time",
+      "Venue",
+      "Registrations",
+    ];
     const rows = filteredEvents.map((event) => [
       event.title,
       event.type,

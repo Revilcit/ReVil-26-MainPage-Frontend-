@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import Link from "next/link";
 import { api } from "@/lib/api";
 
 interface User {
@@ -22,7 +25,9 @@ interface Event {
 }
 
 export default function RoleManagementPage() {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -32,10 +37,19 @@ export default function RoleManagementPage() {
   const [emailInput, setEmailInput] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
     fetchData();
-  }, []);
+  }, [router]);
 
   const fetchData = async () => {
     try {
@@ -45,12 +59,61 @@ export default function RoleManagementPage() {
         api.get("/admin/roles/events"),
       ]);
       setUsers(usersRes.data.data);
+      setAllUsers(usersRes.data.data);
       setEvents(eventsRes.data.data);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to fetch data");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleUserSearch = async (query: string) => {
+    setUserSearchQuery(query);
+    if (!query.trim()) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await api.get(
+        `/admin/users/search?query=${encodeURIComponent(query)}`,
+      );
+      setSearchResults(response.data.data || []);
+    } catch (err: any) {
+      console.error("Search error:", err);
+      setSearchResults([]);
+    }
+  };
+
+  const selectUserFromSearch = (user: User) => {
+    setSelectedUser(user);
+    setEmailInput(user.email);
+    setSelectedRole(user.role);
+    if (user.role === "event_manager" && user.managedEvents) {
+      setSelectedEvents(user.managedEvents.map((e) => e._id));
+    }
+    setUserSearchQuery("");
+    setSearchResults([]);
+    setIsSearching(false);
+  };
+
+  const handleTableSearch = (query: string) => {
+    setSearchQuery(query);
+    if (!query.trim()) {
+      setUsers(allUsers);
+      return;
+    }
+
+    const filtered = allUsers.filter(
+      (user) =>
+        user.name.toLowerCase().includes(query.toLowerCase()) ||
+        user.email.toLowerCase().includes(query.toLowerCase()) ||
+        user.role.toLowerCase().includes(query.toLowerCase()),
+    );
+    setUsers(filtered);
   };
 
   const handleAssignRole = async () => {
@@ -111,6 +174,9 @@ export default function RoleManagementPage() {
     setSelectedRole("");
     setSelectedEvents([]);
     setEmailInput("");
+    setUserSearchQuery("");
+    setSearchResults([]);
+    setIsSearching(false);
   };
 
   const openModal = (user?: User) => {
@@ -128,13 +194,13 @@ export default function RoleManagementPage() {
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case "superadmin":
-        return "bg-red-100 text-red-800 border-red-300";
+        return "bg-red-500/10 text-red-500 border border-red-500/30";
       case "event_manager":
-        return "bg-blue-100 text-blue-800 border-blue-300";
+        return "bg-blue-500/10 text-blue-400 border border-blue-500/30";
       case "registration_team":
-        return "bg-green-100 text-green-800 border-green-300";
+        return "bg-green-500/10 text-green-400 border border-green-500/30";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-300";
+        return "bg-gray-500/10 text-gray-400 border border-gray-500/30";
     }
   };
 
@@ -153,167 +219,291 @@ export default function RoleManagementPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black pt-24">
+      <div className="min-h-screen pt-24 px-4 bg-black flex items-center justify-center">
         <div className="text-primary font-mono text-xl animate-pulse">
-          LOADING ROLES...
+          LOADING ROLE MANAGEMENT...
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24 px-4 pb-12">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white font-orbitron mb-2">
-              ROLE
-            </h1>
-            <h2 className="text-3xl md:text-4xl text-primary font-orbitron">
-              MANAGEMENT
-            </h2>
+    <div className="min-h-screen pt-24 px-4 bg-black pb-12">
+      <div className="container mx-auto max-w-7xl">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <h1 className="text-4xl md:text-5xl font-bold text-white font-orbitron mb-2">
+            ROLE
+          </h1>
+          <h2 className="text-3xl md:text-4xl text-primary font-orbitron mb-4">
+            MANAGEMENT
+          </h2>
+          <div className="flex gap-4 flex-wrap items-center justify-between">
+            <Link
+              href="/admin"
+              className="px-4 py-2 bg-primary/20 text-primary border border-primary/50 rounded hover:bg-primary/30 transition-colors text-sm"
+            >
+              ← Back to Admin Dashboard
+            </Link>
+            <button
+              onClick={() => openModal()}
+              className="px-6 py-3 bg-primary text-black font-bold uppercase text-sm hover:bg-white transition-colors"
+            >
+              + Assign Role
+            </button>
           </div>
-          <button
-            onClick={() => openModal()}
-            className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold transition-colors"
-          >
-            + Assign Role
-          </button>
-        </div>
+        </motion.div>
 
+        {/* Alert Messages */}
         {error && (
-          <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded mb-4">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-4 bg-red-500/10 border border-red-500/50 text-red-500 rounded-lg"
+          >
             {error}
-          </div>
+          </motion.div>
         )}
 
         {success && (
-          <div className="bg-green-900/50 border border-green-500 text-green-200 px-4 py-3 rounded mb-4">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-4 bg-green-500/10 border border-green-500/50 text-green-500 rounded-lg"
+          >
             {success}
-          </div>
+          </motion.div>
         )}
 
+        {/* Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-6"
+        >
+          <input
+            type="text"
+            placeholder="Search users by name, email, or role..."
+            value={searchQuery}
+            onChange={(e) => handleTableSearch(e.target.value)}
+            className="w-full px-4 py-3 bg-black border border-primary/20 text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors font-mono"
+          />
+        </motion.div>
+
         {/* Users Table */}
-        <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
-          <table className="w-full">
-            <thead className="bg-gray-800">
-              <tr>
-                <th className="px-6 py-4 text-left">Name</th>
-                <th className="px-6 py-4 text-left">Email</th>
-                <th className="px-6 py-4 text-left">Role</th>
-                <th className="px-6 py-4 text-left">Managed Events</th>
-                <th className="px-6 py-4 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr
-                  key={user._id}
-                  className="border-t border-gray-800 hover:bg-gray-800/50"
-                >
-                  <td className="px-6 py-4">{user.name}</td>
-                  <td className="px-6 py-4 text-gray-400">{user.email}</td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium border ${getRoleBadgeColor(
-                        user.role,
-                      )}`}
-                    >
-                      {getRoleDisplayName(user.role)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    {user.managedEvents && user.managedEvents.length > 0 ? (
-                      <div className="space-y-1">
-                        {user.managedEvents.map((event) => (
-                          <div
-                            key={event._id}
-                            className="text-sm text-purple-400 font-medium"
-                          >
-                            • {event.title}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-gray-500">-</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-2">
-                      {user.role !== "user" && (
-                        <>
-                          <button
-                            onClick={() => openModal(user)}
-                            className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm transition-colors"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleRevokeRole(user._id)}
-                            className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm transition-colors"
-                          >
-                            Revoke
-                          </button>
-                        </>
-                      )}
-                      {user.role === "user" && (
-                        <button
-                          onClick={() => openModal(user)}
-                          className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm transition-colors"
-                        >
-                          Assign Role
-                        </button>
-                      )}
-                    </div>
-                  </td>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-black border border-primary/20 overflow-hidden"
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-primary/5 border-b border-primary/20">
+                  <th className="px-6 py-4 text-left text-primary font-orbitron text-sm uppercase">
+                    Name
+                  </th>
+                  <th className="px-6 py-4 text-left text-primary font-orbitron text-sm uppercase">
+                    Email
+                  </th>
+                  <th className="px-6 py-4 text-left text-primary font-orbitron text-sm uppercase">
+                    Role
+                  </th>
+                  <th className="px-6 py-4 text-left text-primary font-orbitron text-sm uppercase">
+                    Managed Events
+                  </th>
+                  <th className="px-6 py-4 text-left text-primary font-orbitron text-sm uppercase">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {users.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="px-6 py-8 text-center text-gray-500 font-mono"
+                    >
+                      No users found
+                    </td>
+                  </tr>
+                ) : (
+                  users.map((user, index) => (
+                    <motion.tr
+                      key={user._id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="border-b border-primary/10 hover:bg-primary/5 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-white font-mono">
+                        {user.name}
+                      </td>
+                      <td className="px-6 py-4 text-gray-400 font-mono text-sm">
+                        {user.email}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`px-3 py-1 text-xs font-mono uppercase ${getRoleBadgeColor(
+                            user.role,
+                          )}`}
+                        >
+                          {getRoleDisplayName(user.role)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {user.managedEvents && user.managedEvents.length > 0 ? (
+                          <div className="space-y-1">
+                            {user.managedEvents.map((event) => (
+                              <div
+                                key={event._id}
+                                className="text-sm text-primary font-mono"
+                              >
+                                • {event.title}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-gray-600 font-mono text-sm">
+                            -
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2">
+                          {user.role !== "user" && (
+                            <>
+                              <button
+                                onClick={() => openModal(user)}
+                                className="px-3 py-1 bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30 transition-colors text-xs font-mono uppercase"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleRevokeRole(user._id)}
+                                className="px-3 py-1 bg-red-500/20 text-red-500 border border-red-500/50 hover:bg-red-500/30 transition-colors text-xs font-mono uppercase"
+                              >
+                                Revoke
+                              </button>
+                            </>
+                          )}
+                          {user.role === "user" && (
+                            <button
+                              onClick={() => openModal(user)}
+                              className="px-3 py-1 bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30 transition-colors text-xs font-mono uppercase"
+                            >
+                              Assign Role
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-900 rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-800">
-              <h2 className="text-2xl font-bold mb-6">
-                {selectedUser ? "Update Role" : "Assign Role"}
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-black border border-primary/30 p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <h2 className="text-2xl font-bold font-orbitron text-primary mb-6">
+                {selectedUser ? "UPDATE ROLE" : "ASSIGN ROLE"}
               </h2>
 
-              {/* Email Input (only if no user selected) */}
+              {/* User Search (only if no user selected) */}
               {!selectedUser && (
                 <div className="mb-6">
-                  <label className="block text-sm font-medium mb-2">
-                    User Email
+                  <label className="block text-sm font-mono text-primary uppercase mb-2">
+                    Search User
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={userSearchQuery}
+                      onChange={(e) => handleUserSearch(e.target.value)}
+                      placeholder="Search by name or email..."
+                      className="w-full px-4 py-3 bg-black border border-primary/20 text-white placeholder-gray-600 focus:outline-none focus:border-primary transition-colors font-mono"
+                    />
+                    {isSearching && searchResults.length > 0 && (
+                      <div className="absolute z-10 w-full mt-2 bg-black border border-primary/30 max-h-60 overflow-y-auto">
+                        {searchResults.map((user) => (
+                          <button
+                            key={user._id}
+                            onClick={() => selectUserFromSearch(user)}
+                            className="w-full px-4 py-3 text-left hover:bg-primary/10 border-b border-primary/10 transition-colors"
+                          >
+                            <div className="font-mono text-white">
+                              {user.name}
+                            </div>
+                            <div className="font-mono text-sm text-gray-400">
+                              {user.email}
+                            </div>
+                            <div className="font-mono text-xs text-primary mt-1">
+                              Current: {getRoleDisplayName(user.role)}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-500 font-mono mt-2">
+                    Search for a user to assign them a role
+                  </p>
+                </div>
+              )}
+
+              {/* Email Input (alternative to search) */}
+              {!selectedUser && (
+                <div className="mb-6">
+                  <label className="block text-sm font-mono text-primary uppercase mb-2">
+                    Or Enter Email Directly
                   </label>
                   <input
                     type="email"
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
                     placeholder="user@example.com"
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
+                    className="w-full px-4 py-3 bg-black border border-primary/20 text-white placeholder-gray-600 focus:outline-none focus:border-primary transition-colors font-mono"
                   />
-                  <p className="text-sm text-gray-400 mt-2">
-                    Enter the email of the user you want to assign a role to
-                  </p>
                 </div>
               )}
 
               {selectedUser && (
-                <div className="mb-6 p-4 bg-gray-800 rounded-lg">
-                  <p className="text-sm text-gray-400">User</p>
-                  <p className="font-semibold">{selectedUser.name}</p>
-                  <p className="text-sm text-gray-400">{selectedUser.email}</p>
+                <div className="mb-6 p-4 bg-primary/5 border border-primary/20">
+                  <p className="text-sm text-gray-500 font-mono uppercase">
+                    User
+                  </p>
+                  <p className="font-mono text-white text-lg">
+                    {selectedUser.name}
+                  </p>
+                  <p className="text-sm text-gray-400 font-mono">
+                    {selectedUser.email}
+                  </p>
                 </div>
               )}
 
               {/* Role Selection */}
               <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Role</label>
+                <label className="block text-sm font-mono text-primary uppercase mb-2">
+                  Role
+                </label>
                 <select
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
+                  className="w-full px-4 py-3 bg-black border border-primary/20 text-white focus:outline-none focus:border-primary transition-colors font-mono"
                 >
                   <option value="">Select a role</option>
                   <option value="superadmin">Superadmin</option>
@@ -326,46 +516,64 @@ export default function RoleManagementPage() {
               {/* Event Selection (only for event managers) */}
               {selectedRole === "event_manager" && (
                 <div className="mb-6">
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-sm font-mono text-primary uppercase mb-2">
                     Managed Events
                   </label>
-                  <div className="max-h-60 overflow-y-auto bg-gray-800 rounded-lg border border-gray-700 p-4">
-                    {events.map((event) => (
-                      <label
-                        key={event._id}
-                        className="flex items-center gap-3 p-2 hover:bg-gray-700 rounded cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedEvents.includes(event._id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedEvents([...selectedEvents, event._id]);
-                            } else {
-                              setSelectedEvents(
-                                selectedEvents.filter((id) => id !== event._id),
-                              );
-                            }
-                          }}
-                          className="w-4 h-4"
-                        />
-                        <div className="flex-1">
-                          <p className="font-medium">{event.title}</p>
-                        </div>
-                      </label>
-                    ))}
+                  <div className="max-h-60 overflow-y-auto bg-black border border-primary/20 p-4">
+                    {events.length === 0 ? (
+                      <p className="text-gray-500 font-mono text-sm">
+                        No events available
+                      </p>
+                    ) : (
+                      events.map((event) => (
+                        <label
+                          key={event._id}
+                          className="flex items-center gap-3 p-2 hover:bg-primary/5 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedEvents.includes(event._id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedEvents([
+                                  ...selectedEvents,
+                                  event._id,
+                                ]);
+                              } else {
+                                setSelectedEvents(
+                                  selectedEvents.filter(
+                                    (id) => id !== event._id,
+                                  ),
+                                );
+                              }
+                            }}
+                            className="w-4 h-4 accent-primary"
+                          />
+                          <div className="flex-1">
+                            <p className="font-mono text-white">
+                              {event.title}
+                            </p>
+                            <p className="text-xs text-gray-500 font-mono">
+                              {new Date(event.date).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </label>
+                      ))
+                    )}
                   </div>
-                  <p className="text-sm text-gray-400 mt-2">
-                    Select the events this manager can handle check-ins for
+                  <p className="text-sm text-gray-500 font-mono mt-2">
+                    Select events this manager can handle
                   </p>
                 </div>
               )}
 
               {/* Role Descriptions */}
-              <div className="mb-6 p-4 bg-gray-800/50 rounded-lg">
-                <p className="text-sm font-medium mb-2">Role Permissions:</p>
+              <div className="mb-6 p-4 bg-primary/5 border border-primary/20">
+                <p className="text-sm font-mono text-primary uppercase mb-2">
+                  Role Permissions:
+                </p>
                 {selectedRole === "superadmin" && (
-                  <ul className="text-sm text-gray-400 space-y-1">
+                  <ul className="text-sm text-gray-400 space-y-1 font-mono">
                     <li>• Full system access</li>
                     <li>• Manage all users and roles</li>
                     <li>• Handle all check-ins (building + sessions)</li>
@@ -373,25 +581,32 @@ export default function RoleManagementPage() {
                   </ul>
                 )}
                 {selectedRole === "event_manager" && (
-                  <ul className="text-sm text-gray-400 space-y-1">
+                  <ul className="text-sm text-gray-400 space-y-1 font-mono">
                     <li>• Manage check-in for assigned events only</li>
                     <li>• View attendance for their events</li>
+                    <li>• Send OD letters to participants</li>
                     <li>• Cannot manage building check-in</li>
                   </ul>
                 )}
                 {selectedRole === "registration_team" && (
-                  <ul className="text-sm text-gray-400 space-y-1">
+                  <ul className="text-sm text-gray-400 space-y-1 font-mono">
                     <li>• Handle building entrance check-in</li>
                     <li>• View building check-in status</li>
+                    <li>• Edit participant details</li>
                     <li>• Cannot manage session check-ins</li>
                   </ul>
                 )}
                 {selectedRole === "user" && (
-                  <ul className="text-sm text-gray-400 space-y-1">
+                  <ul className="text-sm text-gray-400 space-y-1 font-mono">
                     <li>• Register for events</li>
                     <li>• View personal dashboard</li>
                     <li>• No admin privileges</li>
                   </ul>
+                )}
+                {!selectedRole && (
+                  <p className="text-sm text-gray-500 font-mono">
+                    Select a role to see permissions
+                  </p>
                 )}
               </div>
 
@@ -399,7 +614,7 @@ export default function RoleManagementPage() {
               <div className="flex gap-4">
                 <button
                   onClick={handleAssignRole}
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+                  className="flex-1 px-6 py-3 bg-primary text-black font-bold uppercase text-sm hover:bg-white transition-colors font-mono"
                 >
                   {selectedUser ? "Update Role" : "Assign Role"}
                 </button>
@@ -408,12 +623,12 @@ export default function RoleManagementPage() {
                     setShowModal(false);
                     resetForm();
                   }}
-                  className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition-colors"
+                  className="px-6 py-3 bg-black border border-primary/30 text-primary hover:bg-primary/10 font-mono uppercase text-sm transition-colors"
                 >
                   Cancel
                 </button>
               </div>
-            </div>
+            </motion.div>
           </div>
         )}
       </div>

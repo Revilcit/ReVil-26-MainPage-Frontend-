@@ -27,6 +27,9 @@ export default function RegisterPage() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
 
+  // Limited seats modal
+  const [showLimitedSeatsModal, setShowLimitedSeatsModal] = useState(false);
+
   // Team registration fields
   const [isTeamRegistration, setIsTeamRegistration] = useState(false);
   const [teamName, setTeamName] = useState("");
@@ -51,6 +54,14 @@ export default function RegisterPage() {
           // console.log(foundEvent);
           setEvent(foundEvent);
           setIsTeamRegistration(foundEvent.isTeamEvent || false);
+          
+          // Show limited seats modal for specific events
+          if (
+            foundEvent.slug === "ctf-trial-of-the-creed" ||
+            foundEvent.slug === "project-sherlocks"
+          ) {
+            setShowLimitedSeatsModal(true);
+          }
         } else {
           setError("Event not found");
         }
@@ -327,36 +338,38 @@ export default function RegisterPage() {
           <h2 className="text-3xl md:text-4xl text-primary font-orbitron mb-4">
             {event.title}
           </h2>
-          {event.isTeamEvent && event.teamSize && (
-            <div className="text-gray-400 font-mono mb-4">
-              👥 Team Size: {event.teamSize.min}-{event.teamSize.max} members
-            </div>
-          )}
 
-          {/* Limited Seats Warning for CTF and Project Sherlocks */}
-          {event.slug &&
-            (event.slug === "ctf-trial-of-the-creed" ||
-              event.slug === "project-sherlocks") && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-yellow-500/10 border border-yellow-500/50 p-4 rounded-lg mb-4"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="text-yellow-500 text-2xl">⚠️</div>
-                  <div>
-                    <h3 className="text-yellow-500 font-semibold text-lg mb-1">
-                      Limited Seats Available
-                    </h3>
-                    <p className="text-gray-300 text-sm">
-                      Please note: This event has limited seating capacity.
-                      Register early to secure your spot!
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
+          {/* Registration Capacity Display */}
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            {event.isTeamEvent && event.teamSize && (
+              <div className="text-gray-400 font-mono">
+                👥 Team Size: {event.teamSize.min}-{event.teamSize.max} members
+              </div>
             )}
+            <div className="flex items-center gap-2">
+              <div
+                className={`px-4 py-2 rounded border font-mono ${
+                  (event.currentRegistrations || 0) >= event.capacity
+                    ? "bg-red-500/10 border-red-500/50 text-red-400"
+                    : (event.currentRegistrations || 0) / event.capacity >= 0.8
+                      ? "bg-yellow-500/10 border-yellow-500/50 text-yellow-400"
+                      : "bg-primary/10 border-primary/50 text-primary"
+                }`}
+              >
+                🎫 {event.currentRegistrations || 0} / {event.capacity}{" "}
+                Registered
+              </div>
+              {((event.currentRegistrations || 0) >= event.capacity ||
+                (event.currentRegistrations || 0) / event.capacity >= 0.8) && (
+                <div className="text-sm text-gray-400">
+                  <p>
+                    Please note: This event has limited seating capacity.
+                    Register early to secure your spot!
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Event Contacts / Coordinators */}
           {event.contacts && event.contacts.length > 0 && (
@@ -1062,6 +1075,45 @@ export default function RegisterPage() {
             </button>
           </div>
         </motion.form>
+
+        {/* Limited Seats Modal */}
+        {showLimitedSeatsModal && (
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-black border border-yellow-500/50 p-8 max-w-md w-full"
+            >
+              <div className="flex items-start gap-4 mb-6">
+                <div className="text-yellow-500 text-4xl">⚠️</div>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold font-orbitron text-yellow-500 mb-3">
+                    LIMITED SEATS AVAILABLE
+                  </h2>
+                  <p className="text-gray-300 font-mono text-sm leading-relaxed mb-4">
+                    Please note: This event has limited seating capacity.
+                  </p>
+                  <p className="text-primary font-mono text-sm leading-relaxed">
+                    Register early to secure your spot! Seats are filling up
+                    fast.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between border-t border-yellow-500/30 pt-6">
+                <div className="text-gray-400 font-mono text-xs">
+                  {event.currentRegistrations || 0} / {event.capacity} Registered
+                </div>
+                <button
+                  onClick={() => setShowLimitedSeatsModal(false)}
+                  className="px-6 py-3 bg-primary text-black font-bold uppercase text-sm hover:bg-white transition-colors font-mono"
+                >
+                  I Understand
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   );
