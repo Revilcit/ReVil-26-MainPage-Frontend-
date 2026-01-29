@@ -357,29 +357,34 @@ export default function RegisterPage() {
                 👥 Team Size: {event.teamSize.min}-{event.teamSize.max} members
               </div>
             )}
-            <div className="flex items-center gap-2">
-              <div
-                className={`px-4 py-2 rounded border font-mono ${
-                  (event.currentRegistrations || 0) >= event.capacity
-                    ? "bg-red-500/10 border-red-500/50 text-red-400"
-                    : (event.currentRegistrations || 0) / event.capacity >= 0.8
-                      ? "bg-yellow-500/10 border-yellow-500/50 text-yellow-400"
-                      : "bg-primary/10 border-primary/50 text-primary"
-                }`}
-              >
-                🎫 {event.currentRegistrations || 0} / {event.capacity}{" "}
-                Registered
-              </div>
-              {((event.currentRegistrations || 0) >= event.capacity ||
-                (event.currentRegistrations || 0) / event.capacity >= 0.8) && (
-                <div className="text-sm text-gray-400">
-                  <p>
-                    Please note: This event has limited seating capacity.
-                    Register early to secure your spot!
-                  </p>
+            {/* Show seats left for CTF and Project Sherlocks */}
+            {(event.slug === "ctf-trial-of-the-creed" ||
+              event.slug === "project-sherlocks" ||
+              event.title.toLowerCase().includes("ctf") ||
+              event.slug?.includes("ctf")) && (
+              <div className="flex items-center gap-2">
+                <div
+                  className={`px-4 py-2 rounded border font-mono ${
+                    (event.currentRegistrations || 0) >= event.capacity
+                      ? "bg-red-500/10 border-red-500/50 text-red-400"
+                      : event.capacity - (event.currentRegistrations || 0) <= 20
+                        ? "bg-yellow-500/10 border-yellow-500/50 text-yellow-400"
+                        : "bg-primary/10 border-primary/50 text-primary"
+                  }`}
+                >
+                  🎫 {event.capacity - (event.currentRegistrations || 0)} seats
+                  left
                 </div>
-              )}
-            </div>
+                {event.capacity - (event.currentRegistrations || 0) <= 20 && (
+                  <div className="text-sm text-gray-400">
+                    <p>
+                      Please note: This event has limited seating capacity.
+                      Register early to secure your spot!
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Event Contacts / Coordinators */}
@@ -1121,8 +1126,8 @@ export default function RegisterPage() {
 
               <div className="flex items-center justify-between border-t border-yellow-500/30 pt-6">
                 <div className="text-gray-400 font-mono text-xs">
-                  {event.currentRegistrations || 0} / {event.capacity}{" "}
-                  Registered
+                  {event.capacity - (event.currentRegistrations || 0)} seats
+                  left
                 </div>
                 <button
                   onClick={() => setShowLimitedSeatsModal(false)}
