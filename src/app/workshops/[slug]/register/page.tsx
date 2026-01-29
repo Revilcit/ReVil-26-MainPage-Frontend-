@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
-import { fetchWorkshopBySlug, createPaymentOrder } from "@/lib/api";
-import { Event as ApiEvent } from "@/types/api";
+import { fetchWorkshopBySlug, createPaymentOrder, fetchUserProfile } from "@/lib/api";
+import { Event as ApiEvent, UserProfile } from "@/types/api";
 import toast, { Toaster } from "react-hot-toast";
 import { load } from "@cashfreepayments/cashfree-js";
 
@@ -14,8 +14,10 @@ export default function WorkshopRegisterPage() {
   const slug = params.slug as string;
 
   const [workshop, setWorkshop] = useState<ApiEvent | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [emailBlocked, setEmailBlocked] = useState(false);
   const [formData, setFormData] = useState({
     phone: "",
     college: "",
@@ -37,7 +39,7 @@ export default function WorkshopRegisterPage() {
   });
 
   useEffect(() => {
-    const loadWorkshop = async () => {
+    const loadWorkshopAndUser = async () => {
       try {
         // Check if user is logged in
         const token = localStorage.getItem("token");
@@ -45,6 +47,16 @@ export default function WorkshopRegisterPage() {
           toast.error("Please login to register for workshops");
           router.push("/login");
           return;
+        }
+
+        // Fetch user profile to get OAuth email
+        const userProfile = await fetchUserProfile(token);
+        setUser(userProfile);
+
+        // Check if user's email is from blocked domain
+        if (userProfile.email && userProfile.email.toLowerCase().includes("@citchennai")) {
+          setEmailBlocked(true);
+          toast.error("Registrations from citchennai domain are not allowed");
         }
 
         // Try to fetch workshop by slug first
@@ -82,7 +94,7 @@ export default function WorkshopRegisterPage() {
       }
     };
 
-    loadWorkshop();
+    loadWorkshopAndUser();
   }, [slug, router]);
 
   // Validation functions
@@ -149,6 +161,12 @@ export default function WorkshopRegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check if email is blocked
+    if (emailBlocked) {
+      toast.error("Registrations from citchennai domain are not allowed");
+      return;
+    }
 
     // Validate form before submission
     if (!validateForm()) {
@@ -345,6 +363,119 @@ export default function WorkshopRegisterPage() {
                 {workshop.fullDescription || workshop.description}
               </p>
             </div>
+
+            {/* Offensive Security Topics */}
+            {(workshop.title.toLowerCase().includes("offensive security") ||
+              workshop.description?.toLowerCase().includes("offensive security") ||
+              workshop.type?.toLowerCase().includes("offensive security")) && (
+              <div className="bg-gradient-to-br from-red-950/30 to-black border border-red-500/30 rounded-lg p-6 md:p-8">
+                <h2 className="text-2xl font-bold text-red-500 mb-5 font-orbitron tracking-tight">
+                  How to Hack a Mobile/System
+                </h2>
+                <p className="text-red-400 text-sm font-semibold mb-4 uppercase tracking-wider">
+                  - Offensive System Security -
+                </p>
+                <ul className="space-y-4">
+                  <li className="flex items-start gap-3">
+                    <svg
+                      className="w-6 h-6 text-red-500 mt-0.5 flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <div>
+                      <span className="text-white font-semibold text-base">
+                        1. Control Camera Access
+                      </span>
+                      <p className="text-gray-400 text-sm mt-1">
+                        Learn techniques to gain unauthorized camera access
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg
+                      className="w-6 h-6 text-red-500 mt-0.5 flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                      />
+                    </svg>
+                    <div>
+                      <span className="text-white font-semibold text-base">
+                        2. Voice Recording
+                      </span>
+                      <p className="text-gray-400 text-sm mt-1">
+                        Methods to capture and analyze voice data
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg
+                      className="w-6 h-6 text-red-500 mt-0.5 flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                    <div>
+                      <span className="text-white font-semibold text-base">
+                        3. Hack Login IDs
+                      </span>
+                      <p className="text-gray-400 text-sm mt-1">
+                        Understanding authentication vulnerabilities
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg
+                      className="w-6 h-6 text-red-500 mt-0.5 flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+                      />
+                    </svg>
+                    <div>
+                      <span className="text-white font-semibold text-base">
+                        4. Collect Website Data
+                      </span>
+                      <p className="text-gray-400 text-sm mt-1">
+                        Web scraping and data extraction techniques
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+                <div className="mt-6 p-4 bg-red-950/50 border border-red-500/30 rounded">
+                  <p className="text-red-400 text-xs leading-relaxed">
+                    ⚠️ <strong>Ethical Note:</strong> This workshop is for educational purposes only. All techniques taught are intended to help you understand security vulnerabilities to better protect systems. Unauthorized hacking is illegal.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Prerequisites */}
             {workshop.prerequisites && workshop.prerequisites.length > 0 && (
@@ -636,6 +767,7 @@ export default function WorkshopRegisterPage() {
                   type="submit"
                   disabled={
                     submitting ||
+                    emailBlocked ||
                     (workshop.currentRegistrations || 0) >=
                       (workshop.capacity || 0)
                   }
@@ -644,9 +776,9 @@ export default function WorkshopRegisterPage() {
                   {submitting
                     ? "Registering..."
                     : (workshop.currentRegistrations || 0) >=
-                        (workshop.capacity || 0)
-                      ? "Workshop Full"
-                      : "Complete Registration"}
+                          (workshop.capacity || 0)
+                        ? "Workshop Full"
+                        : "Complete Registration"}
                 </button>
 
                 {/* Policy Links - Required for Cashfree Production */}
