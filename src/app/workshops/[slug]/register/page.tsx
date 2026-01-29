@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
-import { fetchWorkshopBySlug, createPaymentOrder, fetchUserProfile } from "@/lib/api";
+import {
+  fetchWorkshopBySlug,
+  createPaymentOrder,
+  fetchUserProfile,
+} from "@/lib/api";
 import { Event as ApiEvent, UserProfile } from "@/types/api";
 import toast, { Toaster } from "react-hot-toast";
 import { load } from "@cashfreepayments/cashfree-js";
@@ -54,7 +58,10 @@ export default function WorkshopRegisterPage() {
         setUser(userProfile);
 
         // Check if user's email is from blocked domain
-        if (userProfile.email && userProfile.email.toLowerCase().includes("@citchennai")) {
+        if (
+          userProfile.email &&
+          userProfile.email.toLowerCase().includes("@citchennai")
+        ) {
           setEmailBlocked(true);
           toast.error("Registrations from citchennai domain are not allowed");
         }
@@ -366,7 +373,9 @@ export default function WorkshopRegisterPage() {
 
             {/* Offensive Security Topics */}
             {(workshop.title.toLowerCase().includes("offensive security") ||
-              workshop.description?.toLowerCase().includes("offensive security") ||
+              workshop.description
+                ?.toLowerCase()
+                .includes("offensive security") ||
               workshop.type?.toLowerCase().includes("offensive security")) && (
               <div className="bg-gradient-to-br from-red-950/30 to-black border border-red-500/30 rounded-lg p-6 md:p-8">
                 <h2 className="text-2xl font-bold text-red-500 mb-5 font-orbitron tracking-tight">
@@ -471,7 +480,10 @@ export default function WorkshopRegisterPage() {
                 </ul>
                 <div className="mt-6 p-4 bg-red-950/50 border border-red-500/30 rounded">
                   <p className="text-red-400 text-xs leading-relaxed">
-                    ⚠️ <strong>Ethical Note:</strong> This workshop is for educational purposes only. All techniques taught are intended to help you understand security vulnerabilities to better protect systems. Unauthorized hacking is illegal.
+                    ⚠️ <strong>Ethical Note:</strong> This workshop is for
+                    educational purposes only. All techniques taught are
+                    intended to help you understand security vulnerabilities to
+                    better protect systems. Unauthorized hacking is illegal.
                   </p>
                 </div>
               </div>
@@ -776,9 +788,9 @@ export default function WorkshopRegisterPage() {
                   {submitting
                     ? "Registering..."
                     : (workshop.currentRegistrations || 0) >=
-                          (workshop.capacity || 0)
-                        ? "Workshop Full"
-                        : "Complete Registration"}
+                        (workshop.capacity || 0)
+                      ? "Workshop Full"
+                      : "Complete Registration"}
                 </button>
 
                 {/* Policy Links - Required for Cashfree Production */}

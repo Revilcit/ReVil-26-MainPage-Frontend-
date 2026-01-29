@@ -30,6 +30,9 @@ export default function RegisterPage() {
   // Limited seats modal
   const [showLimitedSeatsModal, setShowLimitedSeatsModal] = useState(false);
 
+  // CTF full modal
+  const [showCtfFullModal, setShowCtfFullModal] = useState(false);
+
   // Team registration fields
   const [isTeamRegistration, setIsTeamRegistration] = useState(false);
   const [teamName, setTeamName] = useState("");
@@ -54,9 +57,17 @@ export default function RegisterPage() {
           // console.log(foundEvent);
           setEvent(foundEvent);
           setIsTeamRegistration(foundEvent.isTeamEvent || false);
-          
-          // Show limited seats modal for specific events
+
+          // Check if CTF is full and show alternative suggestion
           if (
+            (foundEvent.title.toLowerCase().includes("ctf") ||
+              foundEvent.slug?.includes("ctf")) &&
+            (foundEvent.currentRegistrations || 0) >= foundEvent.capacity
+          ) {
+            setShowCtfFullModal(true);
+          }
+          // Show limited seats modal for specific events
+          else if (
             foundEvent.slug === "ctf-trial-of-the-creed" ||
             foundEvent.slug === "project-sherlocks"
           ) {
@@ -1110,13 +1121,106 @@ export default function RegisterPage() {
 
               <div className="flex items-center justify-between border-t border-yellow-500/30 pt-6">
                 <div className="text-gray-400 font-mono text-xs">
-                  {event.currentRegistrations || 0} / {event.capacity} Registered
+                  {event.currentRegistrations || 0} / {event.capacity}{" "}
+                  Registered
                 </div>
                 <button
                   onClick={() => setShowLimitedSeatsModal(false)}
                   className="px-6 py-3 bg-primary text-black font-bold uppercase text-sm hover:bg-white transition-colors font-mono"
                 >
                   I Understand
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* CTF Full Modal - Suggest Project Sherlocks */}
+        {showCtfFullModal && (
+          <div className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-gradient-to-br from-red-950/50 to-black border border-red-500/50 p-8 max-w-lg w-full rounded-lg"
+            >
+              <div className="flex items-start gap-4 mb-6">
+                <div className="text-red-500 text-5xl">🔒</div>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold font-orbitron text-red-500 mb-2">
+                    CTF EVENT FULL
+                  </h2>
+                  <p className="text-gray-400 font-mono text-sm leading-relaxed mb-4">
+                    Unfortunately, this CTF event has reached maximum capacity.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-primary/10 border border-primary/50 rounded-lg p-6 mb-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="text-primary text-3xl">🕵️</div>
+                  <h3 className="text-xl font-bold font-orbitron text-primary">
+                    Try Project Sherlocks!
+                  </h3>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                  Don't miss out!{" "}
+                  <strong className="text-white">Project Sherlocks</strong> is
+                  an exciting new cybersecurity event that offers an immersive
+                  detective-style challenge experience.
+                </p>
+                <ul className="space-y-2 text-sm text-gray-300 mb-4">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">🔍</span>
+                    <span>Solve intricate cybersecurity mysteries</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">🧩</span>
+                    <span>Test your forensics and analysis skills</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">🏆</span>
+                    <span>Compete for amazing prizes</span>
+                  </li>
+                </ul>
+                <button
+                  onClick={async () => {
+                    setShowCtfFullModal(false);
+                    try {
+                      // Find Project Sherlocks event
+                      const events = await fetchEvents();
+                      const projectSherlocksEvent = events.find(
+                        (e) =>
+                          e.slug === "project-sherlocks" ||
+                          e.title.toLowerCase().includes("project sherlocks"),
+                      );
+
+                      if (projectSherlocksEvent) {
+                        router.push(
+                          `/events/${projectSherlocksEvent._id}/register`,
+                        );
+                      } else {
+                        router.push("/events");
+                      }
+                    } catch (error) {
+                      console.error("Error finding Project Sherlocks:", error);
+                      router.push("/events");
+                    }
+                  }}
+                  className="w-full px-6 py-3 bg-primary text-black font-bold uppercase text-sm hover:bg-white transition-colors font-mono rounded"
+                >
+                  View Project Sherlocks
+                </button>
+              </div>
+
+              <div className="flex justify-center">
+                <button
+                  onClick={() => {
+                    setShowCtfFullModal(false);
+                    router.push("/events");
+                  }}
+                  className="text-gray-400 hover:text-white transition-colors text-sm font-mono underline"
+                >
+                  Back to All Events
                 </button>
               </div>
             </motion.div>
