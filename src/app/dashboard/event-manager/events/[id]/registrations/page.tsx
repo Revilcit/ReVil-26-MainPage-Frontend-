@@ -94,8 +94,8 @@ export default function EventRegistrationsPage({
 
   const sendODLetter = async (regId: string) => {
     try {
-      await api.post(`/event-manager/registrations/${regId}/send-od-letter`);
-      toast.success("OD Letter sent successfully");
+      const response = await api.post(`/event-manager/registrations/${regId}/send-od`);
+      toast.success(response.data?.message || "OD Letter sent successfully");
       fetchRegistrations();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to send OD letter");
@@ -265,12 +265,11 @@ export default function EventRegistrationsPage({
                     >
                       <button
                         onClick={() => toggleCheckIn(reg._id)}
-                        disabled={!reg.buildingCheckIn?.status}
                         className={`px-3 py-1 text-xs font-bold rounded transition-all ${
                           reg.sessionCheckIn?.status
                             ? "bg-green-500 text-white"
                             : "bg-gray-600 text-gray-300 hover:bg-primary hover:text-black"
-                        } ${!reg.buildingCheckIn?.status ? "opacity-50 cursor-not-allowed" : ""}`}
+                        }`}
                       >
                         {reg.sessionCheckIn?.status ? "Present" : "Absent"}
                       </button>
@@ -295,12 +294,7 @@ export default function EventRegistrationsPage({
                     >
                       <button
                         onClick={() => sendODLetter(reg._id)}
-                        disabled={!reg.sessionCheckIn?.status}
-                        className={`text-primary hover:text-white transition-colors text-sm ${
-                          !reg.sessionCheckIn?.status
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }`}
+                        className="text-primary hover:text-white transition-colors text-sm"
                       >
                         {reg.hasReceivedODLetter ? "Resend OD" : "Send OD"}
                       </button>
