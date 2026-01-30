@@ -24,9 +24,18 @@ export function Navbar() {
   const [hidden, setHidden] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const desktopDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Delay navbar appearance to prevent flash on page load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsMounted(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -132,12 +141,13 @@ export function Navbar() {
 
   return (
     <motion.div
+      initial={{ y: -100, opacity: 0 }}
       variants={{
         visible: { y: 0, opacity: 1 },
         hidden: { y: -100, opacity: 0 },
       }}
-      animate={hidden ? "hidden" : "visible"}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
+      animate={!isMounted ? "hidden" : hidden ? "hidden" : "visible"}
+      transition={{ duration: 0.4, ease: "easeOut" }}
       className="fixed top-4 left-0 w-full z-50 md:top-8 px-4 md:px-8 pointer-events-none"
     >
       <div className="pointer-events-auto w-full flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4">
