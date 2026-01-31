@@ -80,10 +80,11 @@ export default function RegisterPage() {
           ) {
             setShowEscapeRoomFullModal(true);
           }
-          // Check if Paper Presentation - always show the choice modal
+          // Check if Paper Presentation is full (limit 70)
           else if (
-            foundEvent.title.toLowerCase().includes("paper presentation") ||
-            foundEvent.slug?.includes("paper-presentation")
+            (foundEvent.title.toLowerCase().includes("paper presentation") ||
+              foundEvent.slug?.includes("paper-presentation")) &&
+            (foundEvent.currentRegistrations || 0) >= 70
           ) {
             setShowPaperPresentationFullModal(true);
           }
@@ -1365,7 +1366,7 @@ export default function RegisterPage() {
               {/* Morpheus Image with clickable hands */}
               <div className="relative flex justify-center mb-2">
                 <img 
-                  src="/morpheus-matrix-red-pill-blue-pill-need-to-be-in-the-r-place-v0-vv5sx5xzp6db1.png" 
+                  src="/morpheus-matrix-red-pill-blue-pill.png" 
                   alt="Choose wisely" 
                   className="w-48 h-auto object-contain"
                 />
