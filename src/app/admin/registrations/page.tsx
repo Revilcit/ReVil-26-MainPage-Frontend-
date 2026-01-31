@@ -13,6 +13,7 @@ interface Registration {
     email: string;
   };
   event: {
+    _id: string;
     title: string;
     date: string;
     venue: string;
@@ -42,6 +43,14 @@ interface Registration {
   createdAt: string;
 }
 
+interface EventOption {
+  _id: string;
+  title: string;
+  date: string;
+  venue: string;
+  type?: string;
+}
+
 export default function AdminRegistrationsPage() {
   const router = useRouter();
   const [registrations, setRegistrations] = useState<Registration[]>([]);
@@ -59,6 +68,23 @@ export default function AdminRegistrationsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+
+  // New state for edit functionality
+  const [editEventModalOpen, setEditEventModalOpen] = useState(false);
+  const [editTeamModalOpen, setEditTeamModalOpen] = useState(false);
+  const [selectedRegistration, setSelectedRegistration] = useState<Registration | null>(null);
+  const [allEvents, setAllEvents] = useState<EventOption[]>([]);
+  const [selectedEventId, setSelectedEventId] = useState<string>("");
+  const [changingEvent, setChangingEvent] = useState(false);
+  const [savingTeam, setSavingTeam] = useState(false);
+  const [editedTeamMembers, setEditedTeamMembers] = useState<Array<{
+    name: string;
+    email: string;
+    phoneNumber: string;
+    college: string;
+    isLeader: boolean;
+  }>>([]);
+  const [editedTeamName, setEditedTeamName] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -112,6 +138,26 @@ export default function AdminRegistrationsPage() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllEvents = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${API_URL}/api/admin/roles/events`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setAllEvents(result.data);
+      }
+    } catch (err) {
+      console.error("Error fetching events:", err);
     }
   };
 
@@ -265,6 +311,116 @@ export default function AdminRegistrationsPage() {
   const openTeamModal = (registration: Registration) => {
     setSelectedTeam(registration);
     setTeamModalOpen(true);
+  };
+
+  // Open Edit Event Modal
+  const openEditEventModal = (registration: Registration) => {
+    setSelectedRegistration(registration);
+    setSelectedEventId(registration.event?._id || "");
+    setEditEventModalOpen(true);
+    fetchAllEvents();
+  };
+
+  // Open Edit Team Modal
+  const openEditTeamModal = (registration: Registration) => {
+    setSelectedRegistration(registration);
+    setEditedTeamName(registration.teamName || "");
+    setEditedTeamMembers(registration.teamMembers ? [...registration.teamMembers] : []);
+    setEditTeamModalOpen(true);
+  };
+
+  // Handle changing event for a registration
+  const handleChangeEvent = async () => {
+    if (!selectedRegistration || !selectedEventId) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    setChangingEvent(true);
+    try {
+      const response = await fetch(
+        `${API_URL}/api/admin/registrations/${selectedRegistration._id}/change-event`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ newEventId: selectedEventId }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to change event");
+      }
+
+      alert(result.message);
+      setEditEventModalOpen(false);
+      setSelectedRegistration(null);
+      fetchRegistrations(token);
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setChangingEvent(false);
+    }
+  };
+
+  // Handle saving team member changes
+  const handleSaveTeamChanges = async () => {
+    if (!selectedRegistration) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    // Validate team members
+    for (const member of editedTeamMembers) {
+      if (!member.name || !member.email || !member.phoneNumber || !member.college) {
+        alert("All team member fields are required");
+        return;
+      }
+    }
+
+    setSavingTeam(true);
+    try {
+      const response = await fetch(
+        `${API_URL}/api/admin/registrations/${selectedRegistration._id}/update`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            teamName: editedTeamName,
+            teamMembers: editedTeamMembers,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to update team details");
+      }
+
+      alert("Team details updated successfully!");
+      setEditTeamModalOpen(false);
+      setSelectedRegistration(null);
+      fetchRegistrations(token);
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setSavingTeam(false);
+    }
+  };
+
+  // Update a specific team member field
+  const updateTeamMember = (index: number, field: string, value: string | boolean) => {
+    const updated = [...editedTeamMembers];
+    updated[index] = { ...updated[index], [field]: value };
+    setEditedTeamMembers(updated);
   };
 
   const exportToCSV = () => {
@@ -596,6 +752,26 @@ export default function AdminRegistrationsPage() {
                     {/* Actions */}
                     <td className="px-3 py-2">
                       <div className="flex justify-center gap-1 flex-wrap">
+                        {userRole === "superadmin" && (
+                          <>
+                            <button
+                              onClick={() => openEditEventModal(registration)}
+                              className="px-2 py-0.5 text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 rounded hover:bg-yellow-500/30 transition-colors whitespace-nowrap"
+                              title="Change Event"
+                            >
+                              🔄
+                            </button>
+                            {registration.isTeamRegistration && (
+                              <button
+                                onClick={() => openEditTeamModal(registration)}
+                                className="px-2 py-0.5 text-xs bg-purple-500/20 text-purple-400 border border-purple-500/50 rounded hover:bg-purple-500/30 transition-colors whitespace-nowrap"
+                                title="Edit Team Details"
+                              >
+                                ✏️
+                              </button>
+                            )}
+                          </>
+                        )}
                         <button
                           onClick={() => handleSendQRCode(registration._id)}
                           disabled={sendingEmail === registration._id}
@@ -708,6 +884,242 @@ export default function AdminRegistrationsPage() {
                 >
                   Close
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Edit Event Modal */}
+        {editEventModalOpen && selectedRegistration && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-gray-900 border-2 border-primary/30 rounded-lg max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+            >
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-gray-900 border-b border-primary/20 px-6 py-4 flex justify-between items-center">
+                <div>
+                  <h3 className="text-2xl font-bold text-primary font-orbitron">
+                    CHANGE EVENT
+                  </h3>
+                  <p className="text-gray-400 text-sm mt-1">
+                    {selectedRegistration.user?.name} - Currently: {selectedRegistration.event?.title}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setEditEventModalOpen(false);
+                    setSelectedRegistration(null);
+                  }}
+                  className="text-gray-400 hover:text-white transition-colors text-2xl leading-none"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6">
+                <div className="mb-4">
+                  <div className="text-sm text-gray-400 mb-2">Registration Type:</div>
+                  <div className="text-white">
+                    {selectedRegistration.isTeamRegistration 
+                      ? `Team (${selectedRegistration.teamMembers?.length || 0} members)` 
+                      : "Individual"}
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm text-gray-400 mb-2">Select New Event:</label>
+                  <select
+                    value={selectedEventId}
+                    onChange={(e) => setSelectedEventId(e.target.value)}
+                    className="w-full px-4 py-3 bg-black border border-primary/30 text-white rounded focus:border-primary focus:outline-none"
+                  >
+                    <option value="">-- Select an event --</option>
+                    {allEvents.map((event) => (
+                      <option 
+                        key={event._id} 
+                        value={event._id}
+                        disabled={event._id === selectedRegistration.event?._id}
+                      >
+                        {event.title} {event._id === selectedRegistration.event?._id ? "(Current)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6">
+                  <div className="text-yellow-400 text-sm">
+                    <strong>⚠️ Note:</strong> Changing the event will:
+                    <ul className="list-disc list-inside mt-2 space-y-1 text-yellow-400/80">
+                      <li>Update capacity counts for both events</li>
+                      <li>Reset check-in status for the registration</li>
+                      <li>The QR code will still work for the new event</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => {
+                      setEditEventModalOpen(false);
+                      setSelectedRegistration(null);
+                    }}
+                    className="flex-1 px-6 py-3 bg-gray-700 text-white font-bold rounded hover:bg-gray-600 transition-colors uppercase tracking-wider"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleChangeEvent}
+                    disabled={changingEvent || !selectedEventId || selectedEventId === selectedRegistration.event?._id}
+                    className="flex-1 px-6 py-3 bg-primary text-black font-bold rounded hover:bg-white transition-colors uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {changingEvent ? "Changing..." : "Change Event"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Edit Team Modal */}
+        {editTeamModalOpen && selectedRegistration && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-gray-900 border-2 border-primary/30 rounded-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+            >
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-gray-900 border-b border-primary/20 px-6 py-4 flex justify-between items-center z-10">
+                <div>
+                  <h3 className="text-2xl font-bold text-primary font-orbitron">
+                    EDIT TEAM DETAILS
+                  </h3>
+                  <p className="text-gray-400 text-sm mt-1">
+                    {selectedRegistration.event?.title}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setEditTeamModalOpen(false);
+                    setSelectedRegistration(null);
+                  }}
+                  className="text-gray-400 hover:text-white transition-colors text-2xl leading-none"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6">
+                {/* Team Name */}
+                <div className="mb-6">
+                  <label className="block text-sm text-gray-400 mb-2">Team Name:</label>
+                  <input
+                    type="text"
+                    value={editedTeamName}
+                    onChange={(e) => setEditedTeamName(e.target.value)}
+                    className="w-full px-4 py-3 bg-black border border-primary/30 text-white rounded focus:border-primary focus:outline-none"
+                    placeholder="Enter team name"
+                  />
+                </div>
+
+                {/* Team Members */}
+                <div className="mb-6">
+                  <div className="text-sm text-gray-400 mb-3">
+                    Team Members ({editedTeamMembers.length}):
+                  </div>
+                  <div className="space-y-4">
+                    {editedTeamMembers.map((member, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-black/50 border border-gray-700 rounded-lg p-4"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="text-white font-semibold">Member {idx + 1}</div>
+                          <label className="flex items-center gap-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={member.isLeader}
+                              onChange={(e) => updateTeamMember(idx, "isLeader", e.target.checked)}
+                              className="w-4 h-4 accent-primary"
+                            />
+                            <span className="text-primary">Team Leader</span>
+                          </label>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-1">Name</label>
+                            <input
+                              type="text"
+                              value={member.name}
+                              onChange={(e) => updateTeamMember(idx, "name", e.target.value)}
+                              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded focus:border-primary focus:outline-none text-sm"
+                              placeholder="Full Name"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-1">Email</label>
+                            <input
+                              type="email"
+                              value={member.email}
+                              onChange={(e) => updateTeamMember(idx, "email", e.target.value)}
+                              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded focus:border-primary focus:outline-none text-sm"
+                              placeholder="email@example.com"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-1">Phone Number</label>
+                            <input
+                              type="tel"
+                              value={member.phoneNumber}
+                              onChange={(e) => updateTeamMember(idx, "phoneNumber", e.target.value)}
+                              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded focus:border-primary focus:outline-none text-sm"
+                              placeholder="Phone Number"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-1">College</label>
+                            <input
+                              type="text"
+                              value={member.college}
+                              onChange={(e) => updateTeamMember(idx, "college", e.target.value)}
+                              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded focus:border-primary focus:outline-none text-sm"
+                              placeholder="College/Institution"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
+                  <div className="text-blue-400 text-sm">
+                    <strong>💡 Tip:</strong> After updating email addresses, use the &quot;Send OD Letter&quot; button to resend OD letters to the updated email addresses.
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => {
+                      setEditTeamModalOpen(false);
+                      setSelectedRegistration(null);
+                    }}
+                    className="flex-1 px-6 py-3 bg-gray-700 text-white font-bold rounded hover:bg-gray-600 transition-colors uppercase tracking-wider"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveTeamChanges}
+                    disabled={savingTeam}
+                    className="flex-1 px-6 py-3 bg-primary text-black font-bold rounded hover:bg-white transition-colors uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {savingTeam ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
