@@ -64,14 +64,16 @@ export default function RegisterPage() {
           // Check if CTF is full and show alternative suggestion
           if (
             (foundEvent.title.toLowerCase().includes("ctf") ||
-              foundEvent.slug?.includes("ctf"))
+              foundEvent.slug?.includes("ctf")) &&
+            (foundEvent.currentRegistrations || 0) >= foundEvent.capacity
           ) {
             setShowCtfFullModal(true);
           }
-          // Check if Escape Room and show alternative suggestion
+          // Check if Escape Room is full and show alternative suggestion
           else if (
-            foundEvent.title.toLowerCase().includes("escape room") ||
-            foundEvent.slug?.includes("escape-room")
+            (foundEvent.title.toLowerCase().includes("escape room") ||
+              foundEvent.slug?.includes("escape-room")) &&
+            (foundEvent.currentRegistrations || 0) >= foundEvent.capacity
           ) {
             setShowEscapeRoomFullModal(true);
           }
