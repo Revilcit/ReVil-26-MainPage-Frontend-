@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState, Fragment, useCallback } from "react";
 import TextType from "@/components/ui/TextType";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,12 @@ export function SplashScreen() {
     "WELCOME TO",
   ];
 
+  // Skip function to immediately hide splash screen
+  const skipSplash = useCallback(() => {
+    setIsVisible(false);
+    sessionStorage.setItem("splashShown", "true");
+  }, []);
+
   useEffect(() => {
     // Check if splash has already been shown in this session
     const splashShown = sessionStorage.getItem("splashShown");
@@ -30,6 +36,36 @@ export function SplashScreen() {
       sessionStorage.setItem("splashShown", "true");
     }
   }, []);
+
+  // Listen for any key press or click to skip
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Skip on any key press
+      skipSplash();
+    };
+
+    const handleClick = () => {
+      // Skip on click/tap
+      skipSplash();
+    };
+
+    const handleTouch = () => {
+      // Skip on touch (mobile)
+      skipSplash();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("click", handleClick);
+    window.addEventListener("touchstart", handleTouch);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("click", handleClick);
+      window.removeEventListener("touchstart", handleTouch);
+    };
+  }, [isVisible, skipSplash]);
 
   useEffect(() => {
     // Prevent scrolling while splash screen is visible
@@ -126,6 +162,18 @@ export function SplashScreen() {
                 </div>
               )}
             </div>
+
+            {/* Skip hint at bottom */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1, duration: 0.5 }}
+              className="absolute bottom-8 left-0 right-0 text-center pointer-events-auto"
+            >
+              <p className="text-gray-500 text-sm font-mono animate-pulse">
+                Press any key or tap to skip
+              </p>
+            </motion.div>
           </motion.div>
         </Fragment>
       )}
