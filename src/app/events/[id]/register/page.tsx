@@ -33,6 +33,9 @@ export default function RegisterPage() {
   // CTF full modal
   const [showCtfFullModal, setShowCtfFullModal] = useState(false);
 
+  // Escape Room full modal
+  const [showEscapeRoomFullModal, setShowEscapeRoomFullModal] = useState(false);
+
   // Team registration fields
   const [isTeamRegistration, setIsTeamRegistration] = useState(false);
   const [teamName, setTeamName] = useState("");
@@ -64,6 +67,13 @@ export default function RegisterPage() {
               foundEvent.slug?.includes("ctf"))
           ) {
             setShowCtfFullModal(true);
+          }
+          // Check if Escape Room and show alternative suggestion
+          else if (
+            foundEvent.title.toLowerCase().includes("escape room") ||
+            foundEvent.slug?.includes("escape-room")
+          ) {
+            setShowEscapeRoomFullModal(true);
           }
           // Show limited seats modal for specific events
           else if (
@@ -1190,29 +1200,30 @@ export default function RegisterPage() {
                   onClick={async () => {
                     setShowCtfFullModal(false);
                     try {
-                      // Find Project Sherlocks event
+                      // Find Project Sherlock event
                       const events = await fetchEvents();
-                      const projectSherlocksEvent = events.find(
+                      const projectSherlockEvent = events.find(
                         (e) =>
-                          e.slug === "project-sherlocks" ||
-                          e.title.toLowerCase().includes("project sherlocks"),
+                          e.slug === "project-sherlock-log-trace" ||
+                          e.title.toLowerCase().includes("project sherlock") ||
+                          e.title.toLowerCase().includes("log trace"),
                       );
 
-                      if (projectSherlocksEvent) {
+                      if (projectSherlockEvent) {
                         router.push(
-                          `/events/${projectSherlocksEvent._id}/register`,
+                          `/events/${projectSherlockEvent._id}/register`,
                         );
                       } else {
                         router.push("/events");
                       }
                     } catch (error) {
-                      console.error("Error finding Project Sherlocks:", error);
+                      console.error("Error finding Project Sherlock:", error);
                       router.push("/events");
                     }
                   }}
                   className="w-full px-6 py-3 bg-primary text-black font-bold uppercase text-sm hover:bg-white transition-colors font-mono rounded"
                 >
-                  View Project Sherlocks
+                  View Project Sherlock
                 </button>
               </div>
 
@@ -1220,6 +1231,97 @@ export default function RegisterPage() {
                 <button
                   onClick={() => {
                     setShowCtfFullModal(false);
+                    router.push("/events");
+                  }}
+                  className="text-gray-400 hover:text-white transition-colors text-sm font-mono underline"
+                >
+                  Back to All Events
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Escape Room Full Modal - Suggest Beneath the Mask */}
+        {showEscapeRoomFullModal && (
+          <div className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-gradient-to-br from-orange-950/50 to-black border border-orange-500/50 p-8 max-w-lg w-full rounded-lg"
+            >
+              <div className="flex items-start gap-4 mb-6">
+                <div className="text-orange-500 text-5xl">🚪</div>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold font-orbitron text-orange-500 mb-2">
+                    ESCAPE ROOM FULL
+                  </h2>
+                  <p className="text-gray-400 font-mono text-sm leading-relaxed mb-4">
+                    Unfortunately, the Escape Room event has reached maximum capacity.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-primary/10 border border-primary/50 rounded-lg p-6 mb-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="text-primary text-3xl">🎭</div>
+                  <h3 className="text-xl font-bold font-orbitron text-primary">
+                    Try Beneath the Mask!
+                  </h3>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                  Don't miss out!{" "}
+                  <strong className="text-white">Beneath the Mask</strong> is
+                  an exciting cybersecurity event where you uncover hidden access through logic, clues, and observation.
+                </p>
+                <ul className="space-y-2 text-sm text-gray-300 mb-4">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">🔐</span>
+                    <span>Uncover hidden access and credentials</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">🧠</span>
+                    <span>Use logic and observation skills</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">🏆</span>
+                    <span>Progress through challenging levels</span>
+                  </li>
+                </ul>
+                <button
+                  onClick={async () => {
+                    setShowEscapeRoomFullModal(false);
+                    try {
+                      // Find Beneath the Mask event
+                      const events = await fetchEvents();
+                      const beneathTheMaskEvent = events.find(
+                        (e) =>
+                          e.slug === "beneath-the-mask" ||
+                          e.title.toLowerCase().includes("beneath the mask"),
+                      );
+
+                      if (beneathTheMaskEvent) {
+                        router.push(
+                          `/events/${beneathTheMaskEvent._id}/register`,
+                        );
+                      } else {
+                        router.push("/events");
+                      }
+                    } catch (error) {
+                      console.error("Error finding Beneath the Mask:", error);
+                      router.push("/events");
+                    }
+                  }}
+                  className="w-full px-6 py-3 bg-primary text-black font-bold uppercase text-sm hover:bg-white transition-colors font-mono rounded"
+                >
+                  View Beneath the Mask
+                </button>
+              </div>
+
+              <div className="flex justify-center">
+                <button
+                  onClick={() => {
+                    setShowEscapeRoomFullModal(false);
                     router.push("/events");
                   }}
                   className="text-gray-400 hover:text-white transition-colors text-sm font-mono underline"
