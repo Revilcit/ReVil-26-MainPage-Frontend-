@@ -72,18 +72,21 @@ export default function AdminRegistrationsPage() {
   // New state for edit functionality
   const [editEventModalOpen, setEditEventModalOpen] = useState(false);
   const [editTeamModalOpen, setEditTeamModalOpen] = useState(false);
-  const [selectedRegistration, setSelectedRegistration] = useState<Registration | null>(null);
+  const [selectedRegistration, setSelectedRegistration] =
+    useState<Registration | null>(null);
   const [allEvents, setAllEvents] = useState<EventOption[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string>("");
   const [changingEvent, setChangingEvent] = useState(false);
   const [savingTeam, setSavingTeam] = useState(false);
-  const [editedTeamMembers, setEditedTeamMembers] = useState<Array<{
-    name: string;
-    email: string;
-    phoneNumber: string;
-    college: string;
-    isLeader: boolean;
-  }>>([]);
+  const [editedTeamMembers, setEditedTeamMembers] = useState<
+    Array<{
+      name: string;
+      email: string;
+      phoneNumber: string;
+      college: string;
+      isLeader: boolean;
+    }>
+  >([]);
   const [editedTeamName, setEditedTeamName] = useState("");
 
   useEffect(() => {
@@ -325,7 +328,9 @@ export default function AdminRegistrationsPage() {
   const openEditTeamModal = (registration: Registration) => {
     setSelectedRegistration(registration);
     setEditedTeamName(registration.teamName || "");
-    setEditedTeamMembers(registration.teamMembers ? [...registration.teamMembers] : []);
+    setEditedTeamMembers(
+      registration.teamMembers ? [...registration.teamMembers] : [],
+    );
     setEditTeamModalOpen(true);
   };
 
@@ -347,7 +352,7 @@ export default function AdminRegistrationsPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ newEventId: selectedEventId }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -376,7 +381,12 @@ export default function AdminRegistrationsPage() {
 
     // Validate team members
     for (const member of editedTeamMembers) {
-      if (!member.name || !member.email || !member.phoneNumber || !member.college) {
+      if (
+        !member.name ||
+        !member.email ||
+        !member.phoneNumber ||
+        !member.college
+      ) {
         alert("All team member fields are required");
         return;
       }
@@ -396,7 +406,7 @@ export default function AdminRegistrationsPage() {
             teamName: editedTeamName,
             teamMembers: editedTeamMembers,
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -417,7 +427,11 @@ export default function AdminRegistrationsPage() {
   };
 
   // Update a specific team member field
-  const updateTeamMember = (index: number, field: string, value: string | boolean) => {
+  const updateTeamMember = (
+    index: number,
+    field: string,
+    value: string | boolean,
+  ) => {
     const updated = [...editedTeamMembers];
     updated[index] = { ...updated[index], [field]: value };
     setEditedTeamMembers(updated);
@@ -451,16 +465,19 @@ export default function AdminRegistrationsPage() {
         "Building Check-In Status",
         "Building Check-In Time",
         "Session Check-In Status",
-        "Session Check-In Time"
+        "Session Check-In Time",
       ];
 
       // Convert registrations to CSV rows
-      const rows = registrations.map(reg => {
+      const rows = registrations.map((reg) => {
         // Format team members details
         const teamMembersDetails = reg.teamMembers
-          ? reg.teamMembers.map(m => 
-              `${m.name} (${m.email}, ${m.phoneNumber}, ${m.college}${m.isLeader ? " - Leader" : ""})`
-            ).join(" | ")
+          ? reg.teamMembers
+              .map(
+                (m) =>
+                  `${m.name} (${m.email}, ${m.phoneNumber}, ${m.college}${m.isLeader ? " - Leader" : ""})`,
+              )
+              .join(" | ")
           : "";
 
         return [
@@ -482,12 +499,14 @@ export default function AdminRegistrationsPage() {
           reg.buildingCheckIn?.status ? "Checked In" : "Not Checked In",
           reg.buildingCheckIn?.timestamp || "",
           reg.sessionCheckIn?.status ? "Checked In" : "Not Checked In",
-          reg.sessionCheckIn?.timestamp || ""
+          reg.sessionCheckIn?.timestamp || "",
         ];
       });
 
       // Escape CSV values
-      const escapeCSV = (value: string | number | boolean | null | undefined) => {
+      const escapeCSV = (
+        value: string | number | boolean | null | undefined,
+      ) => {
         const str = String(value ?? "");
         if (str.includes(",") || str.includes('"') || str.includes("\n")) {
           return `"${str.replace(/"/g, '""')}"`;
@@ -498,7 +517,7 @@ export default function AdminRegistrationsPage() {
       // Build CSV content
       const csvContent = [
         headers.map(escapeCSV).join(","),
-        ...rows.map(row => row.map(escapeCSV).join(","))
+        ...rows.map((row) => row.map(escapeCSV).join(",")),
       ].join("\n");
 
       // Create and download file
@@ -565,9 +584,7 @@ export default function AdminRegistrationsPage() {
                     Exporting...
                   </>
                 ) : (
-                  <>
-                    📥 Export All ({registrations.length})
-                  </>
+                  <>📥 Export All ({registrations.length})</>
                 )}
               </button>
             )}
@@ -904,7 +921,8 @@ export default function AdminRegistrationsPage() {
                     CHANGE EVENT
                   </h3>
                   <p className="text-gray-400 text-sm mt-1">
-                    {selectedRegistration.user?.name} - Currently: {selectedRegistration.event?.title}
+                    {selectedRegistration.user?.name} - Currently:{" "}
+                    {selectedRegistration.event?.title}
                   </p>
                 </div>
                 <button
@@ -921,16 +939,20 @@ export default function AdminRegistrationsPage() {
               {/* Modal Content */}
               <div className="p-6">
                 <div className="mb-4">
-                  <div className="text-sm text-gray-400 mb-2">Registration Type:</div>
+                  <div className="text-sm text-gray-400 mb-2">
+                    Registration Type:
+                  </div>
                   <div className="text-white">
-                    {selectedRegistration.isTeamRegistration 
-                      ? `Team (${selectedRegistration.teamMembers?.length || 0} members)` 
+                    {selectedRegistration.isTeamRegistration
+                      ? `Team (${selectedRegistration.teamMembers?.length || 0} members)`
                       : "Individual"}
                   </div>
                 </div>
 
                 <div className="mb-6">
-                  <label className="block text-sm text-gray-400 mb-2">Select New Event:</label>
+                  <label className="block text-sm text-gray-400 mb-2">
+                    Select New Event:
+                  </label>
                   <select
                     value={selectedEventId}
                     onChange={(e) => setSelectedEventId(e.target.value)}
@@ -938,12 +960,15 @@ export default function AdminRegistrationsPage() {
                   >
                     <option value="">-- Select an event --</option>
                     {allEvents.map((event) => (
-                      <option 
-                        key={event._id} 
+                      <option
+                        key={event._id}
                         value={event._id}
                         disabled={event._id === selectedRegistration.event?._id}
                       >
-                        {event.title} {event._id === selectedRegistration.event?._id ? "(Current)" : ""}
+                        {event.title}{" "}
+                        {event._id === selectedRegistration.event?._id
+                          ? "(Current)"
+                          : ""}
                       </option>
                     ))}
                   </select>
@@ -972,7 +997,11 @@ export default function AdminRegistrationsPage() {
                   </button>
                   <button
                     onClick={handleChangeEvent}
-                    disabled={changingEvent || !selectedEventId || selectedEventId === selectedRegistration.event?._id}
+                    disabled={
+                      changingEvent ||
+                      !selectedEventId ||
+                      selectedEventId === selectedRegistration.event?._id
+                    }
                     className="flex-1 px-6 py-3 bg-primary text-black font-bold rounded hover:bg-white transition-colors uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {changingEvent ? "Changing..." : "Change Event"}
@@ -1016,7 +1045,9 @@ export default function AdminRegistrationsPage() {
               <div className="p-6">
                 {/* Team Name */}
                 <div className="mb-6">
-                  <label className="block text-sm text-gray-400 mb-2">Team Name:</label>
+                  <label className="block text-sm text-gray-400 mb-2">
+                    Team Name:
+                  </label>
                   <input
                     type="text"
                     value={editedTeamName}
@@ -1038,12 +1069,20 @@ export default function AdminRegistrationsPage() {
                         className="bg-black/50 border border-gray-700 rounded-lg p-4"
                       >
                         <div className="flex items-center justify-between mb-3">
-                          <div className="text-white font-semibold">Member {idx + 1}</div>
+                          <div className="text-white font-semibold">
+                            Member {idx + 1}
+                          </div>
                           <label className="flex items-center gap-2 text-sm">
                             <input
                               type="checkbox"
                               checked={member.isLeader}
-                              onChange={(e) => updateTeamMember(idx, "isLeader", e.target.checked)}
+                              onChange={(e) =>
+                                updateTeamMember(
+                                  idx,
+                                  "isLeader",
+                                  e.target.checked,
+                                )
+                              }
                               className="w-4 h-4 accent-primary"
                             />
                             <span className="text-primary">Team Leader</span>
@@ -1051,41 +1090,61 @@ export default function AdminRegistrationsPage() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Name</label>
+                            <label className="block text-xs text-gray-500 mb-1">
+                              Name
+                            </label>
                             <input
                               type="text"
                               value={member.name}
-                              onChange={(e) => updateTeamMember(idx, "name", e.target.value)}
+                              onChange={(e) =>
+                                updateTeamMember(idx, "name", e.target.value)
+                              }
                               className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded focus:border-primary focus:outline-none text-sm"
                               placeholder="Full Name"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Email</label>
+                            <label className="block text-xs text-gray-500 mb-1">
+                              Email
+                            </label>
                             <input
                               type="email"
                               value={member.email}
-                              onChange={(e) => updateTeamMember(idx, "email", e.target.value)}
+                              onChange={(e) =>
+                                updateTeamMember(idx, "email", e.target.value)
+                              }
                               className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded focus:border-primary focus:outline-none text-sm"
                               placeholder="email@example.com"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Phone Number</label>
+                            <label className="block text-xs text-gray-500 mb-1">
+                              Phone Number
+                            </label>
                             <input
                               type="tel"
                               value={member.phoneNumber}
-                              onChange={(e) => updateTeamMember(idx, "phoneNumber", e.target.value)}
+                              onChange={(e) =>
+                                updateTeamMember(
+                                  idx,
+                                  "phoneNumber",
+                                  e.target.value,
+                                )
+                              }
                               className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded focus:border-primary focus:outline-none text-sm"
                               placeholder="Phone Number"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">College</label>
+                            <label className="block text-xs text-gray-500 mb-1">
+                              College
+                            </label>
                             <input
                               type="text"
                               value={member.college}
-                              onChange={(e) => updateTeamMember(idx, "college", e.target.value)}
+                              onChange={(e) =>
+                                updateTeamMember(idx, "college", e.target.value)
+                              }
                               className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded focus:border-primary focus:outline-none text-sm"
                               placeholder="College/Institution"
                             />
@@ -1098,7 +1157,9 @@ export default function AdminRegistrationsPage() {
 
                 <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
                   <div className="text-blue-400 text-sm">
-                    <strong>💡 Tip:</strong> After updating email addresses, use the &quot;Send OD Letter&quot; button to resend OD letters to the updated email addresses.
+                    <strong>💡 Tip:</strong> After updating email addresses, use
+                    the &quot;Send OD Letter&quot; button to resend OD letters
+                    to the updated email addresses.
                   </div>
                 </div>
 
