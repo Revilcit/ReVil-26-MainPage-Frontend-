@@ -37,7 +37,8 @@ export default function RegisterPage() {
   const [showEscapeRoomFullModal, setShowEscapeRoomFullModal] = useState(false);
 
   // Paper Presentation full modal
-  const [showPaperPresentationFullModal, setShowPaperPresentationFullModal] = useState(false);
+  const [showPaperPresentationFullModal, setShowPaperPresentationFullModal] =
+    useState(false);
 
   // Team registration fields
   const [isTeamRegistration, setIsTeamRegistration] = useState(false);
@@ -1240,7 +1241,15 @@ export default function RegisterPage() {
                 </button>
               </div>
 
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center gap-3">
+                <button
+                  onClick={() => {
+                    setShowCtfFullModal(false);
+                  }}
+                  className="px-6 py-2 border border-primary/50 text-primary hover:bg-primary hover:text-black transition-colors text-sm font-mono rounded"
+                >
+                  View Event Details
+                </button>
                 <button
                   onClick={() => {
                     setShowCtfFullModal(false);
@@ -1270,7 +1279,8 @@ export default function RegisterPage() {
                     ESCAPE ROOM FULL
                   </h2>
                   <p className="text-gray-400 font-mono text-sm leading-relaxed mb-4">
-                    Unfortunately, the Escape Room event has reached maximum capacity.
+                    Unfortunately, the Escape Room event has reached maximum
+                    capacity.
                   </p>
                 </div>
               </div>
@@ -1284,8 +1294,9 @@ export default function RegisterPage() {
                 </div>
                 <p className="text-gray-300 text-sm leading-relaxed mb-4">
                   Don't miss out!{" "}
-                  <strong className="text-white">Beneath the Mask</strong> is
-                  an exciting cybersecurity event where you uncover hidden access through logic, clues, and observation.
+                  <strong className="text-white">Beneath the Mask</strong> is an
+                  exciting cybersecurity event where you uncover hidden access
+                  through logic, clues, and observation.
                 </p>
                 <ul className="space-y-2 text-sm text-gray-300 mb-4">
                   <li className="flex items-start gap-2">
@@ -1331,7 +1342,15 @@ export default function RegisterPage() {
                 </button>
               </div>
 
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center gap-3">
+                <button
+                  onClick={() => {
+                    setShowEscapeRoomFullModal(false);
+                  }}
+                  className="px-6 py-2 border border-primary/50 text-primary hover:bg-primary hover:text-black transition-colors text-sm font-mono rounded"
+                >
+                  View Event Details
+                </button>
                 <button
                   onClick={() => {
                     setShowEscapeRoomFullModal(false);
@@ -1365,15 +1384,15 @@ export default function RegisterPage() {
 
               {/* Morpheus Image with clickable hands */}
               <div className="relative flex justify-center mb-2">
-                <img 
-                  src="/morpheus-matrix-red-pill-blue-pill.png" 
-                  alt="Choose wisely" 
+                <img
+                  src="/morpheus-matrix-red-pill-blue-pill.png"
+                  alt="Choose wisely"
                   className="w-48 h-auto object-contain"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-4 -mt-2">
-                {/* Blue Pill - Thread Intelligence (LEFT - matches blue hand) */}
+                {/* Blue Pill - Threat Intelligence (LEFT - matches blue hand) */}
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   className="bg-gradient-to-br from-blue-950/40 to-blue-900/20 border border-blue-500/40 rounded-lg p-3 cursor-target"
@@ -1383,8 +1402,7 @@ export default function RegisterPage() {
                       const events = await fetchEvents();
                       const threadIntelEvent = events.find(
                         (e) =>
-                          e.slug === "thread-intelligence" ||
-                          e.title.toLowerCase().includes("thread intelligence") ||
+                          e.slug === "threat-intelligence" ||
                           e.title.toLowerCase().includes("threat intelligence"),
                       );
                       if (threadIntelEvent) {
@@ -1397,7 +1415,9 @@ export default function RegisterPage() {
                     }
                   }}
                 >
-                  <h4 className="text-white text-xs font-semibold mb-1 text-center">Thread Intelligence</h4>
+                  <h4 className="text-white text-xs font-semibold mb-1 text-center">
+                    Threat Intelligence
+                  </h4>
                   <p className="text-gray-400 text-xs text-center leading-relaxed">
                     How <span className="text-blue-400">attackers</span> operate
                   </p>
@@ -1418,7 +1438,9 @@ export default function RegisterPage() {
                           e.title.toLowerCase().includes("poster design"),
                       );
                       if (pixelPaletteEvent) {
-                        router.push(`/events/${pixelPaletteEvent._id}/register`);
+                        router.push(
+                          `/events/${pixelPaletteEvent._id}/register`,
+                        );
                       } else {
                         router.push("/events");
                       }
@@ -1427,14 +1449,25 @@ export default function RegisterPage() {
                     }
                   }}
                 >
-                  <h4 className="text-white text-xs font-semibold mb-1 text-center">Pixel Palette</h4>
+                  <h4 className="text-white text-xs font-semibold mb-1 text-center">
+                    Pixel Palette
+                  </h4>
                   <p className="text-gray-400 text-xs text-center leading-relaxed">
-                    Unleash your <span className="text-red-400">creativity</span>
+                    Unleash your{" "}
+                    <span className="text-red-400">creativity</span>
                   </p>
                 </motion.div>
               </div>
 
-              <div className="text-center">
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={() => {
+                    setShowPaperPresentationFullModal(false);
+                  }}
+                  className="px-4 py-2 border border-primary/50 text-primary hover:bg-primary hover:text-black transition-colors text-xs font-mono rounded"
+                >
+                  view event details
+                </button>
                 <button
                   onClick={() => {
                     setShowPaperPresentationFullModal(false);
