@@ -15,6 +15,7 @@ export interface UserProfile {
   checkInTime: Date | null;
   role: "user" | "superadmin" | "event_manager" | "registration_team";
   qrCode?: string; // User's unique QR code for check-ins
+  managedEvents?: string[]; // Event IDs that event managers can access
   lastLogin: Date;
   createdAt: Date;
 }

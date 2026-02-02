@@ -66,9 +66,17 @@ export default function SessionCheckInPage() {
           // Fetch events for selection
           const eventsData = await fetchAllEvents();
           // Filter to only upcoming/ongoing events
-          const activeEvents = eventsData.filter(
+          let activeEvents = eventsData.filter(
             (e) => e.status === "upcoming" || e.status === "ongoing",
           );
+
+          // If user is event_manager (not superadmin), filter by their managed events
+          if (userData.role === "event_manager" && userData.managedEvents) {
+            activeEvents = activeEvents.filter((event) =>
+              userData.managedEvents?.includes(event._id),
+            );
+          }
+
           setEvents(activeEvents);
         } else {
           setAuthorized(false);

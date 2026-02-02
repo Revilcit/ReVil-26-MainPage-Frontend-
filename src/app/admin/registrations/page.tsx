@@ -437,6 +437,30 @@ export default function AdminRegistrationsPage() {
     setEditedTeamMembers(updated);
   };
 
+  // Add a new team member
+  const addTeamMember = () => {
+    setEditedTeamMembers([
+      ...editedTeamMembers,
+      {
+        name: "",
+        email: "",
+        phoneNumber: "",
+        college: "",
+        isLeader: false,
+      },
+    ]);
+  };
+
+  // Remove a team member
+  const removeTeamMember = (index: number) => {
+    if (editedTeamMembers.length <= 1) {
+      alert("Team must have at least one member");
+      return;
+    }
+    const updated = editedTeamMembers.filter((_, i) => i !== index);
+    setEditedTeamMembers(updated);
+  };
+
   const exportToCSV = () => {
     if (registrations.length === 0) {
       alert("No registrations to export");
@@ -1059,8 +1083,17 @@ export default function AdminRegistrationsPage() {
 
                 {/* Team Members */}
                 <div className="mb-6">
-                  <div className="text-sm text-gray-400 mb-3">
-                    Team Members ({editedTeamMembers.length}):
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-sm text-gray-400">
+                      Team Members ({editedTeamMembers.length}):
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addTeamMember}
+                      className="px-3 py-1.5 bg-primary/20 text-primary border border-primary/50 rounded hover:bg-primary/30 transition-colors text-sm font-semibold"
+                    >
+                      + Add Member
+                    </button>
                   </div>
                   <div className="space-y-4">
                     {editedTeamMembers.map((member, idx) => (
@@ -1072,21 +1105,33 @@ export default function AdminRegistrationsPage() {
                           <div className="text-white font-semibold">
                             Member {idx + 1}
                           </div>
-                          <label className="flex items-center gap-2 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={member.isLeader}
-                              onChange={(e) =>
-                                updateTeamMember(
-                                  idx,
-                                  "isLeader",
-                                  e.target.checked,
-                                )
-                              }
-                              className="w-4 h-4 accent-primary"
-                            />
-                            <span className="text-primary">Team Leader</span>
-                          </label>
+                          <div className="flex items-center gap-3">
+                            <label className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={member.isLeader}
+                                onChange={(e) =>
+                                  updateTeamMember(
+                                    idx,
+                                    "isLeader",
+                                    e.target.checked,
+                                  )
+                                }
+                                className="w-4 h-4 accent-primary"
+                              />
+                              <span className="text-primary">Team Leader</span>
+                            </label>
+                            {editedTeamMembers.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeTeamMember(idx)}
+                                className="px-2 py-1 bg-red-500/20 text-red-400 border border-red-500/50 rounded hover:bg-red-500/30 transition-colors text-xs"
+                                title="Remove member"
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div>
