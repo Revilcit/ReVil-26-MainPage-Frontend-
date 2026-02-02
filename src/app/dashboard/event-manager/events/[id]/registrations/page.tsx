@@ -94,7 +94,9 @@ export default function EventRegistrationsPage({
 
   const sendODLetter = async (regId: string) => {
     try {
-      const response = await api.post(`/event-manager/registrations/${regId}/send-od`);
+      const response = await api.post(
+        `/event-manager/registrations/${regId}/send-od`,
+      );
       toast.success(response.data?.message || "OD Letter sent successfully");
       fetchRegistrations();
     } catch (error: any) {

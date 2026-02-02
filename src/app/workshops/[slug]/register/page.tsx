@@ -912,7 +912,9 @@ export default function WorkshopRegisterPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary">🏆</span>
-                    <span>Gain practical experience with real-world scenarios</span>
+                    <span>
+                      Gain practical experience with real-world scenarios
+                    </span>
                   </li>
                 </ul>
                 <button
@@ -920,7 +922,9 @@ export default function WorkshopRegisterPage() {
                     setShowWorkshopFullModal(false);
                     try {
                       // Try to find Threat Intelligence workshop
-                      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+                      const API_URL =
+                        process.env.NEXT_PUBLIC_API_URL ||
+                        "http://localhost:5000";
                       const response = await fetch(`${API_URL}/api/workshops`, {
                         headers: {
                           "Content-Type": "application/json",
@@ -932,12 +936,16 @@ export default function WorkshopRegisterPage() {
                         const result = await response.json();
                         const threatIntelWorkshop = result.data.find(
                           (w: ApiEvent) =>
-                            w.title.toLowerCase().includes("threat intelligence") ||
-                            w.slug?.includes("threat-intelligence")
+                            w.title
+                              .toLowerCase()
+                              .includes("threat intelligence") ||
+                            w.slug?.includes("threat-intelligence"),
                         );
 
                         if (threatIntelWorkshop) {
-                          router.push(`/workshops/${threatIntelWorkshop.slug || threatIntelWorkshop._id}/register`);
+                          router.push(
+                            `/workshops/${threatIntelWorkshop.slug || threatIntelWorkshop._id}/register`,
+                          );
                         } else {
                           router.push("/workshops");
                         }
@@ -945,7 +953,10 @@ export default function WorkshopRegisterPage() {
                         router.push("/workshops");
                       }
                     } catch (error) {
-                      console.error("Error finding Threat Intelligence:", error);
+                      console.error(
+                        "Error finding Threat Intelligence:",
+                        error,
+                      );
                       router.push("/workshops");
                     }
                   }}
