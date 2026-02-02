@@ -60,6 +60,12 @@ interface Event {
   venue?: string;
   eventType?: string;
   status?: string;
+  manualRegistrationOpen?: boolean;
+  isTeamEvent?: boolean;
+  teamSize?: {
+    min: number;
+    max: number;
+  };
 }
 
 export default function RegistrationTeamList() {
@@ -86,6 +92,9 @@ export default function RegistrationTeamList() {
     department: "",
     year: "",
     eventId: "",
+    isTeamRegistration: false,
+    teamName: "",
+    teamMembers: [] as TeamMember[],
   });
   const [submitting, setSubmitting] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
@@ -213,21 +222,101 @@ export default function RegistrationTeamList() {
         setShowQRModal(true);
       }
       
-      setManualEntry({
-        name: "",
-        email: "",
-        phoneNumber: "",
-        college: "",
-        department: "",
-        year: "",
-        eventId: "",
-      });
+      resetManualEntry();
       fetchRegistrations();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to add registration");
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const resetManualEntry = () => {
+    setManualEntry({
+      name: "",
+      email: "",
+      phoneNumber: "",
+      college: "",
+      department: "",
+      year: "",
+      eventId: "",
+      isTeamRegistration: false,
+      teamName: "",
+      teamMembers: [],
+    });
+  };
+
+  // Get selected event for team event logic
+  const selectedEvent = allEvents.find(e => e._id === manualEntry.eventId);
+  const isTeamEvent = selectedEvent?.isTeamEvent || false;
+  const minTeamSize = selectedEvent?.teamSize?.min || 2;
+  const maxTeamSize = selectedEvent?.teamSize?.max || 5;
+
+  // Initialize team members when team event is selected
+  const handleEventChange = (eventId: string) => {
+    const event = allEvents.find(e => e._id === eventId);
+    const isTeam = event?.isTeamEvent || false;
+    const minSize = event?.teamSize?.min || 2;
+    
+    // Create initial team members array (leader + minSize-1 members)
+    const initialTeamMembers: TeamMember[] = isTeam ? 
+      Array.from({ length: minSize - 1 }, () => ({
+        name: "",
+        email: "",
+        phoneNumber: "",
+        college: "",
+        department: "",
+        year: "",
+        isLeader: false,
+      })) : [];
+
+    setManualEntry({
+      ...manualEntry,
+      eventId,
+      isTeamRegistration: isTeam,
+      teamName: "",
+      teamMembers: initialTeamMembers,
+    });
+  };
+
+  const addTeamMember = () => {
+    if (manualEntry.teamMembers.length < maxTeamSize - 1) {
+      setManualEntry({
+        ...manualEntry,
+        teamMembers: [
+          ...manualEntry.teamMembers,
+          {
+            name: "",
+            email: "",
+            phoneNumber: "",
+            college: "",
+            department: "",
+            year: "",
+            isLeader: false,
+          },
+        ],
+      });
+    }
+  };
+
+  const removeTeamMember = (index: number) => {
+    if (manualEntry.teamMembers.length > minTeamSize - 1) {
+      const newMembers = [...manualEntry.teamMembers];
+      newMembers.splice(index, 1);
+      setManualEntry({
+        ...manualEntry,
+        teamMembers: newMembers,
+      });
+    }
+  };
+
+  const updateTeamMember = (index: number, field: keyof TeamMember, value: string | boolean) => {
+    const newMembers = [...manualEntry.teamMembers];
+    newMembers[index] = { ...newMembers[index], [field]: value };
+    setManualEntry({
+      ...manualEntry,
+      teamMembers: newMembers,
+    });
   };
 
   const handleExport = () => {
@@ -915,38 +1004,164 @@ export default function RegistrationTeamList() {
                     </label>
                     <select
                       value={manualEntry.eventId}
-                      onChange={(e) =>
-                        setManualEntry({
-                          ...manualEntry,
-                          eventId: e.target.value,
-                        })
-                      }
+                      onChange={(e) => handleEventChange(e.target.value)}
                       className="w-full bg-black border border-gray-600 rounded px-4 py-2 text-white focus:border-primary focus:outline-none"
                       required
                     >
                       <option value="">Select Event</option>
-                      {allEvents.map((event) => (
-                        <option key={event._id} value={event._id}>
-                          {event.title}
-                        </option>
-                      ))}
+                      {allEvents
+                        .filter((event) => event.manualRegistrationOpen)
+                        .map((event) => (
+                          <option key={event._id} value={event._id}>
+                            {event.title} {event.isTeamEvent ? `(Team: ${event.teamSize?.min}-${event.teamSize?.max})` : "(Individual)"}
+                          </option>
+                        ))}
                     </select>
                   </div>
                 </div>
+
+                {/* Team Registration Fields */}
+                {isTeamEvent && (
+                  <div className="mt-6 border-t border-primary/20 pt-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-bold text-primary">
+                        Team Details
+                      </h3>
+                      <span className="text-sm text-gray-400">
+                        Team Size: {minTeamSize} - {maxTeamSize} members (including leader)
+                      </span>
+                    </div>
+                    
+                    {/* Team Name */}
+                    <div className="mb-4">
+                      <label className="block text-sm text-gray-400 mb-1">
+                        Team Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={manualEntry.teamName}
+                        onChange={(e) =>
+                          setManualEntry({ ...manualEntry, teamName: e.target.value })
+                        }
+                        className="w-full bg-black border border-gray-600 rounded px-4 py-2 text-white focus:border-primary focus:outline-none"
+                        required={isTeamEvent}
+                        placeholder="Enter team name"
+                      />
+                    </div>
+
+                    <div className="bg-blue-500/10 border border-blue-500/30 rounded p-3 mb-4">
+                      <p className="text-blue-400 text-sm">
+                        👤 <strong>{manualEntry.name || "Leader"}</strong> (details above) will be the Team Leader
+                      </p>
+                    </div>
+
+                    {/* Team Members */}
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-sm font-bold text-gray-300">
+                          Team Members ({manualEntry.teamMembers.length + 1}/{maxTeamSize})
+                        </h4>
+                        {manualEntry.teamMembers.length < maxTeamSize - 1 && (
+                          <button
+                            type="button"
+                            onClick={addTeamMember}
+                            className="px-3 py-1 text-xs bg-primary/20 text-primary border border-primary/50 rounded hover:bg-primary/30 transition-colors"
+                          >
+                            + Add Member
+                          </button>
+                        )}
+                      </div>
+
+                      {manualEntry.teamMembers.map((member, index) => (
+                        <div
+                          key={index}
+                          className="bg-gray-900/50 border border-gray-700 rounded-lg p-4"
+                        >
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="text-sm font-bold text-white">
+                              Member {index + 2}
+                            </span>
+                            {manualEntry.teamMembers.length > minTeamSize - 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeTeamMember(index)}
+                                className="text-red-400 hover:text-red-300 text-xs"
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">
+                                Name <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={member.name}
+                                onChange={(e) =>
+                                  updateTeamMember(index, "name", e.target.value)
+                                }
+                                className="w-full bg-black border border-gray-600 rounded px-3 py-2 text-white text-sm focus:border-primary focus:outline-none"
+                                required={isTeamEvent}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">
+                                Email <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="email"
+                                value={member.email}
+                                onChange={(e) =>
+                                  updateTeamMember(index, "email", e.target.value)
+                                }
+                                className="w-full bg-black border border-gray-600 rounded px-3 py-2 text-white text-sm focus:border-primary focus:outline-none"
+                                required={isTeamEvent}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">
+                                Phone <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="tel"
+                                value={member.phoneNumber}
+                                onChange={(e) =>
+                                  updateTeamMember(index, "phoneNumber", e.target.value)
+                                }
+                                pattern="[0-9]{10}"
+                                className="w-full bg-black border border-gray-600 rounded px-3 py-2 text-white text-sm focus:border-primary focus:outline-none"
+                                required={isTeamEvent}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">
+                                College <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={member.college}
+                                onChange={(e) =>
+                                  updateTeamMember(index, "college", e.target.value)
+                                }
+                                className="w-full bg-black border border-gray-600 rounded px-3 py-2 text-white text-sm focus:border-primary focus:outline-none"
+                                required={isTeamEvent}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="pt-4 flex gap-4">
                   <button
                     type="button"
                     onClick={() => {
                       setShowManualEntryModal(false);
-                      setManualEntry({
-                        name: "",
-                        email: "",
-                        phoneNumber: "",
-                        college: "",
-                        department: "",
-                        year: "",
-                        eventId: "",
-                      });
+                      resetManualEntry();
                     }}
                     className="flex-1 px-4 py-2 border border-gray-600 text-gray-400 font-bold text-sm uppercase rounded hover:bg-gray-800 transition-colors"
                   >

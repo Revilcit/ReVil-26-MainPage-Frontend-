@@ -50,6 +50,7 @@ export interface Event {
   fee?: number;
   eventType: "workshop" | "talk" | "panel" | "networking" | "event";
   status: "upcoming" | "ongoing" | "completed" | "cancelled";
+  manualRegistrationOpen?: boolean;
   speakers?: Array<{
     name: string;
     bio: string;
@@ -119,6 +120,7 @@ export interface EventRegistration {
     date: string;
     startTime: string;
     venue: string;
+    eventType?: "workshop" | "talk" | "panel" | "networking" | "event";
   };
   isTeamRegistration?: boolean;
   teamName?: string;
@@ -126,6 +128,18 @@ export interface EventRegistration {
   qrCode?: string;
   qrCodeImage?: string;
   registrationStatus: "registered" | "confirmed" | "attended" | "cancelled";
+  sessionCheckIn?: {
+    status: boolean;
+    timestamp?: string;
+  };
+  buildingCheckIn?: {
+    status: boolean;
+    timestamp?: string;
+  };
+  phoneNumber?: string;
+  college?: string;
+  department?: string;
+  year?: string;
   createdAt: Date;
 }
 

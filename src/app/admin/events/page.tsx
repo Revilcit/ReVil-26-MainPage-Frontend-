@@ -19,6 +19,7 @@ interface Event {
   currentRegistrations: number;
   eventType: "workshop" | "talk" | "panel" | "networking" | "competition";
   status: "upcoming" | "ongoing" | "completed" | "cancelled";
+  manualRegistrationOpen?: boolean;
   isTeamEvent: boolean;
   teamSize?: {
     min: number;
@@ -124,6 +125,45 @@ export default function AdminEventsPage() {
         events.map((event) =>
           event._id === eventId
             ? { ...event, status: newStatus as Event["status"] }
+            : event,
+        ),
+      );
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+  const handleToggleManualRegistration = async (
+    eventId: string,
+    currentState: boolean | undefined,
+  ) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const newState = !currentState;
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/admin/events/${eventId}/manual-registration`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ manualRegistrationOpen: newState }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to toggle manual registration");
+      }
+
+      // Update local state
+      setEvents(
+        events.map((event) =>
+          event._id === eventId
+            ? { ...event, manualRegistrationOpen: newState }
             : event,
         ),
       );
@@ -413,6 +453,26 @@ export default function AdminEventsPage() {
                   <option value="completed">Completed</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
+                <button
+                  onClick={() =>
+                    handleToggleManualRegistration(
+                      event._id,
+                      event.manualRegistrationOpen,
+                    )
+                  }
+                  className={`px-4 py-2 border rounded text-sm transition-colors ${
+                    event.manualRegistrationOpen
+                      ? "bg-green-500/20 text-green-400 border-green-500/50 hover:bg-green-500/30"
+                      : "bg-gray-500/20 text-gray-400 border-gray-500/50 hover:bg-gray-500/30"
+                  }`}
+                  title={
+                    event.manualRegistrationOpen
+                      ? "Manual registration is open"
+                      : "Manual registration is closed"
+                  }
+                >
+                  {event.manualRegistrationOpen ? "✓ Manual Reg" : "Manual Reg"}
+                </button>
                 <Link
                   href={`/events/${event._id}`}
                   className="px-4 py-2 bg-primary/20 text-primary border border-primary/50 rounded hover:bg-primary/30 transition-colors text-sm"
