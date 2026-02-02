@@ -49,7 +49,17 @@ interface Registration {
   };
   paymentStatus: string;
   registrationStatus?: string;
+  addedBy?: string;
   createdAt?: string;
+}
+
+interface Event {
+  _id: string;
+  title: string;
+  date?: string;
+  venue?: string;
+  eventType?: string;
+  status?: string;
 }
 
 export default function RegistrationTeamList() {
@@ -66,9 +76,30 @@ export default function RegistrationTeamList() {
   const [uniqueEvents, setUniqueEvents] = useState<
     Array<{ _id: string; title: string }>
   >([]);
+  const [showManualEntryModal, setShowManualEntryModal] = useState(false);
+  const [allEvents, setAllEvents] = useState<Event[]>([]);
+  const [manualEntry, setManualEntry] = useState({
+    name: "",
+    email: "",
+    phoneNumber: "",
+    college: "",
+    department: "",
+    year: "",
+    eventId: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [generatedQR, setGeneratedQR] = useState<{
+    code: string;
+    image: string;
+    userName: string;
+    eventName: string;
+    userEmail: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchRegistrations();
+    fetchAllEvents();
   }, [search]);
 
   useEffect(() => {
@@ -78,7 +109,7 @@ export default function RegistrationTeamList() {
   const fetchRegistrations = async () => {
     try {
       const response = await api.get(
-        `/registration-team/registrations?search=${search}`,
+        `/registration-team/registrations?search=${search}&limit=10000`,
       );
       const data = response.data.data;
       setRegistrations(data);
@@ -104,6 +135,15 @@ export default function RegistrationTeamList() {
     }
   };
 
+  const fetchAllEvents = async () => {
+    try {
+      const response = await api.get("/registration-team/events");
+      setAllEvents(response.data.data);
+    } catch (error: any) {
+      console.error("Error fetching events:", error);
+    }
+  };
+
   const handleFilter = () => {
     let filtered = [...registrations];
 
@@ -125,7 +165,7 @@ export default function RegistrationTeamList() {
   const toggleBuildingCheckIn = async (regId: string) => {
     try {
       await api.put(
-        `/registration-team/registrations/${regId}/building-checkin`
+        `/registration-team/registrations/${regId}/building-checkin`,
       );
       toast.success(`Check-in status updated`);
       fetchRegistrations();
@@ -152,6 +192,44 @@ export default function RegistrationTeamList() {
     }
   };
 
+  const handleManualEntry = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const response = await api.post("/registration-team/registrations/manual", manualEntry);
+      toast.success("Manual registration added successfully");
+      setShowManualEntryModal(false);
+      
+      // Show QR code if generated
+      if (response.data.qrCode) {
+        const eventName = allEvents.find(e => e._id === manualEntry.eventId)?.title || "Event";
+        setGeneratedQR({
+          code: response.data.qrCode.code,
+          image: response.data.qrCode.image,
+          userName: manualEntry.name,
+          eventName: eventName,
+          userEmail: manualEntry.email, // Store email for later use
+        });
+        setShowQRModal(true);
+      }
+      
+      setManualEntry({
+        name: "",
+        email: "",
+        phoneNumber: "",
+        college: "",
+        department: "",
+        year: "",
+        eventId: "",
+      });
+      fetchRegistrations();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to add registration");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleExport = () => {
     // Create CSV content
     const headers = [
@@ -166,6 +244,7 @@ export default function RegistrationTeamList() {
       "Team Size",
       "Building Check-in",
       "Payment Status",
+      "Added By",
       "Registration Date",
     ];
     const rows = filteredRegistrations.map((reg) => [
@@ -177,9 +256,12 @@ export default function RegistrationTeamList() {
       reg.event.title,
       reg.isTeamRegistration ? "Yes" : "No",
       reg.teamName || "N/A",
-      reg.isTeamRegistration && reg.teamMembers ? reg.teamMembers.length.toString() : "1",
+      reg.isTeamRegistration && reg.teamMembers
+        ? reg.teamMembers.length.toString()
+        : "1",
       reg.buildingCheckIn?.status ? "Yes" : "No",
       reg.paymentStatus || "N/A",
+      reg.addedBy || "Online",
       reg.createdAt ? new Date(reg.createdAt).toLocaleString() : "N/A",
     ]);
 
@@ -289,13 +371,21 @@ export default function RegistrationTeamList() {
               Showing {filteredRegistrations.length} of {registrations.length}{" "}
               registrations
             </div>
-            <button
-              onClick={handleExport}
-              disabled={filteredRegistrations.length === 0}
-              className="px-4 py-2 bg-primary/20 text-primary border border-primary/50 rounded hover:bg-primary/30 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Export CSV
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowManualEntryModal(true)}
+                className="px-4 py-2 bg-primary text-black border border-primary rounded hover:bg-white transition-colors text-sm font-bold"
+              >
+                + Add Manual Entry
+              </button>
+              <button
+                onClick={handleExport}
+                disabled={filteredRegistrations.length === 0}
+                className="px-4 py-2 bg-primary/20 text-primary border border-primary/50 rounded hover:bg-primary/30 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Export CSV
+              </button>
+            </div>
           </div>
         </motion.div>
 
@@ -333,10 +423,10 @@ export default function RegistrationTeamList() {
                     key={reg._id}
                     className={`hover:bg-gray-900/50 transition-colors ${
                       index % 2 === 0 ? "bg-black" : "bg-gray-900/10"
-                    } ${
-                      reg.isTeamRegistration ? "cursor-pointer" : ""
-                    }`}
-                    onClick={() => reg.isTeamRegistration && setViewingTeam(reg)}
+                    } ${reg.isTeamRegistration ? "cursor-pointer" : ""}`}
+                    onClick={() =>
+                      reg.isTeamRegistration && setViewingTeam(reg)
+                    }
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-start gap-3">
@@ -348,7 +438,8 @@ export default function RegistrationTeamList() {
                             {reg.user.email}
                           </div>
                           <div className="text-xs text-gray-500 mt-1">
-                            📱 {reg.phoneNumber || reg.user.phoneNumber || "N/A"}
+                            📱{" "}
+                            {reg.phoneNumber || reg.user.phoneNumber || "N/A"}
                           </div>
                           <div className="text-xs text-gray-500 mt-1">
                             🏫 {reg.college || reg.user.college}
@@ -356,7 +447,10 @@ export default function RegistrationTeamList() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                    <td
+                      className="px-6 py-4"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <div className="flex flex-col gap-1.5">
                         <span className="px-2 py-1 text-xs font-semibold rounded bg-gray-700 text-gray-300 inline-block">
                           {reg.event.title}
@@ -378,7 +472,10 @@ export default function RegistrationTeamList() {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center" onClick={(e) => e.stopPropagation()}>
+                    <td
+                      className="px-6 py-4 whitespace-nowrap text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <button
                         onClick={() => toggleBuildingCheckIn(reg._id)}
                         className={`px-3 py-1.5 text-xs font-bold rounded transition-all ${
@@ -390,7 +487,10 @@ export default function RegistrationTeamList() {
                         {reg.buildingCheckIn?.status ? "✓ Checked" : "Check In"}
                       </button>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center" onClick={(e) => e.stopPropagation()}>
+                    <td
+                      className="px-6 py-4 whitespace-nowrap text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <span
                         className={`px-2 py-1 text-xs font-semibold rounded ${
                           reg.paymentStatus === "completed"
@@ -403,7 +503,10 @@ export default function RegistrationTeamList() {
                         {reg.paymentStatus || "N/A"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center" onClick={(e) => e.stopPropagation()}>
+                    <td
+                      className="px-6 py-4 whitespace-nowrap text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <button
                         onClick={() => setEditingReg(reg)}
                         className="text-primary hover:text-white transition-colors text-sm"
@@ -430,7 +533,7 @@ export default function RegistrationTeamList() {
       {/* Team Details Modal */}
       <AnimatePresence>
         {viewingTeam && (
-          <div 
+          <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
             onClick={() => setViewingTeam(null)}
           >
@@ -455,80 +558,118 @@ export default function RegistrationTeamList() {
                     Event: {viewingTeam.event.title}
                   </p>
                   <p className="text-gray-500 text-xs mt-1">
-                    Registered: {viewingTeam.createdAt ? new Date(viewingTeam.createdAt).toLocaleDateString() : "N/A"}
+                    Registered:{" "}
+                    {viewingTeam.createdAt
+                      ? new Date(viewingTeam.createdAt).toLocaleDateString()
+                      : "N/A"}
                   </p>
                 </div>
                 <button
                   onClick={() => setViewingTeam(null)}
                   className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
 
               <div className="space-y-6">
                 {/* Team Members Section */}
-                {viewingTeam.teamMembers && viewingTeam.teamMembers.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-bold text-primary mb-4 uppercase tracking-wider flex items-center gap-2">
-                      <span className="text-2xl">👥</span>
-                      Team Members
-                      <span className="text-sm font-normal text-gray-400">({viewingTeam.teamMembers.length})</span>
-                    </h3>
-                    <div className="grid gap-4">
-                      {viewingTeam.teamMembers.map((member, index) => (
-                        <div
-                          key={index}
-                          className="bg-gray-900/70 border border-gray-700 rounded-lg p-5 hover:border-primary/30 transition-colors"
-                        >
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-                                {index + 1}
+                {viewingTeam.teamMembers &&
+                  viewingTeam.teamMembers.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-bold text-primary mb-4 uppercase tracking-wider flex items-center gap-2">
+                        <span className="text-2xl">👥</span>
+                        Team Members
+                        <span className="text-sm font-normal text-gray-400">
+                          ({viewingTeam.teamMembers.length})
+                        </span>
+                      </h3>
+                      <div className="grid gap-4">
+                        {viewingTeam.teamMembers.map((member, index) => (
+                          <div
+                            key={index}
+                            className="bg-gray-900/70 border border-gray-700 rounded-lg p-5 hover:border-primary/30 transition-colors"
+                          >
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                                  {index + 1}
+                                </div>
+                                <div>
+                                  <h4 className="text-white font-bold text-lg">
+                                    {member.name}
+                                  </h4>
+                                  {member.isLeader && (
+                                    <span className="inline-block mt-1 px-2 py-0.5 text-xs rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                                      ⭐ Co-Leader
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div>
+                                <p className="text-xs text-gray-400 mb-1">
+                                  📧 Email
+                                </p>
+                                <p className="text-gray-200 text-sm break-all">
+                                  {member.email}
+                                </p>
                               </div>
                               <div>
-                                <h4 className="text-white font-bold text-lg">{member.name}</h4>
-                                {member.isLeader && (
-                                  <span className="inline-block mt-1 px-2 py-0.5 text-xs rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
-                                    ⭐ Co-Leader
-                                  </span>
-                                )}
+                                <p className="text-xs text-gray-400 mb-1">
+                                  📱 Phone
+                                </p>
+                                <p className="text-gray-200 text-sm font-medium">
+                                  {member.phoneNumber}
+                                </p>
                               </div>
+                              <div>
+                                <p className="text-xs text-gray-400 mb-1">
+                                  🏫 College
+                                </p>
+                                <p className="text-gray-200 text-sm">
+                                  {member.college}
+                                </p>
+                              </div>
+                              {member.department && (
+                                <div>
+                                  <p className="text-xs text-gray-400 mb-1">
+                                    🎓 Department
+                                  </p>
+                                  <p className="text-gray-200 text-sm">
+                                    {member.department}
+                                  </p>
+                                </div>
+                              )}
+                              {member.year && (
+                                <div>
+                                  <p className="text-xs text-gray-400 mb-1">
+                                    📅 Year
+                                  </p>
+                                  <p className="text-gray-200 text-sm">
+                                    {member.year}
+                                  </p>
+                                </div>
+                              )}
                             </div>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <p className="text-xs text-gray-400 mb-1">📧 Email</p>
-                              <p className="text-gray-200 text-sm break-all">{member.email}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-gray-400 mb-1">📱 Phone</p>
-                              <p className="text-gray-200 text-sm font-medium">{member.phoneNumber}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-gray-400 mb-1">🏫 College</p>
-                              <p className="text-gray-200 text-sm">{member.college}</p>
-                            </div>
-                            {member.department && (
-                              <div>
-                                <p className="text-xs text-gray-400 mb-1">🎓 Department</p>
-                                <p className="text-gray-200 text-sm">{member.department}</p>
-                              </div>
-                            )}
-                            {member.year && (
-                              <div>
-                                <p className="text-xs text-gray-400 mb-1">📅 Year</p>
-                                <p className="text-gray-200 text-sm">{member.year}</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
 
               <div className="mt-8 flex gap-3">
@@ -609,7 +750,10 @@ export default function RegistrationTeamList() {
                     onChange={(e) =>
                       setEditingReg({
                         ...editingReg,
-                        user: { ...editingReg.user, phoneNumber: e.target.value },
+                        user: {
+                          ...editingReg.user,
+                          phoneNumber: e.target.value,
+                        },
                       })
                     }
                     className="w-full bg-black border border-gray-600 rounded px-4 py-2 text-white focus:border-primary focus:outline-none"
@@ -647,6 +791,292 @@ export default function RegistrationTeamList() {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Manual Entry Modal */}
+      <AnimatePresence>
+        {showManualEntryModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-black border border-primary/30 p-8 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            >
+              <h2 className="text-2xl font-orbitron text-primary mb-6">
+                Add Manual Registration
+              </h2>
+              <form onSubmit={handleManualEntry} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={manualEntry.name}
+                      onChange={(e) =>
+                        setManualEntry({ ...manualEntry, name: e.target.value })
+                      }
+                      className="w-full bg-black border border-gray-600 rounded px-4 py-2 text-white focus:border-primary focus:outline-none"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">
+                      Email <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={manualEntry.email}
+                      onChange={(e) =>
+                        setManualEntry({ ...manualEntry, email: e.target.value })
+                      }
+                      className="w-full bg-black border border-gray-600 rounded px-4 py-2 text-white focus:border-primary focus:outline-none"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={manualEntry.phoneNumber}
+                      onChange={(e) =>
+                        setManualEntry({
+                          ...manualEntry,
+                          phoneNumber: e.target.value,
+                        })
+                      }
+                      pattern="[0-9]{10}"
+                      title="Phone number must be 10 digits"
+                      className="w-full bg-black border border-gray-600 rounded px-4 py-2 text-white focus:border-primary focus:outline-none"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">
+                      College <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={manualEntry.college}
+                      onChange={(e) =>
+                        setManualEntry({
+                          ...manualEntry,
+                          college: e.target.value,
+                        })
+                      }
+                      className="w-full bg-black border border-gray-600 rounded px-4 py-2 text-white focus:border-primary focus:outline-none"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">
+                      Department
+                    </label>
+                    <input
+                      type="text"
+                      value={manualEntry.department}
+                      onChange={(e) =>
+                        setManualEntry({
+                          ...manualEntry,
+                          department: e.target.value,
+                        })
+                      }
+                      className="w-full bg-black border border-gray-600 rounded px-4 py-2 text-white focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">
+                      Year
+                    </label>
+                    <select
+                      value={manualEntry.year}
+                      onChange={(e) =>
+                        setManualEntry({ ...manualEntry, year: e.target.value })
+                      }
+                      className="w-full bg-black border border-gray-600 rounded px-4 py-2 text-white focus:border-primary focus:outline-none"
+                    >
+                      <option value="">Select Year</option>
+                      <option value="1">1st Year</option>
+                      <option value="2">2nd Year</option>
+                      <option value="3">3rd Year</option>
+                      <option value="4">4th Year</option>
+                    </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm text-gray-400 mb-1">
+                      Event <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={manualEntry.eventId}
+                      onChange={(e) =>
+                        setManualEntry({
+                          ...manualEntry,
+                          eventId: e.target.value,
+                        })
+                      }
+                      className="w-full bg-black border border-gray-600 rounded px-4 py-2 text-white focus:border-primary focus:outline-none"
+                      required
+                    >
+                      <option value="">Select Event</option>
+                      {allEvents.map((event) => (
+                        <option key={event._id} value={event._id}>
+                          {event.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="pt-4 flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowManualEntryModal(false);
+                      setManualEntry({
+                        name: "",
+                        email: "",
+                        phoneNumber: "",
+                        college: "",
+                        department: "",
+                        year: "",
+                        eventId: "",
+                      });
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-600 text-gray-400 font-bold text-sm uppercase rounded hover:bg-gray-800 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 px-4 py-2 bg-primary text-black font-bold text-sm uppercase rounded hover:bg-white transition-colors disabled:opacity-50"
+                  >
+                    {submitting ? "Adding..." : "Add Registration"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* QR Code Display Modal */}
+      <AnimatePresence>
+        {showQRModal && generatedQR && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm overflow-y-auto">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-black border border-primary/30 p-6 rounded-lg w-full max-w-md text-center my-8"
+            >
+              <div className="mb-4">
+                <div className="text-3xl mb-3">✅</div>
+                <h2 className="text-xl font-orbitron text-primary mb-2">
+                  Registration Complete!
+                </h2>
+                <p className="text-gray-400 text-sm">
+                  Participant: <span className="text-white font-bold">{generatedQR.userName}</span>
+                </p>
+                <p className="text-gray-400 text-sm">
+                  Event: <span className="text-white font-bold">{generatedQR.eventName}</span>
+                </p>
+              </div>
+
+              <div className="bg-white p-4 rounded-lg mb-4 inline-block">
+                <img 
+                  src={generatedQR.image} 
+                  alt="QR Code" 
+                  className="w-48 h-48"
+                />
+              </div>
+
+              <div className="bg-gray-900/50 border border-gray-700 rounded p-3 mb-4">
+                <p className="text-gray-400 text-xs mb-1">QR Code ID</p>
+                <p className="text-white font-mono text-xs break-all">{generatedQR.code}</p>
+              </div>
+
+              <p className="text-gray-400 text-xs mb-4">
+                📱 Show this QR code to the participant. This QR code works for all their event registrations.
+              </p>
+
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <button
+                  onClick={async () => {
+                    try {
+                      await api.post(`/registration-team/send-qr-email`, {
+                        email: generatedQR.userEmail,
+                        name: generatedQR.userName,
+                        qrCode: generatedQR.code,
+                        qrCodeImage: generatedQR.image,
+                        eventTitle: generatedQR.eventName,
+                      });
+                      toast.success("QR code sent via email!");
+                    } catch (error: any) {
+                      toast.error(error.response?.data?.message || "Failed to send email");
+                    }
+                  }}
+                  className="px-3 py-2 bg-blue-600 text-white font-bold text-xs uppercase rounded hover:bg-blue-500 transition-colors"
+                >
+                  📧 Email QR
+                </button>
+                <button
+                  onClick={() => {
+                    const printWindow = window.open('', '', 'width=400,height=600');
+                    if (printWindow) {
+                      printWindow.document.write(`
+                        <html>
+                          <head>
+                            <title>QR Code - ${generatedQR.userName}</title>
+                            <style>
+                              body { 
+                                font-family: Arial, sans-serif; 
+                                text-align: center; 
+                                padding: 20px;
+                              }
+                              h2 { color: #00ff88; }
+                              img { margin: 20px 0; }
+                              .info { margin: 10px 0; }
+                            </style>
+                          </head>
+                          <body>
+                            <h2>ReVil 2026 - Registration QR Code</h2>
+                            <div class="info"><strong>Name:</strong> ${generatedQR.userName}</div>
+                            <div class="info"><strong>Event:</strong> ${generatedQR.eventName}</div>
+                            <img src="${generatedQR.image}" width="300" height="300" />
+                            <div class="info" style="font-size: 10px; word-break: break-all;">
+                              <strong>QR ID:</strong> ${generatedQR.code}
+                            </div>
+                            <p style="margin-top: 30px; font-size: 12px;">
+                              This QR code works for all event check-ins
+                            </p>
+                          </body>
+                        </html>
+                      `);
+                      printWindow.document.close();
+                      printWindow.print();
+                    }
+                  }}
+                  className="px-3 py-2 bg-gray-700 text-white font-bold text-xs uppercase rounded hover:bg-gray-600 transition-colors"
+                >
+                  🖨️ Print
+                </button>
+              </div>
+              <button
+                onClick={() => {
+                  setShowQRModal(false);
+                  setGeneratedQR(null);
+                }}
+                className="w-full px-4 py-2 bg-primary text-black font-bold text-sm uppercase rounded hover:bg-white transition-colors"
+              >
+                Done
+              </button>
             </motion.div>
           </div>
         )}

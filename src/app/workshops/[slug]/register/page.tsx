@@ -11,6 +11,7 @@ import {
 import { Event as ApiEvent, UserProfile } from "@/types/api";
 import toast, { Toaster } from "react-hot-toast";
 import { load } from "@cashfreepayments/cashfree-js";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function WorkshopRegisterPage() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function WorkshopRegisterPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [emailBlocked, setEmailBlocked] = useState(false);
+  const [showWorkshopFullModal, setShowWorkshopFullModal] = useState(false);
   const [formData, setFormData] = useState({
     phone: "",
     college: "",
@@ -92,6 +94,21 @@ export default function WorkshopRegisterPage() {
         }
 
         setWorkshop(data);
+
+        // Check if Embedded Systems or Offensive Security is full and show alternative suggestion
+        if (
+          (data.title.toLowerCase().includes("embedded systems") ||
+            data.slug?.includes("embedded-systems")) &&
+          (data.currentRegistrations || 0) >= data.capacity
+        ) {
+          setShowWorkshopFullModal(true);
+        } else if (
+          (data.title.toLowerCase().includes("offensive security") ||
+            data.slug?.includes("offensive-security")) &&
+          (data.currentRegistrations || 0) >= data.capacity
+        ) {
+          setShowWorkshopFullModal(true);
+        }
       } catch (error: any) {
         console.error("Failed to load workshop:", error);
         toast.error(error.message || "Failed to load workshop details");
@@ -848,6 +865,121 @@ export default function WorkshopRegisterPage() {
           </div>
         </div>
       </div>
+
+      {/* Workshop Full Modal - Suggest Threat Intelligence */}
+      <AnimatePresence>
+        {showWorkshopFullModal && (
+          <div className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-gradient-to-br from-red-950/50 to-black border border-red-500/50 p-8 max-w-lg w-full rounded-lg"
+            >
+              <div className="flex items-start gap-4 mb-6">
+                <div className="text-red-500 text-5xl">🔒</div>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold font-orbitron text-red-500 mb-2">
+                    WORKSHOP FULL
+                  </h2>
+                  <p className="text-gray-400 font-mono text-sm leading-relaxed mb-4">
+                    Unfortunately, this workshop has reached maximum capacity.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-primary/10 border border-primary/50 rounded-lg p-6 mb-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="text-primary text-3xl">🕵️</div>
+                  <h3 className="text-xl font-bold font-orbitron text-primary">
+                    Try Threat Intelligence!
+                  </h3>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                  Don't miss out!{" "}
+                  <strong className="text-white">Threat Intelligence</strong> is
+                  an exciting cybersecurity workshop that offers comprehensive
+                  insights into threat analysis and intelligence gathering.
+                </p>
+                <ul className="space-y-2 text-sm text-gray-300 mb-4">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">🔍</span>
+                    <span>Learn threat hunting and analysis techniques</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">🧩</span>
+                    <span>Understand cyber threat intelligence frameworks</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">🏆</span>
+                    <span>Gain practical experience with real-world scenarios</span>
+                  </li>
+                </ul>
+                <button
+                  onClick={async () => {
+                    setShowWorkshopFullModal(false);
+                    try {
+                      // Try to find Threat Intelligence workshop
+                      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+                      const response = await fetch(`${API_URL}/api/workshops`, {
+                        headers: {
+                          "Content-Type": "application/json",
+                          "ngrok-skip-browser-warning": "true",
+                        },
+                      });
+
+                      if (response.ok) {
+                        const result = await response.json();
+                        const threatIntelWorkshop = result.data.find(
+                          (w: ApiEvent) =>
+                            w.title.toLowerCase().includes("threat intelligence") ||
+                            w.slug?.includes("threat-intelligence")
+                        );
+
+                        if (threatIntelWorkshop) {
+                          router.push(`/workshops/${threatIntelWorkshop.slug || threatIntelWorkshop._id}/register`);
+                        } else {
+                          router.push("/workshops");
+                        }
+                      } else {
+                        router.push("/workshops");
+                      }
+                    } catch (error) {
+                      console.error("Error finding Threat Intelligence:", error);
+                      router.push("/workshops");
+                    }
+                  }}
+                  className="w-full px-6 py-3 bg-primary text-black font-bold uppercase text-sm hover:bg-white transition-colors font-mono rounded"
+                >
+                  View Threat Intelligence
+                </button>
+              </div>
+
+              <div className="flex flex-col items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowWorkshopFullModal(false);
+                  }}
+                  className="px-6 py-2 border border-primary/50 text-primary hover:bg-primary hover:text-black transition-colors text-sm font-mono rounded cursor-pointer"
+                >
+                  View Workshop Details
+                </button>
+                <button
+                  onClick={() => {
+                    setShowWorkshopFullModal(false);
+                    router.push("/workshops");
+                  }}
+                  className="text-gray-400 hover:text-white transition-colors text-sm font-mono underline"
+                >
+                  Back to All Workshops
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <Toaster position="top-center" />
     </div>
   );

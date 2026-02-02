@@ -1243,10 +1243,11 @@ export default function RegisterPage() {
 
               <div className="flex flex-col items-center gap-3">
                 <button
+                  type="button"
                   onClick={() => {
                     setShowCtfFullModal(false);
                   }}
-                  className="px-6 py-2 border border-primary/50 text-primary hover:bg-primary hover:text-black transition-colors text-sm font-mono rounded"
+                  className="px-6 py-2 border border-primary/50 text-primary hover:bg-primary hover:text-black transition-colors text-sm font-mono rounded cursor-pointer"
                 >
                   View Event Details
                 </button>
@@ -1344,10 +1345,11 @@ export default function RegisterPage() {
 
               <div className="flex flex-col items-center gap-3">
                 <button
+                  type="button"
                   onClick={() => {
                     setShowEscapeRoomFullModal(false);
                   }}
-                  className="px-6 py-2 border border-primary/50 text-primary hover:bg-primary hover:text-black transition-colors text-sm font-mono rounded"
+                  className="px-6 py-2 border border-primary/50 text-primary hover:bg-primary hover:text-black transition-colors text-sm font-mono rounded cursor-pointer"
                 >
                   View Event Details
                 </button>
@@ -1461,10 +1463,11 @@ export default function RegisterPage() {
 
               <div className="flex flex-col items-center gap-2">
                 <button
+                  type="button"
                   onClick={() => {
                     setShowPaperPresentationFullModal(false);
                   }}
-                  className="px-4 py-2 border border-primary/50 text-primary hover:bg-primary hover:text-black transition-colors text-xs font-mono rounded"
+                  className="px-4 py-2 border border-primary/50 text-primary hover:bg-primary hover:text-black transition-colors text-xs font-mono rounded cursor-pointer"
                 >
                   view event details
                 </button>

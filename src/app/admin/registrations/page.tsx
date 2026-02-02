@@ -113,7 +113,7 @@ export default function AdminRegistrationsPage() {
   const fetchRegistrations = async (token: string) => {
     try {
       const response = await fetch(
-        `${API_URL}/api/admin/registrations/recent?limit=500`,
+        `${API_URL}/api/admin/registrations/recent?limit=10000`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
