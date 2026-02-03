@@ -58,6 +58,30 @@ export default function EventRegistrationsPage({
   const [search, setSearch] = useState("");
   const [stats, setStats] = useState({ total: 0, checkedIn: 0 });
   const [viewingTeam, setViewingTeam] = useState<Registration | null>(null);
+  
+  // Manual entry states
+  const [showManualEntryModal, setShowManualEntryModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [manualEntry, setManualEntry] = useState({
+    name: "",
+    email: "",
+    phoneNumber: "",
+    college: "",
+    department: "",
+    year: "",
+    isTeamRegistration: false,
+    teamName: "",
+    teamMembers: [] as TeamMember[],
+  });
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [generatedQR, setGeneratedQR] = useState<{
+    code: string;
+    image: string;
+    userName: string;
+    eventName: string;
+    userEmail: string;
+  } | null>(null);
+  const [eventTitle, setEventTitle] = useState<string>("");
 
   useEffect(() => {
     fetchRegistrations();
@@ -74,12 +98,95 @@ export default function EventRegistrationsPage({
         (r: any) => r.sessionCheckIn?.status,
       ).length;
       setStats({ total, checkedIn });
+      // Get event title from first registration
+      if (response.data.data.length > 0 && response.data.data[0].event?.title) {
+        setEventTitle(response.data.data[0].event.title);
+      }
     } catch (error: any) {
       toast.error(
         error.response?.data?.message || "Failed to fetch registrations",
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleManualEntry = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const response = await api.post(`/event-manager/events/${id}/registrations/manual`, manualEntry);
+      toast.success("Manual registration added successfully");
+      setShowManualEntryModal(false);
+      
+      // Show QR code if generated
+      if (response.data.qrCode) {
+        setGeneratedQR({
+          code: response.data.qrCode.code,
+          image: response.data.qrCode.image,
+          userName: manualEntry.name,
+          eventName: eventTitle || "Event",
+          userEmail: manualEntry.email,
+        });
+        setShowQRModal(true);
+      }
+      
+      resetManualEntry();
+      fetchRegistrations();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to add registration");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const resetManualEntry = () => {
+    setManualEntry({
+      name: "",
+      email: "",
+      phoneNumber: "",
+      college: "",
+      department: "",
+      year: "",
+      isTeamRegistration: false,
+      teamName: "",
+      teamMembers: [],
+    });
+  };
+
+  const handleSendQREmail = async () => {
+    if (!generatedQR) return;
+    try {
+      await api.post("/event-manager/send-qr-email", {
+        email: generatedQR.userEmail,
+        name: generatedQR.userName,
+        qrCode: generatedQR.code,
+        qrCodeImage: generatedQR.image,
+        eventTitle: generatedQR.eventName,
+      });
+      toast.success(`QR code sent to ${generatedQR.userEmail}`);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to send email");
+    }
+  };
+
+  const handlePrintQR = () => {
+    if (!generatedQR) return;
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head><title>QR Code - ${generatedQR.userName}</title></head>
+          <body style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;">
+            <h2>${generatedQR.userName}</h2>
+            <p>${generatedQR.eventName}</p>
+            <img src="${generatedQR.image}" style="width:300px;height:300px;" />
+            <p style="font-family:monospace;font-size:12px;">${generatedQR.code}</p>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
     }
   };
 
@@ -136,6 +243,14 @@ export default function EventRegistrationsPage({
           <h2 className="text-3xl md:text-4xl text-primary font-orbitron mb-4">
             REGISTRATIONS
           </h2>
+          <div className="flex gap-4 flex-wrap">
+            <button
+              onClick={() => setShowManualEntryModal(true)}
+              className="px-4 py-2 bg-orange-600/20 text-orange-400 border border-orange-500/50 rounded hover:bg-orange-600/30 transition-colors text-sm font-semibold"
+            >
+              ➕ Add Manual Entry
+            </button>
+          </div>
         </motion.div>
 
         {/* Stats */}
@@ -468,6 +583,209 @@ export default function EventRegistrationsPage({
           </motion.div>
         </div>
       )}
+
+      {/* Manual Entry Modal */}
+      <AnimatePresence>
+        {showManualEntryModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowManualEntryModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-black border border-orange-500/30 p-8 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-[0_0_50px_rgba(255,165,0,0.2)]"
+            >
+              <div className="flex justify-between items-start mb-6">
+                <h2 className="text-2xl font-orbitron text-orange-400">
+                  ➕ Manual Registration
+                </h2>
+                <button
+                  onClick={() => setShowManualEntryModal(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleManualEntry} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-1">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={manualEntry.name}
+                      onChange={(e) =>
+                        setManualEntry({ ...manualEntry, name: e.target.value })
+                      }
+                      className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:border-orange-500 focus:outline-none"
+                      placeholder="Enter full name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-1">
+                      Email *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={manualEntry.email}
+                      onChange={(e) =>
+                        setManualEntry({ ...manualEntry, email: e.target.value })
+                      }
+                      className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:border-orange-500 focus:outline-none"
+                      placeholder="Enter email"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-1">
+                      Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={manualEntry.phoneNumber}
+                      onChange={(e) =>
+                        setManualEntry({ ...manualEntry, phoneNumber: e.target.value })
+                      }
+                      className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:border-orange-500 focus:outline-none"
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-1">
+                      College *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={manualEntry.college}
+                      onChange={(e) =>
+                        setManualEntry({ ...manualEntry, college: e.target.value })
+                      }
+                      className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:border-orange-500 focus:outline-none"
+                      placeholder="Enter college name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-1">
+                      Department
+                    </label>
+                    <input
+                      type="text"
+                      value={manualEntry.department}
+                      onChange={(e) =>
+                        setManualEntry({ ...manualEntry, department: e.target.value })
+                      }
+                      className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:border-orange-500 focus:outline-none"
+                      placeholder="Enter department"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-1">
+                      Year
+                    </label>
+                    <select
+                      value={manualEntry.year}
+                      onChange={(e) =>
+                        setManualEntry({ ...manualEntry, year: e.target.value })
+                      }
+                      className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:border-orange-500 focus:outline-none"
+                    >
+                      <option value="">Select Year</option>
+                      <option value="1st Year">1st Year</option>
+                      <option value="2nd Year">2nd Year</option>
+                      <option value="3rd Year">3rd Year</option>
+                      <option value="4th Year">4th Year</option>
+                      <option value="5th Year">5th Year</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowManualEntryModal(false)}
+                    className="flex-1 px-4 py-3 bg-gray-800 text-gray-300 font-bold text-sm uppercase rounded hover:bg-gray-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 px-4 py-3 bg-orange-500 text-black font-bold text-sm uppercase rounded hover:bg-orange-400 transition-colors disabled:opacity-50"
+                  >
+                    {submitting ? "Adding..." : "Add Registration"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* QR Code Display Modal */}
+      <AnimatePresence>
+        {showQRModal && generatedQR && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowQRModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-black border border-green-500/30 p-8 rounded-lg w-full max-w-md text-center shadow-[0_0_50px_rgba(0,255,0,0.2)]"
+            >
+              <h2 className="text-2xl font-orbitron text-green-400 mb-2">
+                ✅ Registration Added!
+              </h2>
+              <p className="text-gray-400 mb-4">{generatedQR.userName}</p>
+              <p className="text-sm text-primary mb-4">{generatedQR.eventName}</p>
+
+              <div className="bg-white p-4 rounded-lg inline-block mb-4">
+                <img
+                  src={generatedQR.image}
+                  alt="QR Code"
+                  className="w-48 h-48"
+                />
+              </div>
+
+              <p className="text-xs text-gray-500 font-mono mb-6 break-all">
+                {generatedQR.code}
+              </p>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={handlePrintQR}
+                  className="flex-1 px-4 py-3 bg-gray-700 text-white font-bold text-sm uppercase rounded hover:bg-gray-600 transition-colors"
+                >
+                  🖨️ Print
+                </button>
+                <button
+                  onClick={handleSendQREmail}
+                  className="flex-1 px-4 py-3 bg-blue-600 text-white font-bold text-sm uppercase rounded hover:bg-blue-500 transition-colors"
+                >
+                  📧 Email
+                </button>
+              </div>
+
+              <button
+                onClick={() => setShowQRModal(false)}
+                className="w-full mt-4 px-4 py-3 bg-green-600 text-black font-bold text-sm uppercase rounded hover:bg-green-500 transition-colors"
+              >
+                Done
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
