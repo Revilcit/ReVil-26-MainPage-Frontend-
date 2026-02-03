@@ -82,10 +82,60 @@ export default function EventRegistrationsPage({
     userEmail: string;
   } | null>(null);
   const [eventTitle, setEventTitle] = useState<string>("");
+  
+  // Event details for team event logic
+  const [eventDetails, setEventDetails] = useState<{
+    isTeamEvent: boolean;
+    teamSize: { min: number; max: number };
+  } | null>(null);
+  
+  // Computed values for team handling
+  const isTeamEvent = eventDetails?.isTeamEvent || false;
+  const minTeamSize = eventDetails?.teamSize?.min || 2;
+  const maxTeamSize = eventDetails?.teamSize?.max || 5;
 
   useEffect(() => {
     fetchRegistrations();
+    fetchEventDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, search]);
+
+  const fetchEventDetails = async () => {
+    try {
+      const response = await api.get(`/events/${id}`);
+      const event = response.data.data;
+      setEventTitle(event.title);
+      setEventDetails({
+        isTeamEvent: event.isTeamEvent || false,
+        teamSize: event.teamSize || { min: 2, max: 5 },
+      });
+      
+      // Initialize team members if it's a team event
+      if (event.isTeamEvent) {
+        const minSize = event.teamSize?.min || 2;
+        const initialTeamMembers: TeamMember[] = Array.from(
+          { length: minSize - 1 },
+          () => ({
+            name: "",
+            email: "",
+            phoneNumber: "",
+            college: "",
+            department: "",
+            year: "",
+            isLeader: false,
+          })
+        );
+        setManualEntry((prev) => ({
+          ...prev,
+          isTeamRegistration: true,
+          teamMembers: initialTeamMembers,
+        }));
+      }
+    } catch {
+      // Event details might not be accessible, fall back to registration data
+      console.log("Could not fetch event details directly");
+    }
+  };
 
   const fetchRegistrations = async () => {
     try {
@@ -141,6 +191,19 @@ export default function EventRegistrationsPage({
   };
 
   const resetManualEntry = () => {
+    // Reset to initial state, respecting team event settings
+    const initialTeamMembers: TeamMember[] = isTeamEvent
+      ? Array.from({ length: minTeamSize - 1 }, () => ({
+          name: "",
+          email: "",
+          phoneNumber: "",
+          college: "",
+          department: "",
+          year: "",
+          isLeader: false,
+        }))
+      : [];
+
     setManualEntry({
       name: "",
       email: "",
@@ -148,9 +211,53 @@ export default function EventRegistrationsPage({
       college: "",
       department: "",
       year: "",
-      isTeamRegistration: false,
+      isTeamRegistration: isTeamEvent,
       teamName: "",
-      teamMembers: [],
+      teamMembers: initialTeamMembers,
+    });
+  };
+
+  const addTeamMember = () => {
+    if (manualEntry.teamMembers.length < maxTeamSize - 1) {
+      setManualEntry({
+        ...manualEntry,
+        teamMembers: [
+          ...manualEntry.teamMembers,
+          {
+            name: "",
+            email: "",
+            phoneNumber: "",
+            college: "",
+            department: "",
+            year: "",
+            isLeader: false,
+          },
+        ],
+      });
+    }
+  };
+
+  const removeTeamMember = (index: number) => {
+    if (manualEntry.teamMembers.length > minTeamSize - 1) {
+      const newMembers = [...manualEntry.teamMembers];
+      newMembers.splice(index, 1);
+      setManualEntry({
+        ...manualEntry,
+        teamMembers: newMembers,
+      });
+    }
+  };
+
+  const updateTeamMember = (
+    index: number,
+    field: keyof TeamMember,
+    value: string | boolean
+  ) => {
+    const newMembers = [...manualEntry.teamMembers];
+    newMembers[index] = { ...newMembers[index], [field]: value };
+    setManualEntry({
+      ...manualEntry,
+      teamMembers: newMembers,
     });
   };
 
@@ -706,6 +813,175 @@ export default function EventRegistrationsPage({
                     </select>
                   </div>
                 </div>
+
+                {/* Team Event Section */}
+                {isTeamEvent && (
+                  <div className="mt-6 pt-6 border-t border-gray-700">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-2xl">👥</span>
+                      <h3 className="text-lg font-bold text-orange-400">
+                        Team Registration
+                      </h3>
+                      <span className="text-xs text-gray-400">
+                        (Min: {minTeamSize}, Max: {maxTeamSize} members)
+                      </span>
+                    </div>
+
+                    {/* Team Name */}
+                    <div className="mb-4">
+                      <label className="block text-gray-400 text-sm mb-1">
+                        Team Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={manualEntry.teamName}
+                        onChange={(e) =>
+                          setManualEntry({ ...manualEntry, teamName: e.target.value })
+                        }
+                        className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:border-orange-500 focus:outline-none"
+                        required={isTeamEvent}
+                        placeholder="Enter team name"
+                      />
+                    </div>
+
+                    {/* Leader Info */}
+                    <div className="bg-blue-500/10 border border-blue-500/30 rounded p-3 mb-4">
+                      <p className="text-blue-400 text-sm">
+                        👤 <strong>{manualEntry.name || "Leader"}</strong> (details above) will be the Team Leader
+                      </p>
+                    </div>
+
+                    {/* Team Members */}
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-sm font-bold text-gray-300">
+                          Team Members ({manualEntry.teamMembers.length + 1}/{maxTeamSize})
+                        </h4>
+                        {manualEntry.teamMembers.length < maxTeamSize - 1 && (
+                          <button
+                            type="button"
+                            onClick={addTeamMember}
+                            className="px-3 py-1 text-xs bg-orange-500/20 text-orange-400 border border-orange-500/50 rounded hover:bg-orange-500/30 transition-colors"
+                          >
+                            + Add Member
+                          </button>
+                        )}
+                      </div>
+
+                      {manualEntry.teamMembers.map((member, index) => (
+                        <div
+                          key={index}
+                          className="bg-gray-900/50 border border-gray-700 rounded-lg p-4"
+                        >
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="text-sm font-bold text-white">
+                              Member {index + 2}
+                            </span>
+                            {manualEntry.teamMembers.length > minTeamSize - 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeTeamMember(index)}
+                                className="text-red-400 hover:text-red-300 text-xs"
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">
+                                Name <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={member.name}
+                                onChange={(e) =>
+                                  updateTeamMember(index, "name", e.target.value)
+                                }
+                                className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:border-orange-500 focus:outline-none"
+                                required={isTeamEvent}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">
+                                Email <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="email"
+                                value={member.email}
+                                onChange={(e) =>
+                                  updateTeamMember(index, "email", e.target.value)
+                                }
+                                className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:border-orange-500 focus:outline-none"
+                                required={isTeamEvent}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">
+                                Phone <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="tel"
+                                value={member.phoneNumber}
+                                onChange={(e) =>
+                                  updateTeamMember(index, "phoneNumber", e.target.value)
+                                }
+                                className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:border-orange-500 focus:outline-none"
+                                required={isTeamEvent}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">
+                                College <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={member.college}
+                                onChange={(e) =>
+                                  updateTeamMember(index, "college", e.target.value)
+                                }
+                                className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:border-orange-500 focus:outline-none"
+                                required={isTeamEvent}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">
+                                Department
+                              </label>
+                              <input
+                                type="text"
+                                value={member.department || ""}
+                                onChange={(e) =>
+                                  updateTeamMember(index, "department", e.target.value)
+                                }
+                                className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:border-orange-500 focus:outline-none"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">
+                                Year
+                              </label>
+                              <select
+                                value={member.year || ""}
+                                onChange={(e) =>
+                                  updateTeamMember(index, "year", e.target.value)
+                                }
+                                className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:border-orange-500 focus:outline-none"
+                              >
+                                <option value="">Select Year</option>
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year">3rd Year</option>
+                                <option value="4th Year">4th Year</option>
+                                <option value="5th Year">5th Year</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex gap-4 pt-4">
                   <button

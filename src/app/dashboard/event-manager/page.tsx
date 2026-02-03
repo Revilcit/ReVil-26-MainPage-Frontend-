@@ -116,6 +116,12 @@ export default function EventManagerDashboard() {
               Manage Events
             </Link>
             <Link
+              href="/dashboard/event-manager/certificates"
+              className="px-4 py-2 bg-cyan-500/20 text-cyan-400 border border-cyan-500/50 rounded hover:bg-cyan-500/30 transition-colors text-sm"
+            >
+              📜 Generate Certificates
+            </Link>
+            <Link
               href="/dashboard"
               className="px-4 py-2 bg-gray-600/20 text-gray-400 border border-gray-500/50 rounded hover:bg-gray-600/30 transition-colors text-sm"
             >
